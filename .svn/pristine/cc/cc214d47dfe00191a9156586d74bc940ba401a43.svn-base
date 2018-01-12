@@ -1,0 +1,77 @@
+<?php
+require('../func.php');
+$redir = '<meta http-equiv="refresh" content="0;url=../index.php">';
+$redir2 = '<meta http-equiv="refresh" content="0;url=../tempban.php?p=view">';
+
+if(!isset($_SESSION['myusername'])){
+$logged = 0;
+echo $redir;
+exit();
+}
+
+if($inf['vTBan'] != "Yes" && $inf['rRoot'] != "Yes") {
+	echo $redir;
+	exit();
+}
+
+//----Variables
+$admin = $_POST['admin'];
+$id = $_POST['tbID'];
+$action = $_POST['action'];
+$ip = $_POST['ip'];
+$month = sprintf("%02d",$_POST['m']);
+$year = substr($_POST['year'], -2, 2);
+$date = $month."/".$_POST['day']."/".$year;
+$player = $_POST['igname'];
+$pIP = $_POST['pIP'];
+$reason = $_POST['reason'];
+$link = $_POST['link'];
+//-------End Variables
+
+if($admin != strtolower($inf['aUser'])) { echo "Data tampered with. ERR:001"; exit(); }
+if($ip != $_SERVER['REMOTE_ADDR']) { echo "Data tampered with. ERR:002"; exit(); }
+
+if($action == "add") {
+$query1 = "INSERT INTO `nmphosti_cms`.`a_unban` (`id`, `igname`, `ip`, `reason`, `link`, `status`, `date`) VALUES (NULL, '$player', '$pIP', '$reason', '$link', '1', '$date')";
+$runquery = mysql_query($query1);
+$details = "Added a temporary ban for ".$player;
+doLog($inf['id'], $section, $area, $details);
+echo $redir2;
+
+if (!$runquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $query1;
+    die($message);
+  }
+}
+
+if($action == "edit") {
+$editquery = "UPDATE `nmphosti_cms`.`a_unban` SET `igname` = '$player', `ip` = '$pIP', `reason` = '$reason', `link` = '$link', `date` = '$date' WHERE `a_unban`.`id` = $id";
+$runquery = mysql_query($editquery);
+$details = "Edited ban on ".$pl['Player'];
+doLog($inf['id'], $section, $area, $details);
+echo $redir2;
+
+if (!$runquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $editquery;
+    die($message);
+  }
+}
+
+if($action == "unban") {
+$query1 = "UPDATE `nmphosti_cms`.`a_unban` SET `status` = '2' WHERE `a_unban`.`id` = $id";
+mysql_query($query1);
+$details = "Unbanned ".$pl['Player'];
+doLog($inf['id'], $section, $area, $details);
+echo $redir2;
+}
+
+if($action == "reban") {
+$query1 = "UPDATE `nmphosti_cms`.`a_unban` SET `status` = '1' WHERE `a_unban`.`id` = $id";
+mysql_query($query1);
+$details = "Re-banned ".$pl['Player'];
+doLog($inf['id'], $section, $area, $details);
+echo $redir2;
+}
+?>

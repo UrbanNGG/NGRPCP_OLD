@@ -1,0 +1,89 @@
+<?php if($inf['FactionModerator'] > 0 || $inf['AdminLevel'] > 3) { ?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'><li>Game Affairs > Viewing Faction Leaders</li></ol>
+	<div class='section_title'><h2>Faction Leaders</h2></div>
+<div class='acp-box'>
+	<h3>Faction Leader List</h3>
+			<?php
+			if(isset($_GET['n']) && $_GET['n'] == 1) { echo "<div class='acp-error'>That player does not exist. Please try again.</div>"; }
+			if(isset($_GET['n']) && $_GET['n'] == 2) { echo "<div class='acp-error'>That player is currently in-game. Please issue leadership in-game or try again later.</div>"; }
+			if(isset($_GET['n']) && $_GET['n'] == 3) { echo "<div class='acp-message'>Leader added successfully!</div>"; }
+			if(isset($_GET['n']) && $_GET['n'] == 11) { echo "<div class='acp-error'>That player is currently in-game. Please remove leadership in-game or try again later.</div>"; }
+			if(isset($_GET['n']) && $_GET['n'] == 12) { echo "<div class='acp-message'>Leader removed successfully!</div>"; }
+			?>
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+		<tr>
+			<th width='5%'></th><th width='5%'></th><th>Player</th><th>Faction</th><th>Last Active</th><th>Remove</th>
+		</tr>
+	<?php $flead1 = mysql_query("SELECT `id`, `Username`, `UpdateDate`, `IP`, `Leader` FROM `accounts` WHERE `AdminLevel` < '2' AND `Disabled` = '0' AND `Leader` > '0' ORDER BY `Leader` ASC, `Username` ASC");
+		while ($flead = mysql_fetch_array($flead1)) {
+			if (isset($i) && $i == 1) {
+				print "<tr class='tablerow1'>";
+			$i=0;
+			} else {
+				print "<tr>";
+			$i=1;
+			}
+
+			$faclistquery = mysql_query("SELECT `Name` FROM `groups` WHERE `id` = '$flead[Leader] - 1'");
+			$faclist = mysql_fetch_array($faclistquery);
+			
+			$remove = "
+			<form method='POST' action='gameaffairs/proc.php'>
+			<input type='hidden' name='action' readonly='readonly' value='remove_leader'>
+			<input type='hidden' name='admin' readonly='readonly' value='$_SESSION[myusername]'>
+			<input type='hidden' name='ip' readonly='readonly' value='$_SERVER[REMOTE_ADDR]'>
+			<input type='hidden' name='leader' readonly='readonly' value='$flead[Username]'>
+			<input type='hidden' name='name' readonly='readonly' value='$faclist[0]'>
+			<input type='image' src='../../global/images/all/icons/cross.png' alt='Remove'></form>
+			";
+			
+			if(IsPlayerOnline($flead['id']) > 0) { $status = "<img src='../../global/images/all/icon_components/topics/user-online.png' alt='Online' />"; }
+			if(IsPlayerOnline($flead['id']) == 0) { $status = "<img src='../../global/images/all/icon_components/topics/user-offline.png' alt='Offline' />"; }
+			
+		print "
+			<td>$status</td>
+			<td>".FlagByIP($flead['IP'])."</td>
+			<td>$flead[Username]</td>
+			<td>$faclist[0]</td>
+			<td>".LastOnline($flead['id'])."</td>
+			<td>$remove</td>
+				</tr>
+			";
+		} ?>
+		</table>
+</div>
+<div class='acp-box'>
+<h3>Add a Faction Leader</h3>
+<form method="POST" action="gameaffairs/proc.php">
+	<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%' style='font-weight:bold'> 
+		<tr class='tablerow1'>
+			<td width='10%'>Name</td>
+			<td width='35%'>
+				<input type="text" name="leader" length="64">
+			</td>
+			<td width='10%'>Faction</td>
+			<td width='35%'>
+				<select name="ga_id">
+					<?php
+					$faclistquery = mysql_query("SELECT `id`, `Name` FROM `groups` WHERE `Name` <> '' ORDER BY id ASC");
+					while ($faclist = mysql_fetch_array($faclistquery)) {
+					$facid = $faclist['id'] - 1;
+					echo "<option value='$facid'>$faclist[Name]</option>";
+					}
+					?>
+				</select>
+			</td>
+			<td width='10%'>
+				<input type="hidden" name="action" readonly="readonly" value="add_leader">
+				<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+				<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+				<input type="submit" class="button" value="Add Leader">
+			</td>
+		</tr>
+	</table>
+</form>
+</div>
+</div>
+<?php } 
+else { echo "<div id='content_wrap'><div class='section_title'><h2>You do not have access to this page.</h2></div></div>"; } ?>

@@ -1,0 +1,163 @@
+<div id='content_wrap'>
+	<ol id='breadcrumb'><li>Faction > Viewing Faction Roster</li></ol>
+	<div class='section_title'><h2>Faction Members</h2></div>
+<div class='acp-box'>
+	<?php
+	$fmem1 = mysql_query("SELECT `id`, `Online`, `Username`, `UpdateDate`, `IP`, `Leader`, `Rank`, `Division` FROM `accounts` WHERE `AdminLevel` < '2' AND `Disabled` = '0' AND `Member` = '$inf[Member]' ORDER BY Rank DESC, Username ASC");
+	$count = mysql_num_rows($fmem1);
+	print "<h3>Faction Member List <span class='table_view'>Members: ".$count."</span></h3>";
+		
+			if(isset($_GET['note']) && $_GET['note'] == 0) { echo "<div class='acp-error'>That player has leadership!</div>"; }
+			if(isset($_GET['note']) && $_GET['note'] == 1) { echo "<div class='acp-error'>That player is currently in-game. Please remove them in-game or try again later.</div>"; }
+			if(isset($_GET['note']) && $_GET['note'] == 2) { echo "<div class='acp-message'>Uninvited successfully!</div>"; }
+			
+	print "		
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+		<tr>
+			<th width='5%'></th><th>Rank</th><th>Player</th><th>Division</th><th>Last Active</th>";
+			if($inf['Leader'] == $inf['Member']) { echo "<th>Uninvite</th>"; }
+	print "
+		</tr>
+	";
+		while ($fmem = mysql_fetch_array($fmem1)) {
+		$facquery = mysql_query("SELECT * FROM `cp_faction` WHERE `id` = '$inf[Member]'");
+		$fac = mysql_fetch_array($facquery);
+		
+		$remove = "
+		<form method='POST' action='faction/proc.php'>
+		<input type='hidden' name='action' readonly='readonly' value='uninvite'>
+		<input type='hidden' name='admin' readonly='readonly' value='$_SESSION[myusername]'>
+		<input type='hidden' name='ip' readonly='readonly' value='$_SERVER[REMOTE_ADDR]'>
+		<input type='hidden' name='uID' readonly='readonly' value='$fmem[id]'>
+		<input type='hidden' name='username' readonly='readonly' value='$fmem[Username]'>
+		<input type='hidden' name='facname' readonly='readonly' value='$fac[name]'>
+		<input type='image' src='../../global/images/all/icons/cross.png' alt='Remove'></form>
+		";
+		
+			if (isset($i) && $i == 1) {
+				print "<tr class='tablerow1'>";
+			$i=0;
+			} else { 
+				print "<tr>";
+			$i=1;
+			}
+
+			if($fmem['Rank'] == 0) { $fmem['Rank'] = $fac['rank_0']; }
+			if($fmem['Rank'] == 1) { $fmem['Rank'] = $fac['rank_1']; }
+			if($fmem['Rank'] == 2) { $fmem['Rank'] = $fac['rank_2']; }
+			if($fmem['Rank'] == 3) { $fmem['Rank'] = $fac['rank_3']; }
+			if($fmem['Rank'] == 4) { $fmem['Rank'] = $fac['rank_4']; }
+			if($fmem['Rank'] == 5) { $fmem['Rank'] = $fac['rank_5']; }
+			if($fmem['Rank'] == 6) { $fmem['Rank'] = $fac['rank_6']; }
+			if($fmem['Rank'] == "") { $fmem['Rank'] = "Undefined"; }
+			if($fmem['Division'] == 0) { $fmem['Division'] = $fac['div_0']; }
+			if($fmem['Division'] == 1) { $fmem['Division'] = $fac['div_1']; }
+			if($fmem['Division'] == 2) { $fmem['Division'] = $fac['div_2']; }
+			if($fmem['Division'] == 3) { $fmem['Division'] = $fac['div_3']; }
+			if($fmem['Division'] == 4) { $fmem['Division'] = $fac['div_4']; }
+			if($fmem['Division'] == 5) { $fmem['Division'] = $fac['div_5']; }
+			if($fmem['Division'] == 6) { $fmem['Division'] = $fac['div_6']; }
+
+		print "
+			<td>".FlagByIP($fmem['IP'])."</td>
+			<td>$fmem[Rank]</td>
+			<td>
+		";
+			if($fmem['Leader'] <> 0) { print "<span style='color:red;font-weight:bold'>(L)</span> "; }
+			if($fmem['Online'] <> 0) { print "<span style='font-weight:bold'>$fmem[Username]</span>"; }
+			elseif($fmem['Username'] == $inf['Username']) { print "<span style='font-style:italic'>$fmem[Username]</span>"; }
+			elseif($fmem['Online'] == 0) { print "$fmem[Username]"; }
+		print "
+			</td>
+			<td>$fmem[Division]</td>
+			<td>".LastOnline($fmem['id'])."</td>
+		";
+			if($inf['Leader'] == $inf['Member']) { echo "<td>$remove</td>"; }
+		print "
+				</tr>
+		";
+		}
+	?>
+		</table>
+	<div class="acp-actionbar" align='center'><span style='color:red;font-weight:bold'>(L)</span> - Leader</div>
+<?php if($inf['Leader'] == $inf['Member']) { ?>
+	<h3>Change Rank</h3>
+	<form method="POST" action="faction/proc.php">
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%' style='font-weight:bold'> 
+			<tr class='tablerow1'>
+				<td width='20%'>Name</td>
+				<td width='30%'>
+					<select name="uID">
+						<?php $userquery = mysql_query("SELECT `id`, `Username` FROM `accounts` WHERE `Online` = 0 AND `AdminLevel` < 2 AND `Disabled` = 0 AND `Member` = '$inf[Member]' ORDER BY `Username` ASC");
+						while ($user = mysql_fetch_array($userquery)) {
+							echo "<option value='$user[id]'>$user[Username]</option>";
+						} ?>
+					</select>
+				</td>
+				<td width='20%'>Rank</td>
+				<td width='30%'>
+					<select name="rank">
+						<?php $rankquery = mysql_query("SELECT `rank_0`, `rank_1`, `rank_2`, `rank_3`, `rank_4`, `rank_5`, `rank_6` FROM `cp_faction` WHERE `id` = '$inf[Member]'");
+						$rank = mysql_fetch_array($rankquery);
+						echo "<option value='0'>$rank[rank_0]</option>";
+						echo "<option value='1'>$rank[rank_1]</option>";
+						echo "<option value='2'>$rank[rank_2]</option>";
+						echo "<option value='3'>$rank[rank_3]</option>";
+						echo "<option value='4'>$rank[rank_4]</option>";
+						echo "<option value='5'>$rank[rank_5]</option>";
+						echo "<option value='6'>$rank[rank_6]</option>";
+						?>
+					</select>
+				</td>
+				<td width='20%'>
+					<input type="hidden" name="action" readonly="readonly" value="fac_rank">
+					<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+					<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+					<input type="submit" class="button" value="Adjust Rank">
+				</td>
+			</tr>
+		</table>
+	</form>
+<?php }
+if($inf['Leader'] == $inf['Member'] || $inf['Rank'] > 4) { ?>
+	<h3>Change Division</h3>
+	<form method="POST" action="faction/proc.php">
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%' style='font-weight:bold'> 
+			<tr class='tablerow1'>
+				<td width='20%'>Name</td>
+				<td width='30%'>
+					<select name="uID">
+						<?php $userquery = mysql_query("SELECT `id`, `Username` FROM `accounts` WHERE `Online` = 0 AND `AdminLevel` < 2 AND `Disabled` = 0 AND `Member` = '$inf[Member]' ORDER BY `Username` ASC");
+						while ($user = mysql_fetch_array($userquery)) {
+							echo "<option value='$user[id]'>$user[Username]</option>";
+						} ?>
+					</select>
+				</td>
+				<td width='20%'>Division</td>
+				<td width='30%'>
+					<select name="div">
+						<?php $divquery = mysql_query("SELECT `name`, `div_0`, `div_1`, `div_2`, `div_3`, `div_4`, `div_5`, `div_6` FROM `cp_faction` WHERE `id` = '$inf[Member]'");
+						$div = mysql_fetch_array($divquery);
+						if($div['div_0'] <> "") { echo "<option value='0'>$div[div_0]</option>"; }
+						if($div['div_1'] <> "") { echo "<option value='1'>$div[div_1]</option>"; }
+						if($div['div_2'] <> "") { echo "<option value='2'>$div[div_2]</option>"; }
+						if($div['div_3'] <> "") { echo "<option value='3'>$div[div_3]</option>"; }
+						if($div['div_4'] <> "") { echo "<option value='4'>$div[div_4]</option>"; }
+						if($div['div_5'] <> "") { echo "<option value='5'>$div[div_5]</option>"; }
+						if($div['div_6'] <> "") { echo "<option value='6'>$div[div_6]</option>"; }
+						?>
+					</select>
+				</td>
+				<td width='20%'>
+					<input type="hidden" name="action" readonly="readonly" value="fac_div">
+					<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+					<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+					<input type="hidden" name="facname" readonly="readonly" value="<?php echo $div['name']; ?>">
+					<input type="submit" class="button" value="Adjust Division">
+				</td>
+			</tr>
+		</table>
+	</form>
+<?php } ?>
+</div>
+</div>

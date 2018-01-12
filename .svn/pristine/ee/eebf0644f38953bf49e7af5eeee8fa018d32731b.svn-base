@@ -1,0 +1,54 @@
+<?php
+if(GetCartSize($inf['id']) >= 1) {
+	$del = mysql_query("DELETE FROM `cp_store_cart` WHERE `date_item_added` < now() - interval 1 day AND `customer_id`='".$inf['id']."';");
+}
+?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'><li><?php echo $section; ?> Home</li></ol>
+	<div class='section_title'><h2>Credit Store</h2></div>
+	<?php if (isset($_GET['error']) && $_GET['error'] == 1) { echo "<div class='acp-error'>You may only purchase one pack at a time! <a href='store.php?p=cart'><b>Go to your cart</b></a></div>"; } ?>
+	<div class='acp-box'>
+		<h3></h3>
+		<table cellpadding='0' class='double_pad' cellspacing='0' width='100%'>
+			<tr class="tablerow1" style="width: 20%;">
+				<?php 
+				for ($i=1; $i<=5; $i++) {
+				?>
+				<td align="center" style="width: 20%;font-size:16px" id='total_tokens_pack_<?php echo $i; ?>'><?php echo number_format("".GetTotalTokens($i).""); ?> Credits <?php if (GetAdditionalTokens($i) == '') { echo "<br>"; } else { echo "<br><span style='color:green;font-size:9px;'>+".GetAdditionalTokens($i)." bonus credits</span>"; } ?></td>
+				<?php } ?>
+			</tr>
+			<tr class="tablerow1" style="width: 20%;">
+				<?php 
+				for ($i=1; $i<=5; $i++) {
+				?>
+				<td align="center"><img src='<?php echo GetPackPicture($i); ?>' /></td>
+				<?php } ?>
+			</tr>
+			<tr class="tablerow1" style="width: 20%;">
+				<?php 
+				for ($i=1; $i<=5; $i++) {
+				?>
+				<td align="center" id='total_price_pack_<?php echo $i; ?>' style='font-size:16px'><?php if (GetOldPrice($i) != '') { echo "<strike style='font-size:12px'>$".GetOldPrice($i)."</strike> $".GetStorePrice($i)." USD"; } else { echo "$".GetStorePrice($i)." USD"; } ?></td>
+				<?php } ?>
+			</tr>
+			<tr class="acp-actionbar" style="width: 20%;">
+				<?php 
+				for ($i=1; $i<=5; $i++) {
+				?>
+				<td><form action="store.php?p=addcart" method="POST">
+				<input type="hidden" name="action" value="tokens_pack_<?php echo $i; ?>"><input id='<?php echo $i; ?>' type="submit" class="realbutton" value="Add to Cart">
+				</form></td>
+				<?php } ?>
+			</tr>
+		</table>
+	</div>
+	<table style="margin-top:10px;color:#4c4c4c;font-size:12px;">
+			<tr>
+				<td align="center" style="width: 36%;"></td>
+				<td align="center" style="width: 8%;"><a href="http://<?php echo $_SERVER['SERVER_NAME']; ?>/store.php?p=info&page=policy">Privacy Policy</a></td>
+				<td align="center" style="width: 12%;"></td>
+				<td align="center" style="width: 9%;"><a href="http://<?php echo $_SERVER['SERVER_NAME']; ?>/store.php?p=info&page=terms">Terms & Conditions</a></td>
+				<td align="center" style="width: 36%;"><a href="#" title="How PayPal Works" onclick="javascript:window.open('https://www.paypal.com/webapps/mpp/paypal-popup','WIPaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, width=1060, height=700');"><img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_SbyPP_mc_vs_dc_ae.jpg" height="80px" alt="PayPal Acceptance Mark"></a></td>
+			</tr>
+	</table>
+</div>

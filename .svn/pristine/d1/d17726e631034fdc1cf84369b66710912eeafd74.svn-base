@@ -1,0 +1,60 @@
+<?php if($inf['AdminLevel'] >= 1337) { $helpercntquery = mysql_query("SELECT `Helper` FROM `accounts` WHERE `Helper` = 1");
+$helpercnt = mysql_num_rows($helpercntquery); ?>
+<h3>Helper List <span style='float:right'>Number of Helpers: <?php echo $helpercnt; ?></span></h3>
+<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%' style='font-weight:bold'> 
+<tr><th width='5%'></th><th width='5%'></th><th>Name</th><th>Last Online</th><th>Remove</th></tr>
+<?php
+$sql = "SELECT `id`, `Online`, `IP`, `Username`, `Helper` FROM `accounts` WHERE `Helper` = 1 ORDER BY Username ASC";
+$userM1 = mysql_query($sql);
+while ($userM = mysql_fetch_array($userM1)) {
+
+	if (isset($i) && $i == 1) { print "<tr class='tablerow1'>";
+		$i=0;
+	} else { print "<tr>";
+		$i=1;
+	}
+
+	$remove = "
+	<form method='POST' action='user/proc.php'>
+	<input type='hidden' name='action' readonly='readonly' value='removehelper'>
+	<input type='hidden' name='admin' readonly='readonly' value='$_SESSION[myusername]'>
+	<input type='hidden' name='ip' readonly='readonly' value='$_SERVER[REMOTE_ADDR]'>
+	<input type='hidden' name='uID' readonly='readonly' value='$userM[id]'>
+	<input type='hidden' name='username' readonly='readonly' value='$userM[Username]'>
+	<input type='image' src='../../global/images/all/icons/cross.png' alt='Remove'></form>
+	";
+
+	if($userM['Online'] > 0) { $status = "<img src='../../global/images/all/icon_components/topics/user-online.png' alt='Online' />"; }
+	if($userM['Online'] == 0) { $status = "<img src='../../global/images/all/icon_components/topics/user-offline.png' alt='Offline' />"; }
+	
+print "
+<td>$status</td>
+<td>".FlagByIP($userM['IP'])."</td>
+<td>$userM[Username]</td>
+<td>".LastOnline($userM['id'])."</td>
+<td>$remove</td>
+</tr>
+";
+}
+
+?>
+	</table>
+<h3>Add a Helper</h3>
+<form method="POST" action="user/proc.php">
+	<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%' style='font-weight:bold'> 
+		<tr class='tablerow1'>
+			<td width='20%'>Name</td>
+				<td width='60%'>
+					<input type="text" name="username" length="64">
+				</td>
+			<td width='20%'>
+				<input type="hidden" name="action" readonly="readonly" value="addhelper">
+				<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+				<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+				<input type="submit" class="button" value="Add Moderator">
+			</td>
+		</tr>
+	</table>
+</form>
+<?php }
+else { echo "You do not have access to this section."; } ?>

@@ -1,0 +1,24 @@
+	<div id='content_wrap'>
+		<ol id='breadcrumb'><li>Requests > Email Request</li></ol>
+		<div class='section_title'><h2>Staff Email Request</h2></div>
+		<div class='acp-box'>
+		<h3>Staff Email Request Submission</h3>
+			<?php
+			if(isset($_GET['note']) && $_GET['note'] == 1) { echo "<div class='acp-error'>That email address already exists!</div>"; }
+			if($inf['Email'] != "") {
+			?>
+			<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+				<form method="POST" action="request/proc.php">
+					<tr class='tablerow1'><td align="center" width="50%">Requested Email</td><td align="center" width="50%"><input type="text" name="email" size="25" title="Make this similar to your admin name">@ng-gaming.net</td></tr>
+					<tr class="acp-actionbar"><td colspan="2" align="center">
+						<input type="hidden" name="action" readonly="readonly" value="req_email">
+						<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+						<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+						<input type="hidden" name="userID" readonly="readonly" value="<?php echo $inf['id']; ?>">
+						<input type="submit" class="button" value="Submit Request">
+					</td></tr>
+				</form>
+			</table>
+			<?php }
+			else { echo "<div style='padding:10px'>You need to have an email address associated with your account. You can add one <a href='/index.php?p=settings'>here</a>.</div>"; } ?>
+	</div></div>

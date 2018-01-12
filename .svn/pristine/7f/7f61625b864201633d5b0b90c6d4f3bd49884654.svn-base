@@ -1,0 +1,60 @@
+<div id='content_wrap'>
+	<ol id='breadcrumb'><li>Dashboard > Viewing Faction Roster</li></ol>
+	<div class='section_title'><h2>Faction Members</h2></div>
+<div class='acp-box'>
+	<?php
+	$fmem1 = mysql_query("SELECT `id`, `Online`, `Username`, `UpdateDate`, `Leader`, `Rank`, `Division` FROM `accounts` WHERE `AdminLevel` < '2' AND `Disabled` = '0' AND `Member` = '$inf[Member]' ORDER BY Rank DESC, Username ASC");
+	$count = mysql_num_rows($fmem1);
+	print "
+		<h3>Faction Member List <span class='table_view'>Members: ".$count."</span></h3>
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+		<tr>
+			<th>Rank</th><th>Player</th><th>Division</th><th>Last Active</th>
+		</tr>
+	";
+		while ($fmem = mysql_fetch_array($fmem1)) {
+		$facquery = mysql_query("SELECT * FROM `cp_faction` WHERE `id` = '$inf[Member]'");
+		$fac = mysql_fetch_array($facquery);
+			if (isset($i) && $i == 1) {
+				print "<tr class='tablerow1'>";
+			$i=0;
+			} else { 
+				print "<tr>";
+			$i=1;
+			}
+
+			if($fmem['Rank'] == 0) { $fmem['Rank'] = $fac['rank_0']; }
+			if($fmem['Rank'] == 1) { $fmem['Rank'] = $fac['rank_1']; }
+			if($fmem['Rank'] == 2) { $fmem['Rank'] = $fac['rank_2']; }
+			if($fmem['Rank'] == 3) { $fmem['Rank'] = $fac['rank_3']; }
+			if($fmem['Rank'] == 4) { $fmem['Rank'] = $fac['rank_4']; }
+			if($fmem['Rank'] == 5) { $fmem['Rank'] = $fac['rank_5']; }
+			if($fmem['Rank'] == 6) { $fmem['Rank'] = $fac['rank_6']; }
+			if($fmem['Division'] == 0) { $fmem['Division'] = $fac['div_0']; }
+			if($fmem['Division'] == 1) { $fmem['Division'] = $fac['div_1']; }
+			if($fmem['Division'] == 2) { $fmem['Division'] = $fac['div_2']; }
+			if($fmem['Division'] == 3) { $fmem['Division'] = $fac['div_3']; }
+			if($fmem['Division'] == 4) { $fmem['Division'] = $fac['div_4']; }
+			if($fmem['Division'] == 5) { $fmem['Division'] = $fac['div_5']; }
+			if($fmem['Division'] == 6) { $fmem['Division'] = $fac['div_6']; }
+
+		print "
+		<td>$fmem[Rank]</td>
+		<td>
+		";
+		if($fmem['Leader'] <> 0) { print "<span style='color:red;font-weight:bold'>(L)</span> "; }
+		if($fmem['Online'] <> 0) { print "<span style='font-weight:bold'>$fmem[Username]</span>"; }
+		elseif($fmem['Username'] == $inf['Username']) { print "<span style='font-style:italic'>$fmem[Username]</span>"; }
+		elseif($fmem['Online'] == 0) { print "$fmem[Username]"; }
+		print "
+			</td>
+			<td>$fmem[Division]</td>
+			<td>".LastOnline($fmem['id'])."</td>
+				</tr>
+		";
+		}
+	?>
+		</table>
+</div>
+<div align='center'><span style='color:red;font-weight:bold'>(L)</span> - Leader</div>
+</div>

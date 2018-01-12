@@ -1,0 +1,66 @@
+<?php
+	if(isset($_GET['rid']))
+	{
+		require('global/class/SQL.php');
+		$rid = $_GET['rid'];
+		$query = mysql_query("SELECT `Username` FROM `accounts` WHERE `referral_id` = '$rid'");
+		$count = mysql_num_rows($query);
+		if($count > 0)
+		{
+			$result = mysql_fetch_array($query);
+?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<?php require('global/head.php'); ?>
+</head>
+
+<body id='ipboard_body'>
+<p id="admin_bar"></p>
+<div id='header'>
+	<div id='branding'>
+		<a href="http://<?php echo $_SERVER['SERVER_NAME']; ?>"><img src='http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/images/all/logo.png' alt='Logo' /></a>
+	</div>
+</div>
+
+<div id='page_body'>
+	<div id='main_content'> 
+	<div id='content_wrap'>
+	  <ol id='breadcrumb'>
+		<li>Referrals</li>
+	  </ol>
+	  <div class='section_title'>
+		<h2>Referrals</h2>
+	  </div>
+	  <div class='acp-box'>
+		<h3>Referral Information</h3>
+		<p>You have been referred to Next Generation Gaming by <?php echo $result['Username']; ?>! Your next step is to register an account with us on San Andreas Multiplayer. If you already have an account on our SA-MP server, please <a href="login.php?rid=<?php echo $rid; ?>">click here</a>. If not, continue reading on.</p>
+		<h3>Registration Instructions</h3>
+		<p>First and foremost, you must have GTA: San Andreas installed to be able to install San Andreas Multiplayer. If you do have the game, you can download SA-MP via <a href="http://www.sa-mp.com/download.php">http://www.sa-mp.com/download.php</a>. If you do not have the game, you can buy a digital copy via <a href="http://steampowered.com">Steam</a> and follow <a href="http://forums.steampowered.com/forums/showthread.php?t=1336083">these steps</a> to configure it to work with SA-MP.
+		<br /><br />
+		Once you have SA-MP installed, launch the SA-MP client. First, you will need a "roleplay" name, which means a first and last name (separated by an underscore, ie: John_Doe). You can enter your name in the top-center of the client where it says Name (<img src='http://puu.sh/1tri6' />). From there, click on the <img src='http://puu.sh/1trjF' /> Add Server button and type samp.ng-gaming.net as the server address. Once the server has been added, double-click the server and join it. From there, you will need to go through the registration process in-game. Once you have finished the registration, you may continue <a href="">to this page</a> to finish the referral process.</p>
+	  </div>
+	</div>
+	<div class='acp-box'>
+		<div id='copyright'><?php require('global/footer.php'); ?></div>
+	</div>
+	</div>
+</div>
+</body>
+</html>
+<?php
+		}
+		else
+		{
+			echo '<script>alert("Invalid referral ID!");</script>';
+			echo '<meta http-equiv="refresh" content="0;url=http://'.$_SERVER["SERVER_NAME"].'">';
+		}
+	}
+	else
+	{
+		echo '<script>alert("Invalid referral ID!");</script>';
+		echo '<meta http-equiv="refresh" content="0;url=http://'.$_SERVER["SERVER_NAME"].'">';
+	}
+?>

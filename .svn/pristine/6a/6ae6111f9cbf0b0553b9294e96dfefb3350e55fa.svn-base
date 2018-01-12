@@ -1,0 +1,71 @@
+<?php if($inf['AdminLevel'] >= 1337) { ?>
+<h3>Advisor List</h3>
+<?php if(isset($_GET['n']) && $_GET['n'] == 1) { echo "<div class='acp-error'>That player doesn't exist!</div>"; }
+	  if(isset($_GET['n']) && $_GET['n'] == 2) { echo "<div class='acp-message'>Advisor added successfully!</div>"; } ?>
+	<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%' style='font-weight:bold'> 
+		<tr><th width='5%'></th><th width='5%'></th><th>Rank</th><th>Name</th><th>On-Duty Time (Hours)</th><th>Accepted Help Reports</th><th>Last Online</th></tr>
+<?php
+$sql = "SELECT `id`, `Online`, `IP`, `Username`, `Helper`, `AdvisorDutyHours`, `AcceptedHelp` FROM `accounts` WHERE `Helper` >= 2 ORDER BY Helper DESC, Username ASC";
+$userM1 = mysql_query($sql);
+while ($userM = mysql_fetch_array($userM1)) {
+
+		$useredit = "<form method='post' action='user.php?p=edit&u=advisor'>
+		<input type='hidden' name='action' readonly='readonly' value='edit'>
+		<input type='hidden' name='uID' readonly='readonly' value='$userM[id]'>
+		<input type='submit' class='submit' value='$userM[Username]'></form>
+		</form>";
+
+	if (isset($i) && $i == 1) { print "<tr class='tablerow1'>";
+		$i=0;
+	} else { print "<tr>";
+		$i=1;
+	}
+
+	if($userM['Helper'] == 4) { $userM['Helper'] = '<span style=\'color:cyan\'>Chief Advisor</span>'; }
+	if($userM['Helper'] == 3) { $userM['Helper'] = '<span style=\'color:cyan\'>Senior Advisor</span>'; }
+	if($userM['Helper'] == 2) { $userM['Helper'] = '<span style=\'color:cyan\'>Community Advisor</span>'; }
+
+	if($userM['Online'] > 0) { $status = "<img src='../../global/images/all/icon_components/topics/user-online.png' alt='Online' />"; }
+	if($userM['Online'] == 0) { $status = "<img src='../../global/images/all/icon_components/topics/user-offline.png' alt='Offline' />"; }
+	
+print "
+<td>$status</td>
+<td>".FlagByIP($userM['IP'])."</td>
+<td>$userM[Helper]</td>
+<td>$useredit</td>
+<td>$userM[AdvisorDutyHours]</td>
+<td>".number_format($userM['AcceptedHelp'])."</td>
+<td>".LastOnline($userM['id'])."</td>
+</tr>
+";
+}
+
+?>
+	</table>
+<h3>Add an Advisor</h3>
+<form method="POST" action="user/proc.php">
+	<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%' style='font-weight:bold'> 
+		<tr class='tablerow1'>
+			<td width='12%'>Name</td>
+				<td width='35%'>
+					<input type="text" name="user" length="64">
+				</td>
+			<td width='12%'>Rank</td>
+				<td width='35%'>
+					<select name="rank">
+						<option value="2">Community Advisor</option>
+						<option value="3">Senior Advisor</option>
+						<option value="4">Chief Advisor</option>
+					</select>
+				</td>
+			<td width='6%'>
+				<input type="hidden" name="action" readonly="readonly" value="addadvisor">
+				<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+				<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+				<input type="submit" class="button" value="Add Advisor">
+			</td>
+		</tr>
+	</table>
+</form>
+<?php }
+else { echo "You do not have access to this section."; } ?>

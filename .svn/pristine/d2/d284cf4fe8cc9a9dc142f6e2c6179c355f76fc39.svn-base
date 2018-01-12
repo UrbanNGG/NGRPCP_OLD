@@ -1,0 +1,23 @@
+<?php
+
+function SideNav() {
+	print "<ul>";
+	if($_SERVER["REQUEST_URI"] == "/admin/refund.php?p=add") {
+	print "<li class='active'><a href=\"refund.php?p=add\">Add Refund</a></li>";
+	}
+	else {
+	print "<li><a href=\"refund.php?p=add\">Add Refund</a></li>";
+	}
+	if($_SERVER["REQUEST_URI"] == "/admin/refund.php?p=view") {
+	print "<li class='active'><a href=\"refund.php?p=view\">View Refunds</a></li>";
+	}
+	elseif (isset($_GET['o']) || isset($_GET['id'])){ 
+	print "<li class='active'><a href=\"refund.php?p=view\">View Refunds</a></li>";
+	}
+	else {
+	print "<li><a href=\"refund.php?p=view\">View Refunds</a></li>";
+	}
+	print "</ul>";
+}
+
+?>

@@ -1,0 +1,184 @@
+<?php if($inf['AdminLevel'] > 4) {
+if(isset($_POST['action']) && $_POST['action'] == "edit" && isset($_POST['uID'])) { $auID = $_POST['uID'];
+$userquery = mysql_query("SELECT * FROM `accounts` WHERE `id` = '$auID'");
+$uInf = mysql_fetch_array($userquery, MYSQL_ASSOC);
+$uaccessquery = mysql_query("SELECT * FROM `cp_access` WHERE `user_id` = '$auID'");
+$uaccess = mysql_fetch_array($uaccessquery, MYSQL_ASSOC);
+$statquery = mysql_query("SELECT * FROM `cp_stat` WHERE `user_id` = '$auID'");
+$ustat = mysql_fetch_array($statquery, MYSQL_ASSOC);
+
+}
+else { echo "No such user"; }
+?>
+<h3>Editing User Account #<?php echo $uInf['id'];?></h3>
+<table class="double_pad" cellpadding="0" cellspacing="0" border="0" width="100%">
+<form action="user/proc.php" method="POST">
+	<tr class="tablerow1"><td colspan="2">Username</td><td colspan="4"><input type="text" size="30" length="64" name="user" value="<?php echo $uInf['Username']; ?>"></td></tr>
+	<?php if($inf['AdminLevel'] == 99999) { ?><tr><td colspan="2">Password</td><td colspan="4"><input type="password" size="30" length="255" name="pass" value=""></td></tr><?php } ?>
+	<tr class="tablerow1"><td colspan="2">Rank</td><td colspan="4">
+		<select name="rank">
+			<option value="2" <?php if($uInf['AdminLevel'] == "2") { echo "selected"; } ?>>Junior Administrator</option>
+			<option value="3" <?php if($uInf['AdminLevel'] == "3") { echo "selected"; } ?>>General Administrator</option>
+			<option value="4" <?php if($uInf['AdminLevel'] == "4") { echo "selected"; } ?>>Senior Administrator</option>
+			<option value="1337" <?php if($uInf['AdminLevel'] == "1337") { echo "selected"; } ?>>Head Administrator</option>
+			<?php if($inf['AdminLevel'] > 1337) { ?><option value="1338" <?php if($uInf['AdminLevel'] == "1338") { echo "selected"; } ?>>Admin Director</option><?php } ?>
+			<?php if($inf['AdminLevel'] == 99999) { ?><option value="99999" <?php if($uInf['AdminLevel'] == "99999") { echo "selected"; } ?>>Executive Admin</option><?php } ?>
+		</select>
+	</td></tr>
+	<tr><td colspan="2">Whitelisted IP</td><td colspan="4"><input type="text" size="30" length="15" name="secureip" value="<?php echo $uInf['SecureIP']; ?>"></td></tr>
+	<tr class="tablerow1"><td colspan="2">Last Known IP</td><td colspan="4"><?php echo $uInf['IP']; ?></td></tr>
+		<?php $diff = strtotime("now") - strtotime("$uInf[RegiDate]");
+		$num = $diff/86400;
+		$days = intval($num);
+		?>
+	<tr><td colspan="2">Date Added</td><td colspan="4"><?php echo $uInf['RegiDate']; ?> (<?php echo $days; ?> days ago)</td></tr>
+	<tr><td colspan="2">Shifts Completed</td><td colspan="4"><?php echo $ustat['shift_complete']; ?></td></tr>
+	<tr class="tablerow1"><td colspan="2">Shifts Partially Completed</td><td colspan="4"><?php echo $ustat['shift_partcomplete']; ?></td></tr>
+	<tr><td colspan="2">Shifts Missed</td><td colspan="4"><?php echo $ustat['shift_missed']; ?></td></tr>
+	<?php /*<tr><td>Check-In Status</td><td><?php echo $uInf['CheckinStatus']; ?></td></tr>
+	<tr class="tablerow1"><td>Check-In Date</td><td><?php echo $uInf['dCheckin']; ?></td></tr>
+	<tr><td>Total Check-Ins</td><td><?php echo $uInf['checkins']; ?></td></tr>*/ ?>
+	<tr class="tablerow1"><td colspan="2">Total Points</td><td colspan="4"><input type="text" length="10" name="points" value="<?php if (isset($ustat['points'])) { echo $ustat['points']; } else { echo "0";} ?>"></td></tr>
+		<tr><th colspan="6">Permissions</th></tr>
+		<tr>
+			<td>View Punishments</td><td><input type="hidden" name="vpunish" value="0" /><input type="checkbox" name="vpunish" <?php if($uaccess['punish'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>View Refunds</td><td><input type="hidden" name="vrefund" value="0" /><input type="checkbox" name="vrefund" <?php if($uaccess['refund'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>View Bans</td><td><input type="hidden" name="vban" value="0" /><input type="checkbox" name="vban" <?php if($uaccess['ban'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+		</tr>
+		<tr><th colspan="6">Game Log Access</th></tr>
+		<tr class="tablerow1">
+			<td>Admin</td><td><input type="hidden" name="gladmin" value="0" /><input type="checkbox" name="gladmin" <?php if($uaccess['gladmin'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Admin Give</td><td><input type="hidden" name="gladmingive" value="0" /><input type="checkbox" name="gladmingive" <?php if($uaccess['gladmingive'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Admin Pay</td><td><input type="hidden" name="gladminpay" value="0" /><input type="checkbox" name="gladminpay" <?php if($uaccess['gladminpay'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+		</tr>
+		<tr>
+			<td>Ban</td><td><input type="hidden" name="glban" value="0" /><input type="checkbox" name="glban" <?php if($uaccess['glban'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Contracts</td><td><input type="hidden" name="glcontracts" value="0" /><input type="checkbox" name="glcontracts" <?php if($uaccess['glcontracts'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Dynamic Door Edit</td><td><input type="hidden" name="glddedit" value="0" /><input type="checkbox" name="glddedit" <?php if($uaccess['glddedit'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+		</tr>
+		<tr class="tablerow1">
+			<td>Dynamic Map Icon Edit</td><td><input type="hidden" name="gldmpedit" value="0" /><input type="checkbox" name="gldmpedit" <?php if($uaccess['gldmpedit'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Faction</td><td><input type="hidden" name="glfaction" value="0" /><input type="checkbox" name="glfaction" <?php if($uaccess['glfaction'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Family</td><td><input type="hidden" name="glfamily" value="0" /><input type="checkbox" name="glfamily" <?php if($uaccess['glfamily'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+		</tr>
+		<tr>
+			<td>Family Member Count</td><td><input type="hidden" name="glfmembercount" value="0" /><input type="checkbox" name="glfmembercount" <?php if($uaccess['glfmembercount'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Gate Edit</td><td><input type="hidden" name="glgedit" value="0" /><input type="checkbox" name="glgedit" <?php if($uaccess['glgedit'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Gifts</td><td><input type="hidden" name="glgifts" value="0" /><input type="checkbox" name="glgifts" <?php if($uaccess['glgifts'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+		</tr>
+		<tr class="tablerow1">
+			<td>Hack</td><td><input type="hidden" name="glhack" value="0" /><input type="checkbox" name="glhack" <?php if($uaccess['glhack'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>House Edit</td><td><input type="hidden" name="glhedit" value="0" /><input type="checkbox" name="glhedit" <?php if($uaccess['glhedit'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>House</td><td><input type="hidden" name="glhouse" value="0" /><input type="checkbox" name="glhouse" <?php if($uaccess['glhouse'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+		</tr>
+		<tr>
+			<td>Kick</td><td><input type="hidden" name="glkick" value="0" /><input type="checkbox" name="glkick" <?php if($uaccess['glkick'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Licenses</td><td><input type="hidden" name="gllicenses" value="0" /><input type="checkbox" name="gllicenses" <?php if($uaccess['gllicenses'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Moderator</td><td><input type="hidden" name="glmoderator" value="0" /><input type="checkbox" name="glmoderator" <?php if($uaccess['glmoderator'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+		</tr>
+		<tr class="tablerow1">
+			<td>Mute</td><td><input type="hidden" name="glmute" value="0" /><input type="checkbox" name="glmute" <?php if($uaccess['glmute'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Priority Advertisements</td><td><input type="hidden" name="glpads" value="0" /><input type="checkbox" name="glpads" <?php if($uaccess['glpads'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Password</td><td><input type="hidden" name="glpassword" value="0" /><input type="checkbox" name="glpassword" <?php if($uaccess['glpassword'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+		</tr>
+		<tr>
+			<td>Pay</td><td><input type="hidden" name="glpay" value="0" /><input type="checkbox" name="glpay" <?php if($uaccess['glpay'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Player Vehicle</td><td><input type="hidden" name="glplayervehicle" value="0" /><input type="checkbox" name="glplayervehicle" <?php if($uaccess['glplayervehicle'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>RP Special</td><td><input type="hidden" name="glrpspecial" value="0" /><input type="checkbox" name="glrpspecial" <?php if($uaccess['glrpspecial'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+		</tr>
+		<tr class="tablerow1">
+			<td>Security</td><td><input type="hidden" name="glsecurity" value="0" /><input type="checkbox" name="glsecurity" <?php if($uaccess['glsecurity'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Set VIP</td><td><input type="hidden" name="glsetvip" value="0" /><input type="checkbox" name="glsetvip" <?php if($uaccess['glsetvip'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Shop Confirmed Orders</td><td><input type="hidden" name="glshopconfirmedorders" value="0" /><input type="checkbox" name="glshopconfirmedorders" <?php if($uaccess['glshopconfirmedorders'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+		</tr>
+		<tr>
+			<td>Shop</td><td><input type="hidden" name="glshoplog" value="0" /><input type="checkbox" name="glshoplog" <?php if($uaccess['glshoplog'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Shop Orders</td><td><input type="hidden" name="glshoporders" value="0" /><input type="checkbox" name="glshoporders" <?php if($uaccess['glshoporders'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Stats</td><td><input type="hidden" name="glstats" value="0" /><input type="checkbox" name="glstats" <?php if($uaccess['glstats'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+		</tr>
+		<tr class="tablerow1">
+			<td>Undercover</td><td><input type="hidden" name="glundercover" value="0" /><input type="checkbox" name="glundercover" <?php if($uaccess['glundercover'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>VIP Name-Changes</td><td><input type="hidden" name="glvipnamechanges" value="0" /><input type="checkbox" name="glvipnamechanges" <?php if($uaccess['glvipnamechanges'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>VIP Remove</td><td><input type="hidden" name="glvipremove" value="0" /><input type="checkbox" name="glvipremove" <?php if($uaccess['glvipremove'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+		</tr>
+		<tr><th colspan="6">CP Log Access</th></tr>
+		<tr>
+			<td>General</td><td><input type="hidden" name="cplgeneral" value="0" /><input type="checkbox" name="cplgeneral" <?php if($uaccess['cplgeneral'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Staff</td><td><input type="hidden" name="cplstaff" value="0" /><input type="checkbox" name="cplstaff" <?php if($uaccess['cplstaff'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Faction</td><td><input type="hidden" name="cplfaction" value="0" /><input type="checkbox" name="cplfaction" <?php if($uaccess['cplfaction'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+		</tr>
+		<tr class="tablerow1">
+			<td>Family</td><td><input type="hidden" name="cplfamily" value="0" /><input type="checkbox" name="cplfamily" <?php if($uaccess['cplfamily'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td>Customer Relations</td><td><input type="hidden" name="cplcr" value="0" /><input type="checkbox" name="cplcr" <?php if($uaccess['cplcr'] == "1") { echo "checked=Yes"; } ?> value="1" /></td>
+			<td colspan="4"></td>
+		</tr>
+	<tr class="acp-actionbar"><td colspan="6">
+		<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+		<input type="hidden" name="uID" readonly="readonly" value="<?php echo $_POST['uID']; ?>">
+		<input type="hidden" name="action" readonly="readonly" value="edituser">
+		<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+		<input type="submit" class="button" value="Submit Changes">
+	</td></tr>
+</form>
+</table>
+<div class='section_title' style='padding-top:20px'>
+<h2>Report Count</h2></div>
+	<table class='double_pad' cellpadding='0' cellspacing='0' border='0' width='100%'>
+		<tr><th>Date</th><th>Reports</th></tr>
+		<?php
+			$list = glob("D:/SA-MP/NGRP SA-MP Server 1/scriptfiles/admins/rtokens/".$uInf['Username']."[*");
+				usort(
+					$list,
+					create_function('$a,$b', 'return filemtime($b) - filemtime($a);')
+				);
+			foreach ($list as $file) {
+				$handle = fopen($file, "r");
+				$contents = fread($handle, filesize($file));
+				if (file_exists($file)) {
+				$fmtime = filemtime($file);
+				
+				if(isset($i) && $i == 1) {
+					print "<tr>";
+				$i=0;
+				} else { 
+					print "<tr class='tablerow1'>";
+				$i=1;
+				}
+				
+				echo "<td>".date("Y/m/d  ", $fmtime)."</td>";
+			}
+				echo "<td> ".$contents."</td></tr>";
+			}
+		?>
+	</table>
+<div class='section_title' style='padding-top:20px'>
+<h2>User Notes</h2></div>
+	<table class='double_pad' cellpadding='0' cellspacing='0' border='0' width='100%'>
+		<tr><th>Date</th><th>Type</th><th>Details</th><th>Added By</th></td><th>Points</th></tr>
+<?php $note1 = mysql_query("SELECT * FROM `cp_admin_notes` WHERE `user_id` = '$uInf[id]' ORDER BY date DESC");
+while ($note = mysql_fetch_array($note1)) {
+
+if($note['type'] == 1) { $note['type'] = "Infraction"; }
+if($note['type'] == 2) { $note['type'] = "Commendation"; }
+
+	if(isset($i) && $i == 1) {
+		print "<tr class='tablerow1'>";
+	$i=0;
+	} else { 
+		print "<tr>";
+	$i=1;
+	}
+
+print "
+<tr>
+<td>$note[date]</td>
+<td>$note[type]</td>
+<td>$note[details]</td>
+<td>".GetName($note['invoke_id'])."</td>
+<td>$note[points]</td>
+</tr>
+";
+}
+print "</table>";
+}
+else { echo "You do not have access to this section."; } ?>

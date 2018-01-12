@@ -1,0 +1,18 @@
+<?php
+$xml = simplexml_load_file("../svninfo/svnlog.xml");
+$i=1;
+foreach ($xml->logentry as $logentry)
+{	
+	if($i < 20)
+	{
+	$datestr = (string)$logentry->date;
+	$date = substr($datestr, 0, 10);
+	echo "Revision: " . $logentry->attributes()->revision . "</br>";
+	echo "Author: ".$logentry->author."</br>";
+	echo "Date: ".$date."</br>";
+	echo "Notes: ".$logentry->msg."</br></br>";
+	$i++;
+	}
+}
+
+?>

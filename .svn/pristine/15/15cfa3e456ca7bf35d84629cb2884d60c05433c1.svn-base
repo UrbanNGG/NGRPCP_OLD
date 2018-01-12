@@ -1,0 +1,195 @@
+<?php if($inf['AdminLevel'] > 1) { ?>
+			<div id='content_wrap'> 
+				<ol id='breadcrumb'><li>Players > View Player Stats</li></ol> 
+			<div class='section_title'><h2>View Player Stats</h2></div>
+			<div class='acp-box'>
+			<h3>Search For Player</h3>
+				<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+					<form method='post' action='player.php?p=view'>
+					<tr>
+						<td>Name</td>
+						<td><input type="text" size="25" name="player_name"></td>
+						<td>
+							<input type='hidden' name='action' readonly='readonly' value='search'>
+							<input type='submit' class='button' value='Search'>
+						</td>
+					</tr>
+					</form>
+				</table>
+					<?php if(isset($_POST['action']) && $_POST['action'] == "search") {
+					$playerquery = mysql_query("SELECT * FROM `accounts` WHERE `Username` = '$_POST[player_name]'");
+					$player = mysql_fetch_array($playerquery);
+					$num = mysql_num_rows($playerquery);
+					
+					if($player['Apartment'] <> -1) {
+					$house1query = mysql_query("SELECT * FROM `houses` WHERE `id` = $player[Apartment] + 1");
+					$house1 = mysql_fetch_array($house1query);
+					}
+					if($player['Apartment2'] <> -1) {
+					$house2query = mysql_query("SELECT * FROM `houses` WHERE `id` = $player[Apartment2] + 1");
+					$house2 = mysql_fetch_array($house1query);
+					}
+					if($player['Member'] <> 0) {
+					$memquery = mysql_query("SELECT * FROM `cp_faction` WHERE `id` = '$player[Member]'");
+					$mem = mysql_fetch_array($memquery);
+					if($player['Division'] == 0) { $division = $mem['div_0']; }
+					if($player['Division'] == 1) { $division = $mem['div_1']; }
+					if($player['Division'] == 2) { $division = $mem['div_2']; }
+					if($player['Division'] == 3) { $division = $mem['div_3']; }
+					if($player['Division'] == 4) { $division = $mem['div_4']; }
+					if($player['Division'] == 5) { $division = $mem['div_5']; }
+					if($player['Division'] == 6) { $division = $mem['div_6']; }
+					}
+					if($player['FMember'] <> 255) {
+					$memquery = mysql_query("SELECT * FROM `cp_family` WHERE `id` = '$player[FMember]'");
+					$mem = mysql_fetch_array($memquery);
+					}
+					if($player['Member'] <> 0 || $player['FMember'] <> 255) {
+					if($player['Rank'] == 0) { $rank = $mem['rank_0']; }
+					if($player['Rank'] == 1) { $rank = $mem['rank_1']; }
+					if($player['Rank'] == 2) { $rank = $mem['rank_2']; }
+					if($player['Rank'] == 3) { $rank = $mem['rank_3']; }
+					if($player['Rank'] == 4) { $rank = $mem['rank_4']; }
+					if($player['Rank'] == 5) { $rank = $mem['rank_5']; }
+					if($player['Rank'] == 6) { $rank = $mem['rank_6']; }
+					}
+					if($player['Member'] == 0 && $player['FMember'] == 255) {
+					$rank = "N/A";
+					}
+					?>
+					<?php if($num == 1) { ?>
+					<h3><?php echo $player['Username']; ?></h3>
+					<?php if($player['Band'] > 0) { echo "<div class='acp-error'>This player is currently banned.</div>"; } ?>
+					<?php if($player['Disabled'] > 0) { echo "<div class='acp-error'>This account is currently disabled.</div>"; } ?>
+					<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+						<tr class='tablerow1'>
+							<td>Level</td>
+							<td><?php echo $player['Level']; ?></td>
+						</tr>
+						<tr>
+							<td>Playing Hours</td>
+							<td><?php echo number_format($player['ConnectedTime']); ?></td>
+						</tr>
+						<tr class='tablerow1'>
+							<td>Respect</td>
+							<td><?php echo $player['Respect']; ?></td>
+						</tr>
+						<tr>
+							<td>IP Address</td>
+							<td><?php echo FlagByIP($player['IP'])." ".$player['IP']; ?></td>
+						</tr>
+						<tr class='tablerow1'>
+							<td>Gender</td>
+							<td><?php
+							if($player['Sex'] == 0 || $player['Sex'] > 2) { $sex = "Unknown"; }
+							if($player['Sex'] == 1) { $sex = "Male"; }
+							if($player['Sex'] == 2) { $sex = "Female"; }
+							echo $sex; ?></td>
+						</tr>
+						<tr>
+							<td>Age</td>
+							<td><?php echo $player['Age']; ?></td>
+						</tr>
+						<tr class='tablerow1'>
+							<td><?php if($player['Member'] <> 0) { echo "Faction"; } 
+							if($player['FMember'] <> 255) { echo "Gang"; }
+							if($player['Member'] == 0 && $player['FMember'] == 255) { echo "Organization"; } ?></td>
+							<td><?php if($player['Member'] <> 0) { echo $mem['name']; } 
+							if($player['FMember'] <> 255) { echo $mem['name']; }
+							if($player['Member'] == 0 && $player['FMember'] == 255) { echo "Not Affiliated"; } ?></td>
+						</tr>
+						<tr>
+							<td>Rank <?php if($player['Member'] <> 0) { echo "(Division)"; } ?></td>
+							<td><?php echo $rank;
+							if($player['Member'] <> 0) { echo " (".$division.")"; } ?></td>
+						</tr>
+						<tr class='tablerow1'>
+							<td>Phone Number</td>
+							<td><?php echo $player['PhoneNr']; ?></td>
+						</tr>
+						<tr>
+							<td>Radio Frequency</td>
+							<td><?php echo $player['RadioFreq']; ?></td>
+						</tr>
+						<tr class='tablerow1'>
+							<td>Money On-Hand</td>
+							<td>$<?php echo number_format($player['Money']); ?></td>
+						</tr>
+						<tr>
+							<td>Bank Balance</td>
+							<td>$<?php echo number_format($player['Bank']); ?></td>
+						</tr>
+						<tr class='tablerow1'>
+							<td>Total Wealth</td>
+							<td>$<?php $totalwealth = $player['Money'] + $player['Bank'] + $house1['SafeMoney'] + $house2['SafeMoney'];
+							echo number_format($totalwealth);
+							?></td>
+						</tr>
+						<tr>
+							<td>VIP Rank</td>
+							<td><?php echo VIPrank($player['DonateRank']); ?></td>
+						</tr>
+						<tr class='tablerow1'>
+							<td>VIP Expiration</td>
+							<td><?php echo date("M. j, Y", $player['VIPExpire']); ?></td>
+						</tr>
+						<tr>
+							<td>Warnings</td>
+							<td><?php echo $player['Warnings']; ?></td>
+						</tr>
+						<tr class='tablerow1'>
+							<td>Advertisement Mutes</td>
+							<td><?php echo $player['AdMutedTotal']; ?></td>
+						</tr>
+						<tr>
+							<td>Newbie Mutes</td>
+							<td><?php echo $player['NewMutedTotal']; ?></td>
+						</tr>
+						<tr class='tablerow1'>
+							<td>Report Mutes</td>
+							<td><?php echo $player['ReportMutedTotal']; ?></td>
+						</tr>
+						<tr>
+							<td>Weapon Restriction</td>
+							<td><?php echo $player['WRestricted']; ?> hours</td>
+						</tr>
+						<tr class='tablerow1'>
+							<td>Gang Warnings</td>
+							<td><?php echo $player['GangWarn']; ?></td>
+						</tr>
+						<tr>
+							<td>Faction Bans</td>
+							<td><?php echo $player['FactionBanned']; ?></td>
+						</tr>
+						<tr class='tablerow1'>
+							<td>Faction-Wide Banned</td>
+							<td><?php echo $player['CSFBanned']; ?></td>
+						</tr>
+						<tr>
+							<td>Materials</td>
+							<td><?php echo number_format($player['Materials']); ?></td>
+						</tr>
+						<tr class='tablerow1'>
+							<td>Crack</td>
+							<td><?php echo number_format($player['Crack']); ?></td>
+						</tr>
+						<tr>
+							<td>Pot</td>
+							<td><?php echo number_format($player['Pot']); ?></td>
+						</tr>
+						<tr class='tablerow1'>
+							<td>Crimes</td>
+							<td><?php echo number_format($player['Crimes']); ?></td>
+						</tr>
+						<tr>
+							<td>Arrests</td>
+							<td><?php echo number_format($player['Arrested']); ?></td>
+						</tr>
+					</table>
+					<?php }
+					else { print "<div class='acp-error'>The player you are searching for does not exist!</div>"; } ?>
+				<div class='acp-actionbar'></div>
+					<?php } ?>
+			</div></div>
+<?php }
+else { echo "<div id='content_wrap'><div class='section_title'><h2>You do not have access to this page.</h2></div></div>"; } ?>

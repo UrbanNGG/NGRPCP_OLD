@@ -1,0 +1,43 @@
+<?php if($access['ban'] != "1") {
+	echo $redir;
+	exit();
+}
+
+if(isset($_GET['ban'])) {
+$status = $_GET['ban'];
+if($status == "banned") { $statuscode = "1"; $page = "Banned Players"; }
+if($status == "temporary") { $statuscode = "2"; $page = "Temporarily Banned Players"; }
+if($status == "permanent") { $statuscode = "3"; $page = "Permanently Banned Players"; }
+if($status == "unbanned") { $statuscode = "4"; $page = "Unbanned Players"; }
+?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'><li>Bans > Viewing <?php echo $page; ?></li></ol>
+	<div class='section_title'><h2><?php echo $page; ?></h2></div>
+<div class='acp-box'>
+	<h3><?php echo $page; ?> List</h3>
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+		<tr>
+			<th>Player</th><th>IP Address</th><th>Date</th><th>Reason</th><th>Banned By</th>
+		</tr>
+	<?php $tban1 = mysql_query("SELECT * FROM `bans` WHERE `status` = '$statuscode' ORDER BY date DESC");
+		while ($tban = mysql_fetch_array($tban1)) {
+			if ($i == 1) {
+				print "<tr class='tablerow1'>";
+			$i=0;
+			} else { 
+				print "<tr>";
+			$i=1;
+			}
+		print "
+			<td><a href=tempban.php?p=edit&id=$tban[id]>$tban[user_id]</a></td>
+			<td>$tban[ip_address]</td>
+			<td>$tban[date]</td>
+			<td>$tban[reason]</td>
+			<td>$tban[admin_id]</td>
+				</tr>
+			";
+		} ?>
+		</table>
+</div>
+</div>
+<?php } ?>

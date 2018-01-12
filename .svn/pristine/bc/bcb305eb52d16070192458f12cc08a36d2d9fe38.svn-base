@@ -1,0 +1,95 @@
+<?php $tbID = $_GET['id'];
+require('infos/tbInfo.php');
+
+if($inf['vTBan'] != "Yes" && $inf['rRoot'] != "Yes") {
+	echo $redir;
+	exit();
+}
+
+//-- Pull date from DB
+$stringdate = $tbInf['date'];
+//-- Convert to string time
+$time = strtotime($stringdate);
+//-- Convert to actual date
+$date = date('m/d/y',$time);
+$split = explode("/", $date);
+$day = $split[1];
+$month = $split[0];
+$year = "20" . $split[2];
+?>
+
+		<div id='content_wrap'> 
+			<ol id='breadcrumb'><li>Temporary Bans > Edit Temporary Ban</li></ol>
+			<div class='section_title'><h2>Viewing <?php echo $tbInf['igname']; ?>'s Ban</h2></div>
+			<div class='acp-box'>
+				<h3>Editing Temporary Ban #<?php echo $tbInf['id']; ?></h3>
+				<form method="post" action="tempban/proc.php">
+				<table class='double_pad' cellpadding='0' cellspacing='0' border='0' width='100%'>
+					<tr class='tablerow1'><td>Player</td><td><input type="text" size="30" length="64" name="igname" value="<?php echo $tbInf['igname']; ?>"></td></tr>
+					<tr><td>IP</td><td><input type="text" size="30" length="64" name="pIP" value="<?php echo $tbInf['ip']; ?>"></td></tr>
+					<tr class='tablerow1'><td>Unban Date</td><td>
+<?php 
+echo '<select name="m" style="color:grey;">';
+for ($i = 1; $i <= 12; ++$i){
+  $montharray = array("0","January","Febuary","March","April","May","June","July","August","September","October","November","December");
+  echo '<option value="'.$i.'"';
+  	if ($month == $i) {echo " selected='selected'";}
+  echo ">".$montharray[$i].'</option>';
+  }
+echo '</select>';
+echo '<select name="day" style="color:grey;">';
+$i = 1;
+while($i < 32){
+  echo '<option';
+  	if ($day == $i) {echo " selected='selected'";}
+  echo '>'.$i.'</option>';
+  ++$i;
+  }
+echo '</select>';
+echo '<select name="year" style="color:grey;">';
+$i = 2011;
+while($i < 2032){
+  echo '<option';
+  if ($year == $i) {echo " selected='selected'";}
+  echo '>'.$i.'</option>';
+  ++$i;
+  }
+echo '</select>'; ?></td></tr>
+					<tr><td>Reason</td><td><input type="text" size="30" length="64" name="reason" value="<?php echo $tbInf['reason']; ?>"></td></tr>
+					<tr class='tablerow1'><td>Appeal Link</td><td><input type="text" size="30" length="64" name="link" value="<?php echo $tbInf['link']; ?>"></td></tr>
+					<tr><td>Status</td><td><?php
+	if($tbInf['status'] == "1") { $status = 'Banned'; }
+	if($tbInf['status'] == "2") { $status = 'Unbanned'; }
+	echo $status;
+		?></td></tr>
+
+				<?php if($tbInf['status'] == "1") { ?>
+					<tr class='acp-actionbar'><td>
+						<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+						<input type="hidden" name="action" readonly="readonly" value="edit">
+						<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+						<input type="hidden" name="tbID" readonly="readonly" value="<?php echo $tbInf['id']; ?>">
+						<input type="submit" class="button" value="Edit">
+				</form>
+					</td>
+				<td><form method="post" action="tempban/proc.php">
+						<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+						<input type="hidden" name="action" readonly="readonly" value="unban">
+						<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+						<input type="hidden" name="tbID" readonly="readonly" value="<?php echo $tbInf['id']; ?>">
+						<input type="submit" class="button" value="Unban">
+				</form></td>
+				<?php } ?>
+				<?php if($tbInf['status'] == "2") { ?>
+					<tr class='acp-actionbar'><td colspan="2"> 
+					<form method="post" action="tempban/proc.php">
+						<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+						<input type="hidden" name="action" readonly="readonly" value="reban">
+						<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+						<input type="hidden" name="tbID" readonly="readonly" value="<?php echo $tbInf['id']; ?>">
+						<input type="submit" class="button" value="Re-Ban">
+					</form></td>
+				<?php } ?>
+					</tr>
+				</table>
+		</div></div>

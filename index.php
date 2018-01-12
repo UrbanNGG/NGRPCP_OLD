@@ -1,0 +1,66 @@
+<?php
+require('global/func.php');
+require('index/l_nav.php');
+$redir = '<meta http-equiv="refresh" content="0;url=login.php">';
+
+if (!isset($_GET['p'])){ print "<meta http-equiv=\"refresh\" content=\"0;url=index.php?p=dashboard\">"; }
+
+if(!isset($_SESSION['myusername'])){
+$logged = 0;
+echo $redir;
+exit();
+}
+
+if(isset($_GET['action'])&&$_GET['action'] == "logout") {
+	$loutdir = '<meta http-equiv="refresh" content="0;url=login.php">';
+	session_destroy();
+	exit();
+}
+
+?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<?php head($inf); ?>
+<script>
+function validate(form_id,email) {
+ 
+   var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+   var address = document.forms[form_id].elements[email].value;
+   if(reg.test(address) == false) {
+ 
+      alert('Invalid Email Address');
+      return false;
+   }
+}
+</script>
+</head>
+
+<?php headbar($inf); Nav($inf,$access); ?>
+
+	<div id='page_body'>
+
+		<div id='section_navigation'>
+			<?php SideNav($inf); ?>
+		</div>
+
+		<div id='main_content'> 
+			<?php
+			if ($_GET['p']=="dashboard") include('/index/dashboard.php');
+			if ($_GET['p']=="editpass") include('index/editpass.php');
+			if ($_GET['p']=="settings") include('index/settings.php');
+			if ($_GET['p']=="sig") include('index/sig.php');
+			if ($_GET['p']=="referral") include('index/referral.php');
+			if ($_GET['p']=="checkin") include('index/checkin.php');
+			if ($_GET['p']=="leave") include('index/leave.php');
+			if ($_GET['p']=="shift") include('index/shift.php');
+			?>
+		<div class='acp-box'>
+			<div id='copyright'><?php require('global/footer.php'); ?></div>
+		</div>
+		</div>
+	</div>
+</body>
+</html>

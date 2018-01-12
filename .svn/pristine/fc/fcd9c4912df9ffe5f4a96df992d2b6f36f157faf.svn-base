@@ -1,0 +1,63 @@
+<?php if($inf['GangModerator'] > 0 || $inf['AdminLevel'] > 3) {
+if(isset($_GET['fmem'])) { $fmem = $_GET['fmem']; }
+?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'><li>Game Affairs > Viewing Gang Members</li></ol>
+	<div class='section_title'><h2>Gang Members</h2></div>
+<div class='acp-box'>
+	<?php if(!isset($_GET['fmem'])) { echo "<h3>Gang Member List</h3>"; } ?>
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+		<tr>
+			<th colspan='4'>
+			<?php
+			$famlistquery = mysql_query("SELECT `id`, `name` FROM `cp_family`");
+			while ($famlist = mysql_fetch_array($famlistquery)) {
+			echo "[<a href='gameaffairs.php?p=gangmember&fmem=$famlist[id]'>$famlist[name]</a>]";
+			}
+			?>
+			</th>
+		</tr>
+		<tr>
+			<th>Rank</th><th>Player</th><th>Last Active</th>
+		</tr>
+	<?php if(isset($_GET['fmem'])) {
+	$fmem1 = mysql_query("SELECT `id`, `Online`, `Username`, `UpdateDate`, `Rank` FROM `accounts` WHERE `AdminLevel` < '2' AND `Disabled` = '0' AND `FMember` = '$fmem' ORDER BY Rank DESC, Username ASC");
+	$count = mysql_num_rows($fmem1);
+	echo "<h3>Gang Member List <span class='table_view'>Members: ".$count."</span></h3>";
+		while ($fmem = mysql_fetch_array($fmem1)) {
+		$facquery = mysql_query("SELECT * FROM `cp_faction` WHERE `id` = '$fmem'");
+		$fac = mysql_fetch_array($facquery);
+			if (isset($i) && $i == 1) {
+				print "<tr class='tablerow1'>";
+			$i=0;
+			} else { 
+				print "<tr>";
+			$i=1;
+			}
+			
+			if($fmem['Rank'] == 0) { $fmem['Rank'] = $fac['rank_0']; }
+			if($fmem['Rank'] == 1) { $fmem['Rank'] = $fac['rank_1']; }
+			if($fmem['Rank'] == 2) { $fmem['Rank'] = $fac['rank_2']; }
+			if($fmem['Rank'] == 3) { $fmem['Rank'] = $fac['rank_3']; }
+			if($fmem['Rank'] == 4) { $fmem['Rank'] = $fac['rank_4']; }
+			if($fmem['Rank'] == 5) { $fmem['Rank'] = $fac['rank_5']; }
+			if($fmem['Rank'] == 6) { $fmem['Rank'] = $fac['rank_6']; }
+
+		print "
+			<td>$fmem[Rank]</td>
+			<td>
+		";
+		if($fmem['Online'] > 0) { print "<span style='font-weight:bold'>$fmem[Username]</span>"; }
+			else { print "$fmem[Username]"; }
+		print "
+			</td>
+			<td>".LastOnline($fmem['id'])."</td>
+				</tr>
+			";
+		}
+	} ?>
+		</table>
+</div>
+</div>
+<?php } 
+else { echo "<div id='content_wrap'><div class='section_title'><h2>You do not have access to this page.</h2></div></div>"; } ?>

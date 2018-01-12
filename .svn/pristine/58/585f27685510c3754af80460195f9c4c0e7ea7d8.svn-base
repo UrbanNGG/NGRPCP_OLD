@@ -1,0 +1,63 @@
+<?php 
+$logname = urldecode($_GET['name']);
+?>
+
+			<div id='content_wrap'>
+				<ol id='breadcrumb'><li>Logs > Game Logs</li></ol>
+				<div class='section_title'><h2><?php if(isset($_POST['action']) && $_POST['action'] == "log_archive") { echo $_POST['file']; } else { echo $logname; } ?></h2></div>
+
+<div style="width:100%;height:500px;overflow-y:scroll;background-color:#FFF;border:#333 solid thin;margin-left:auto;margin-right:auto;padding:10px">
+<?php if (isset($_GET['log'])){
+$permarray = array('admin' => $access['gladmin'], 'adminauction' => $access['gladminauction'], 'admingive' => $access['gladmingive'], 'adminpay' => $access['gladminpay'], 'auction' => $access['glauction'], 'ban' => $access['glban'], 'bedit' => $access['glbedit'], 'business' => $access['glbusiness'], 'contracts' => $access['glcontracts'], 'crime' => $access['glcrime'], 'ddedit' => $access['glddedit'], 'dealership' => $access['gldealership'], 'dmpedit' => $access['gldmpedit'], 'dv' => $access['gldv'], 'dvspawn' => $access['gldvspawn'], 'editgroup' => $access['gleditgroup'], 'faction' => $access['glfaction'], 'family' => $access['glfamily'], 'flagmove' => $access['glflagmove'], 'flags' => $access['glflags'], 'fmembercount' => $access['glfmembercount'], 'gedit' => $access['glgedit'], 'gifts' => $access['glgifts'], 'gov' => $access['glgov'], 'group' => $access['glgroup'], 'hack' => $access['glhack'], 'hedit' => $access['glhedit'], 'house' => $access['glhouse'], 'hsafe' => $access['glhsafe'], 'kick' => $access['glkick'], 'licenses' => $access['gllicenses'], 'mail' => $access['glmail'], 'moderator' => $access['glmoderator'], 'mute' => $access['glmute'], 'pads' => $access['glpads'], 'password' => $access['glpassword'], 'pay' => $access['glpay'], 'playervehicle' => $access['glplayervehicle'], 'rpspecial' => $access['glrpspecial'], 'security' => $access['glsecurity'], 'setvip' => $access['glsetvip'], 'shopconfirmedorders' => $access['glshopconfirmedorders'], 'shoplog' => $access['glshoplog'], 'shoporders' => $access['glshoporders'], 'stats' => $access['glstats'], 'tledit' => $access['gltledit'], 'toydelete' => $access['gltoydelete'], 'undercover' => $access['glundercover'], 'vipnamechanges' => $access['glvipnamechanges'], 'vipremove' => $access['glvipremove']);
+if ($permarray[$_GET['log']] == 1 || $inf['AdminLevel'] >= 1337)
+{
+$fl = fopen("E:/SA-MP/NGRP SA-MP Server 1/scriptfiles/logs/".$_GET['log'].".log", "r");
+for($x_pos = 0, $ln = 0, $output = ""; fseek($fl, $x_pos, SEEK_END) !== -1; $x_pos--) {
+    $char = fgetc($fl);
+    if ($char === "\n") {
+        // analyse completed line $output[$ln] if need be
+        
+		if ($ln != 0) {
+		echo strrev($output) . "<br>";
+		}
+		$ln++;
+		$output = "";
+        continue;
+        }
+    $output .= $char;
+    }
+fclose($fl);
+} else 
+	{
+	echo '<h2 align = "center"> You do not have permission to view this log. </h2>';
+	}
+}
+
+if(isset($_POST['action']) && $_POST['action'] == "log"){
+$permarray = array('admin' => $access['gladmin'], 'adminauction' => $access['gladminauction'], 'admingive' => $access['gladmingive'], 'adminpay' => $access['gladminpay'], 'auction' => $access['glauction'], 'ban' => $access['glban'], 'bedit' => $access['glbedit'], 'business' => $access['glbusiness'], 'contracts' => $access['glcontracts'], 'crime' => $access['glcrime'], 'ddedit' => $access['glddedit'], 'dealership' => $access['gldealership'], 'dmpedit' => $access['gldmpedit'], 'dv' => $access['gldv'], 'dvspawn' => $access['gldvspawn'], 'editgroup' => $access['gleditgroup'], 'faction' => $access['glfaction'], 'family' => $access['glfamily'], 'flagmove' => $access['glflagmove'], 'flags' => $access['glflags'], 'fmembercount' => $access['glfmembercount'], 'gedit' => $access['glgedit'], 'gifts' => $access['glgifts'], 'gov' => $access['glgov'], 'group' => $access['glgroup'], 'hack' => $access['glhack'], 'hedit' => $access['glhedit'], 'house' => $access['glhouse'], 'hsafe' => $access['glhsafe'], 'kick' => $access['glkick'], 'licenses' => $access['gllicenses'], 'mail' => $access['glmail'], 'moderator' => $access['glmoderator'], 'mute' => $access['glmute'], 'pads' => $access['glpads'], 'password' => $access['glpassword'], 'pay' => $access['glpay'], 'playervehicle' => $access['glplayervehicle'], 'rpspecial' => $access['glrpspecial'], 'security' => $access['glsecurity'], 'setvip' => $access['glsetvip'], 'shopconfirmedorders' => $access['glshopconfirmedorders'], 'shoplog' => $access['glshoplog'], 'shoporders' => $access['glshoporders'], 'stats' => $access['glstats'], 'tledit' => $access['gltledit'], 'toydelete' => $access['gltoydelete'], 'undercover' => $access['glundercover'], 'vipnamechanges' => $access['glvipnamechanges'], 'vipremove' => $access['glvipremove']);
+if ($permarray[$_POST['log']] == 1 || $inf['AdminLevel'] >= 1337)
+{
+$fl = fopen($_POST['dir']."".$_POST['file'], "r");
+for($x_pos = 0, $ln = 0, $output = ""; fseek($fl, $x_pos, SEEK_END) !== -1; $x_pos--) {
+    $char = fgetc($fl);
+    if ($char === "\n") {
+        
+		if ($ln != 0) {
+		echo strrev($output) . "<br>";
+		}
+		$ln++;
+		$output = "";
+        continue;
+        }
+    $output .= $char;
+    }
+fclose($fl);
+} else 
+	{
+	echo '<h2 align = "center"> You do not have permission to view this log. </h2>';
+	}
+}
+?>
+</div>
+</div>
+</div>

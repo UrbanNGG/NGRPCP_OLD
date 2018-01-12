@@ -1,0 +1,56 @@
+<?php if($inf['AdminLevel'] >= 1337) { ?>
+<h3>Advisor List</h3>
+	<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%' style='font-weight:bold'> 
+		<tr><th>Rank</th><th>Name</th></tr>
+<?php
+$sql = "SELECT `id`, `Username`, `Helper` FROM `accounts` WHERE `Helper` >= 2 ORDER BY Helper DESC, Username ASC";
+$userM1 = mysql_query($sql);
+while ($userM = mysql_fetch_array($userM1)) {
+
+	if (isset($i) && $i == 1) { print "<tr class='tablerow1'>";
+		$i=0;
+	} else { print "<tr>";
+		$i=1;
+	}
+
+	if($userM['Helper'] == 4) { $userM['Helper'] = '<span style=\'color:cyan\'>Chief Advisor</span>'; }
+	if($userM['Helper'] == 3) { $userM['Helper'] = '<span style=\'color:cyan\'>Senior Advisor</span>'; }
+	if($userM['Helper'] == 2) { $userM['Helper'] = '<span style=\'color:cyan\'>Community Advisor</span>'; }
+
+print "
+
+<td>$userM[Helper]</td>
+<td><a href=user.php?p=edit&uID=$userM[id]>$userM[Username]</a></td>
+</tr>
+";
+}
+
+?>
+	</table>
+<h3>Add an Advisor</h3>
+<form method="POST" action="user/proc.php">
+	<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%' style='font-weight:bold'> 
+		<tr class='tablerow1'>
+			<td width='12%'>Name</td>
+				<td width='35%'>
+					<input type="text" name="user" length="64">
+				</td>
+			<td width='12%'>Rank</td>
+				<td width='35%'>
+					<select name="rank">
+						<option value="2">Community Advisor</option>
+						<option value="3">Senior Advisor</option>
+						<option value="4">Chief Advisor</option>
+					</select>
+				</td>
+			<td width='6%'>
+				<input type="hidden" name="action" readonly="readonly" value="addadvisor">
+				<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+				<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+				<input type="submit" class="button" value="Add Advisor">
+			</td>
+		</tr>
+	</table>
+</form>
+<?php }
+else { echo "You do not have access to this section."; } ?>

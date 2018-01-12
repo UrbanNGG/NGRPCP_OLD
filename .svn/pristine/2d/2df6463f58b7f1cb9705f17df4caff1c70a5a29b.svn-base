@@ -1,0 +1,62 @@
+<?php if($inf['AdminLevel'] > 1) { ?>
+<div id='content_wrap'> 
+	<ol id='breadcrumb'><li><?php echo $section; ?> > Roster</li></ol>
+	<div class='section_title'><h2>Administrative Roster</h2></div>
+	<div class='acp-box'>
+		<h3>Administrative Roster</h3>
+			<table class="double_pad" cellpadding="0" cellspacing="0" border="0">
+			<tr>
+				<th width='10%'></th>
+				<th width='5%'></th>
+				<th>Username</th>
+				<th>Email Address</th>
+				<th>GTalk</th>
+			</tr>
+			<?php
+				$adminquery = mysql_query("SELECT `id`, `Online`, `Username`, `Email`, `AdminLevel`, `IP` FROM `accounts` WHERE `AdminLevel` > 1 ORDER BY AdminLevel DESC, Username ASC");
+				while ($admin = mysql_fetch_array($adminquery)) {
+					$rstatquery = mysql_query("SELECT `timezone`, `gtalk` FROM `cp_stat` WHERE `user_id` = $admin[id]");
+					$rstat = mysql_fetch_array($rstatquery);
+					if($rstat['timezone'] == "") { $tz = "America/Chicago"; }
+					else { $tz = $rstat['timezone']; }
+					$timezone = new DateTimeZone($tz);
+					$offset = $timezone->getOffset(new DateTime("now"));
+					if($admin['Online'] > 0) { $status = "<img src='../../global/images/all/icon_components/topics/user-online.png' alt='Online' />"; }
+					if($admin['Online'] == 0) { $status = "<img src='../../global/images/all/icon_components/topics/user-offline.png' alt='Offline' />"; }
+					if($admin['AdminLevel'] == 2 || $admin['AdminLevel'] == 3) { $admin['Username'] = "<span style='color:lime'>".$admin['Username']."</span>"; }
+					if($admin['AdminLevel'] == 4) { $admin['Username'] = "<span style='color:sandybrown'>".$admin['Username']."</span>"; }
+					if($admin['AdminLevel'] >= 1337) { $admin['Username'] = "<span style='color:red'>".$admin['Username']."</span>"; }
+					if (isset($i) && $i == 1) {
+						print "<tr>";
+					$i=0;
+					} else { 
+						print "<tr class='tablerow1'>";
+					$i=1;
+					}
+					print "<td>".FlagByIP($admin['IP'])." (GMT ".($offset < 0 ? '-' : '+').abs(round($offset/3600)).")</td>";
+					print "<td>$status</td>";
+					print "<td><strong>$admin[Username]</strong></td>";
+					print "<td><a href='mailto:$admin[Email]'>$admin[Email]</a></td>";
+					print "<td>".$rstat['gtalk']."</td>";
+					print "</tr>";
+				}
+			?>
+			</table>
+	</div>
+	<div class='acp-box'>
+		<h3>GTalk List</h3>
+<textarea rows="4" cols="100" onclick="this.focus();this.select()">
+<?php
+$gtalkquery = mysql_query("SELECT `user_id`, `gtalk` FROM `cp_stat` WHERE `gtalk` <> '' AND `gtalk` <> 'N/A'");
+while ($gtalk = mysql_fetch_array($gtalkquery)) {
+if(GetAdminLevel($gtalk['user_id']) > 1 && IsDisabled($gtalk['user_id']) == 0) { echo GetName($gtalk['user_id'])." <".$gtalk['gtalk'].">, "; }
+}
+?>
+</textarea>
+	</div>
+	<div style='font-weight:bolder;text-align:center;padding:10px'>
+		<a href='/index.php?p=contact'>Click here to update your GTalk address.</a>
+	</div>
+</div>
+<?php }
+else { echo "You do not have access to this page."; } ?>

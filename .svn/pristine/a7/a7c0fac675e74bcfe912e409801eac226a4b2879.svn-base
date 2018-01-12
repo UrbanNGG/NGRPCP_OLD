@@ -1,0 +1,103 @@
+	<div id='content_wrap'> 
+		<ol id='breadcrumb'> 
+			<li>Logs > Index</li>
+		</ol>
+
+	<div class='section_title'>
+		<h2>Log Index</h2>
+	</div>
+	<div class='acp-box'>
+		<h3>Game Logs</h3>
+<?php
+echo '<table cellpadding="0" class="double_pad" cellspacing="0" border="0" width="100%">';
+$names = array('Admin Log', 'Admin Auction Log', 'Admin Give Log', 'Admin Pay Log', 'Auction Log', 'Ban Log', 'Business Edit Log', 'Business Log', 'Contracts Log', 'Crime Log', 'Dynamic Door Edit Log', 'Dealership Log', 'Dynamic Map Icon Edit Log', 'Dynamic Vehicle Log', 'Dynamic Vehicle Spawn Log', 'Edit Group Log', 'Faction Log', 'Family Log', 'Flag Move Log', 'Flags Log', 'Family Member Count Log', 'Gate Edit Log', 'Gifts Log', 'Government Log', 'Group Log', 'Hack Log', 'House Edit Log', 'House Log', 'House Safe Log', 'Kick Log', 'Licenses Log', 'Mail Log', 'Moderator Log', 'Mute Log', 'Priority Advertisements Log', 'Password Log', 'Pay Log', 'Player Vehicle Log', 'RP Special Log', 'Security Log', 'Set VIP Log', 'Shop Confirmed Orders Log', 'Shop Log', 'Shop Orders Log', 'Stats Log', 'Text Label Edit Log', 'Toy Delete Log', 'Undercover Log', 'VIP Name-Changes Log', 'VIP Remove Log');
+$names1 = array($access['gladmin'], $access['gladminauction'], $access['gladmingive'], $access['gladminpay'], $access['glauction'], $access['glban'], $access['glbedit'], $access['glbusiness'], $access['glcontracts'], $access['glcrime'], $access['glddedit'], $access['gldealership'], $access['gldmpedit'], $access['gldv'], $access['gldvspawn'], $access['gleditgroup'], $access['glfaction'], $access['glfamily'], $access['glflagmove'], $access['glflags'], $access['glfmembercount'], $access['glgedit'], $access['glgifts'], $access['glgov'], $access['glgroup'], $access['glhack'], $access['glhedit'], $access['glhouse'], $access['glhsafe'], $access['glkick'], $access['gllicenses'], $access['glmail'], $access['glmoderator'], $access['glmute'], $access['glpads'], $access['glpassword'], $access['glpay'], $access['glplayervehicle'], $access['glrpspecial'], $access['glsecurity'], $access['glsetvip'], $access['glshopconfirmedorders'], $access['glshoplog'], $access['glshoporders'], $access['glstats'], $access['gltledit'], $access['gltoydelete'], $access['glundercover'], $access['glvipnamechanges'], $access['glvipremove']);
+$logname = array('admin', 'adminauction', 'admingive', 'adminpay', 'auction', 'ban', 'bedit', 'business', 'contracts', 'crime', 'ddedit', 'dealership', 'dmpedit', 'dv', 'dvspawn', 'editgroup', 'faction', 'family', 'flagmove', 'flags', 'fmembercount', 'gedit', 'gifts', 'gov', 'group', 'hack', 'hedit', 'house', 'hsafe', 'kick', 'licenses', 'mail', 'moderator', 'mute', 'pads', 'password', 'pay', 'playervehicle', 'rpspecial', 'security', 'setvip', 'shopconfirmedorders', 'shoplog', 'shoporders', 'stats', 'tledit', 'toydelete', 'undercover', 'vipnamechanges', 'vipremove');
+$i=0;
+$total=50;
+
+while ($i < $total) {
+if ($names1[$i]==1 || $inf['AdminLevel'] >= 1337){
+echo '<tr><th>'.$names[$i].'</th></tr>';
+echo '<td><a href=log.php?p=game&log='.$logname[$i]."&name=".urlencode($names[$i]);
+echo '><b>'.$names[$i].'</b></a></td></tr>';
+
+$secservdir = "E:/SA-MP/NGRP SA-MP Server 2/scriptfiles/logs/".$logname[$i]."/";
+if (is_dir($secservdir)) {
+    if ($dh = opendir($secservdir)) {
+        while (($file = readdir($dh)) !== false) {
+		if($file != "." && $file != "..") {
+		
+		$log_archive = "<form method='post' action='log.php?p=game'>
+		<input type='hidden' name='action' readonly='readonly' value='log'>
+		<input type='hidden' name='dir' readonly='readonly' value='$secservdir'>
+		<input type='hidden' name='file' readonly='readonly' value='$file'>
+		<input type='hidden' name='log' readonly='readonly' value='$logname[$i]'>
+		<input type='submit' class='submit' value='$file (2nd Server)'></form>
+		</form>";
+		
+            echo "<tr><td>
+			<form
+			".$log_archive."
+			</td></tr>";
+		}
+        }
+        closedir($dh);
+    }
+}
+
+$cpdir = "E:/SA-MP/NGRP SA-MP Server 1/scriptfiles/cplogs/".$logname[$i]."/";
+if (is_dir($cpdir)) {
+    if ($dh = opendir($cpdir)) {
+        while (($file = readdir($dh)) !== false) {
+		if($file != "." && $file != "..") {
+		
+		$log_archive = "<form method='post' action='log.php?p=game'>
+		<input type='hidden' name='action' readonly='readonly' value='log'>
+		<input type='hidden' name='dir' readonly='readonly' value='$cpdir'>
+		<input type='hidden' name='file' readonly='readonly' value='$file'>
+		<input type='hidden' name='log' readonly='readonly' value='$logname[$i]'>
+		<input type='submit' class='submit' value='$file (CP)'></form>
+		</form>";
+		
+            echo "<tr><td>
+			<form
+			".$log_archive."
+			</td></tr>";
+		}
+        }
+        closedir($dh);
+    }
+}
+
+$dir = "E:/NG-RP Files/NG-RP Logs/General Logs/".$logname[$i]."/";
+if (is_dir($dir)) {
+    if ($dh = opendir($dir)) {
+        while (($file = readdir($dh)) !== false) {
+		if($file != "." && $file != "..") {
+		
+		$log_archive = "<form method='post' action='log.php?p=game'>
+		<input type='hidden' name='action' readonly='readonly' value='log'>
+		<input type='hidden' name='dir' readonly='readonly' value='$dir'>
+		<input type='hidden' name='file' readonly='readonly' value='$file'>
+		<input type='hidden' name='log' readonly='readonly' value='$logname[$i]'>
+		<input type='submit' class='submit' value='$file'></form>
+		</form>";
+		
+            echo "<tr><td>
+			<form
+			".$log_archive."
+			</td></tr>";
+		}
+        }
+        closedir($dh);
+    }
+}
+}
+++$i;
+}
+echo '</table>';
+?>
+
+	</div>
+	</div>

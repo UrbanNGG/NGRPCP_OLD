@@ -1,0 +1,124 @@
+<?php
+if(isset($_GET['assignid'])) { $sID = $_GET['assignid'];
+if ($inf['AdminLevel'] >= 2) {
+$shiftquery = mysql_query("SELECT * FROM `cp_shifts` WHERE `id` = '$sID' AND `type` = '1'");
+} else {
+$shiftquery = mysql_query("SELECT * FROM `cp_shifts` WHERE `id` = '$sID' AND `type` = '3'");
+}
+$shift = mysql_fetch_array($shiftquery);
+?>
+			<div id='content_wrap'>
+				<ol id='breadcrumb'><li>User Management > Shifts</li></ol>
+			<div class='section_title'><h2>Editing <?php echo GetName($shift['user_id']); ?>'s Assignment</h2></div>
+			<div class='acp-box'>
+				<h3>Edit Assignment #<?php echo $shift['id']; ?></h3>
+				<table class='double_pad' cellpadding='0' cellspacing='0' border='0' width='100%'>
+				<form method="post" action="user/proc.php">
+					<tr class='tablerow1'>
+						<td width='40%'>Date</td>
+						<td><?php echo $shift['date']; ?></td>
+					</tr>
+					<tr>
+						<td>Shift</td>
+						<td>
+							<?php
+							if ($inf['AdminLevel'] >= 2) {
+								$usershiftquery = mysql_query("SELECT `shift` FROM `cp_shift_blocks` WHERE `shift_id` = '$shift[shift_id]' AND `type` = '1'");
+							} else {
+								$usershiftquery = mysql_query("SELECT `shift` FROM `cp_shift_blocks` WHERE `shift_id` = '$shift[shift_id]' AND `type` = '2'");
+							}
+							$usershift = mysql_fetch_array($usershiftquery);
+							echo $usershift[0];
+							?>
+						</td>
+					</tr>
+					<tr class='tablerow1'>
+						<td>Bonus</td>
+						<td><?php echo $shift['bonus']; ?> points</td>
+					</tr>
+					<tr>
+						<td>Status</td>
+						<td>
+							<select name="status">
+								<option value="1"<?php if($shift['status'] == "1") { echo " selected"; } ?>>Removed</option>
+								<option value="2"<?php if($shift['status'] == "2") { echo " selected"; } ?>>Approved</option>
+								<option value="3"<?php if($shift['status'] == "3") { echo " selected"; } ?>>Completed</option>
+								<option value="4"<?php if($shift['status'] == "4") { echo " selected"; } ?>>Partially Completed</option>
+								<option value="5"<?php if($shift['status'] == "5") { echo " selected"; } ?>>Missed</option>
+							</select>
+						</td>
+					</tr>
+					<?php if($shift['bonus'] < 1) { ?>
+					<tr class='tablerow1'>
+						<td>Assistance Request<br /><p style="font-size:10px">(Admin came to the shift when asked for more Admins)</p></td>
+						<td>
+							<input type="hidden" name="asst_req" value="0" /><input type="checkbox" name="asst_req" value="1" />
+						</td>
+					</tr>
+					<?php } ?>
+					<tr class='acp-actionbar'>
+						<td colspan="2">
+							<input type="hidden" name="action" readonly="readonly" value="assign_edit">
+							<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+							<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+							<input type="hidden" name="assignid" readonly="readonly" value="<?php echo $shift['id']; ?>">
+							<input type="hidden" name="uID" readonly="readonly" value="<?php echo $shift['user_id']; ?>">
+							<input type="hidden" name="bonus" readonly="readonly" value="<?php echo $shift['bonus']; ?>">
+							<input type="submit" class="button" value="Edit">
+						</td>
+					</tr>
+				</form>
+				</table>
+			</div></div>
+<?php }
+if(isset($_POST['action']) && $_POST['action'] == "edit") { ?>
+			<div id='content_wrap'>
+				<ol id='breadcrumb'><li>User Management > Shifts</li></ol>
+			<div class='section_title'><h2>Adding <?php echo GetName($_POST['userid']); ?>'s Assignment</h2></div>
+			<div class='acp-box'>
+				<h3>Add Assignment Details</h3>
+				<table class='double_pad' cellpadding='0' cellspacing='0' border='0' width='100%'>
+				<form method="post" action="user/proc.php">
+					<tr class='tablerow1'>
+						<td width='40%'>Date</td>
+						<td><?php echo $_POST['date']; ?></td>
+					</tr>
+					<tr>
+						<td>Shift</td>
+						<td>
+							<?php 
+							if ($inf['AdminLevel'] >= 2) {
+								$usershiftquery = mysql_query("SELECT `shift` FROM `cp_shift_blocks` WHERE `shift_id` = '$_POST[shift]' AND `type` = '1'");
+							} else {
+								$usershiftquery = mysql_query("SELECT `shift` FROM `cp_shift_blocks` WHERE `shift_id` = '$_POST[shift]' AND `type` = '2'");
+							}
+							$usershift = mysql_fetch_array($usershiftquery);
+							echo $usershift[0];
+							?>
+						</td>
+					</tr>
+					<tr class='tablerow1'>
+						<td>Status</td>
+						<td>
+							<select name="status">
+								<option value="3">Completed</option>
+								<option value="4">Partially Completed</option>
+								<option value="5">Missed</option>
+							</select>
+						</td>
+					</tr>
+					<tr class='acp-actionbar'>
+						<td colspan="2">
+							<input type="hidden" name="action" readonly="readonly" value="assign_add">
+							<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+							<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+							<input type="hidden" name="uID" readonly="readonly" value="<?php echo $_POST['userid']; ?>">
+							<input type="hidden" name="assigndate" readonly="readonly" value="<?php echo $_POST['date']; ?>">
+							<input type="hidden" name="shiftid" readonly="readonly" value="<?php echo $_POST['shift']; ?>">
+							<input type="submit" class="button" value="Add">
+						</td>
+					</tr>
+				</form>
+				</table>
+			</div></div>
+<?php } ?>

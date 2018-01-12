@@ -1,0 +1,162 @@
+<?php if($inf['AdminLevel'] > 1) { ?>
+			<div id='content_wrap'> 
+				<ol id='breadcrumb'><li>Players > Vehicle Search</li></ol> 
+			<div class='section_title'><h2>Vehicle Search</h2></div>
+			<div class='acp-box'>
+			<?php if(isset($_GET['vsearch']) && $_GET['vsearch'] == "id") { ?>
+			<h3>Vehicle Search by ID</h3>
+			<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'> 
+			<tr>
+				<td><form action="player.php?p=vehicle&vsearch=id" method="post">
+					<input type="text" name="id" />
+					<input type="submit" class="button" value="Search" />
+				</form></td>
+			</tr>
+			</table>
+				<?php if(isset($_POST['id'])) {
+					$playerquery = mysql_query("SELECT `Username`, `pv0ModelId`, `pv1ModelId`, `pv2ModelId`, `pv3ModelId`, `pv4ModelId`, `pv5ModelId`, `pv6ModelId`, `pv7ModelId`, `pv8ModelId`, `pv9ModelId` FROM `accounts` WHERE `pv0ModelId` = '$_POST[id]' OR `pv1ModelId` = '$_POST[id]' OR `pv2ModelId` = '$_POST[id]' OR `pv3ModelId` = '$_POST[id]' OR `pv4ModelId` = '$_POST[id]' OR `pv5ModelId` = '$_POST[id]' OR `pv6ModelId` = '$_POST[id]' OR `pv7ModelId` = '$_POST[id]' OR `pv8ModelId` = '$_POST[id]' OR `pv9ModelId` = '$_POST[id]'");
+					$results = mysql_num_rows($playerquery);
+					
+					print "<h3>Vehicle #$_POST[id] -- ".GetVehicleName($_POST['id'])." <span class='table_view'>$results Results</span></h3>
+					<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+					<tr>
+						<th>Owner</th>
+					</tr>
+					";
+					while ($player = mysql_fetch_array($playerquery)) {
+						if(isset($i) && $i == 1) {
+							print "<tr class='tablerow1'>";
+						$i=0;
+						} else { 
+							print "<tr>";
+						$i=1;
+						}
+						
+						print "
+						<td>$player[Username]</td>
+						";
+					}
+					?>
+					</table>
+				<?php }
+				}
+				if(isset($_GET['vsearch']) && $_GET['vsearch'] == "player") { ?>
+			<h3>Vehicle Search by Player</h3>
+			<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'> 
+			<tr>
+				<td><form action="player.php?p=vehicle&vsearch=player" method="post">
+					<input type="text" name="player" />
+					<input type="submit" class="button" value="Search" />
+				</form></td>
+			</tr>
+			</table>
+				<?php if(isset($_POST['player'])) {
+					$playerquery = mysql_query("SELECT `pv0ModelId`, `pv1ModelId`, `pv2ModelId`, `pv3ModelId`, `pv4ModelId`, `pv5ModelId`, `pv6ModelId`, `pv7ModelId`, `pv8ModelId`, `pv9ModelId` FROM `accounts` WHERE `Username` = '$_POST[player]'");
+					$player = mysql_fetch_array($playerquery);
+
+					print "<h3>Results for $_POST[player]</h3>
+					<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+					<tr>
+						<th width='10%'>Slot Number</th>
+						<th width='10%'>Vehicle ID</th>
+						<th width='80%'>Vehicle Name</th>
+					</tr>";
+					if($player['pv0ModelId'] > 0) {
+					print "
+						<tr>
+							<td>0</td>
+							<td>$player[pv0ModelId]</td>
+							<td>".GetVehicleName($player['pv0ModelId'])."</td>
+						</tr>
+					";
+					}
+					if($player['pv1ModelId'] > 0) {
+					print "
+						<tr>
+							<td>1</td>
+							<td>$player[pv1ModelId]</td>
+							<td>".GetVehicleName($player['pv1ModelId'])."</td>
+						</tr>
+					";
+					}
+					if($player['pv2ModelId'] > 0) {
+					print "
+						<tr>
+							<td>2</td>
+							<td>$player[pv2ModelId]</td>
+							<td>".GetVehicleName($player['pv2ModelId'])."</td>
+						</tr>
+					";
+					}
+					if($player['pv3ModelId'] > 0) {
+					print "
+						<tr>
+							<td>3</td>
+							<td>$player[pv3ModelId]</td>
+							<td>".GetVehicleName($player['pv3ModelId'])."</td>
+						</tr>
+					";
+					}
+					if($player['pv4ModelId'] > 0) {
+					print "
+						<tr>
+							<td>4</td>
+							<td>$player[pv4ModelId]</td>
+							<td>".GetVehicleName($player['pv4ModelId'])."</td>
+						</tr>
+					";
+					}
+					if($player['pv5ModelId'] > 0) {
+					print "
+						<tr>
+							<td>5</td>
+							<td>$player[pv5ModelId]</td>
+							<td>".GetVehicleName($player['pv5ModelId'])."</td>
+						</tr>
+					";
+					}
+					if($player['pv6ModelId'] > 0) {
+					print "
+						<tr>
+							<td>6</td>
+							<td>$player[pv6ModelId]</td>
+							<td>".GetVehicleName($player['pv6ModelId'])."</td>
+						</tr>
+					";
+					}
+					if($player['pv7ModelId'] > 0) {
+					print "
+						<tr>
+							<td>7</td>
+							<td>$player[pv7ModelId]</td>
+							<td>".GetVehicleName($player['pv7ModelId'])."</td>
+						</tr>
+					";
+					}
+					if($player['pv8ModelId'] > 0) {
+					print "
+						<tr>
+							<td>8</td>
+							<td>$player[pv8ModelId]</td>
+							<td>".GetVehicleName($player['pv8ModelId'])."</td>
+						</tr>
+					";
+					}
+					if($player['pv9ModelId'] > 0) {
+					print "
+						<tr>
+							<td>9</td>
+							<td>$player[pv9ModelId]</td>
+							<td>".GetVehicleName($player['pv9ModelId'])."</td>
+						</tr>
+					";
+					}
+					print "</table>";
+					}
+					?>
+				<?php }
+				?>
+				<div class='acp-actionbar'></div>
+			</div></div>
+<?php }
+else { echo "<div id='content_wrap'><div class='section_title'><h2>You do not have access to this page.</h2></div></div>"; } ?>

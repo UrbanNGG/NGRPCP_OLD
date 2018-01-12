@@ -1,0 +1,377 @@
+<?php if(!isset($_GET['tid'])) { ?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'>
+		<li><?php echo $section; ?> &raquo; Support</li>
+	</ol>
+	<div class='section_title'>
+		<h2>View Tickets</h2>
+	</div>
+	<div class='acp-box'>
+		<h3><img src='https://<?php echo $_SERVER['SERVER_NAME']; ?>/global/images/logs.gif' /> Tickets</h3>
+	<table class='double_pad' cellpadding='0' cellspacing='0' border='1' width='100%' align="center" style='border-color:#ccc;'>
+    <form action="tickets.php" method="POST" name='tickets' onSubmit="return checkbox_checker(this,1,0);">
+        <tr>
+	        <th width="8px">&nbsp;</th>
+	        <th width="70" >
+                Ticket</th>
+	        <th width="70">
+               Date</th>
+	        <th width="280">Subject</th>
+	        <th width="120">
+                Area</th>
+			<th width="120">
+				Priority</th>
+			<th width="70">Status</th>
+            <th width="180" >From</th>
+        </tr>
+			<script type="text/javascript">
+			function highlight(box, obj)
+			{
+				 var color1 = '#fffdd1';
+				 var color2 = '';
+
+				 document.getElementById(obj).style.background = (box.checked ? color1 : color2);
+			}
+			</script>
+			<style>
+			.tablerow1:hover, .tablerow2:hover {
+				background-color:#fffdd1;
+			}
+			</style>
+			<?php
+				$sql = "SELECT COUNT(*) FROM `cp_support_tickets`";
+				$result = mysql_query($sql);
+				$r = mysql_fetch_row($result);
+				$numrows = $r[0];
+				$rowsperpage = 10;
+				$totalpages = ceil($numrows / $rowsperpage);
+				if (isset($_GET['tp']) && is_numeric($_GET['tp'])) {
+				   $currentpage = (int) $_GET['tp'];
+				} else {
+				   $currentpage = 1;
+				} 
+				if ($currentpage > $totalpages) {
+				   $currentpage = $totalpages;
+				}
+				if ($currentpage < 1) {
+				   $currentpage = 1;
+				}
+				$offset = ($currentpage - 1) * $rowsperpage;
+				$sql = "SELECT * FROM `cp_support_tickets` ORDER BY `ticket_id` DESC LIMIT $offset, $rowsperpage";
+				$result = mysql_query($sql);
+				while ($r = mysql_fetch_assoc($result)) {
+				if(isset($i) && $i == 1) {
+							print "<tr id='".$r['ticketID']."' class='tablerow1'>";
+						$i=0;
+						} else { 
+							print "<tr id='".$r['ticketID']."' class='tablerow2'>";
+						$i=1;
+						}
+					?>
+					<td align="center" class="nohover">
+						<input type="checkbox" name="tid[]" value="<?php echo $r['ticketID']; ?>" onClick="highlight(this,'<?php echo $r['ticketID']; ?>');">
+					</td>
+					<td align="center" nowrap>
+						<img src='https://<?php echo $_SERVER['SERVER_NAME']; ?>/global/images/ticket_source_Web.gif' /> <a href="cr.php?p=support&tid=<?php echo $r['ticketID']; ?>"><?php echo $r['ticketID']; ?></a></td>
+					<td align="center" nowrap><?php echo date('Y-m-d', strtotime($r['created'])); ?></td>
+					<td><a href="cr.php?p=support&tid=<?php echo $r['ticketID']; ?>"><?php echo $r['subject']; ?></a></td>
+					<td nowrap><?php echo $r['area']; ?></td>
+					<td nowrap><?php echo $r['priority']; ?></td>
+					<td nowrap><?php echo $r['status']; ?></td>
+					<td nowrap><?php echo GetName($r['p_id']); ?></td>
+				</tr>
+				<?php
+				} 
+				$range = 3;
+				echo "<tr><td colspan='8'>";
+				if ($currentpage > 1) {
+				   echo " <a class='realbutton' href='".$_SERVER['PHP_SELF']."?p=support&tp=1'><<</a> ";
+				   $prevpage = $currentpage - 1;
+				   echo " <a class='realbutton' href='".$_SERVER['PHP_SELF']."?p=support&tp=$prevpage'><</a> ";
+				}
+				for ($x = ($currentpage - $range); $x < (($currentpage + $range) + 1); $x++) {
+				   if (($x > 0) && ($x <= $totalpages)) {
+					  if ($x == $currentpage) {
+						 echo " <b class='realbutton'>$x</b> ";
+					  } else {
+						 echo " <a class='realbutton' href='".$_SERVER['PHP_SELF']."?p=support&tp=$x'>$x</a> ";
+					  } 
+				   } 
+				}    
+				if ($currentpage != $totalpages) {
+				   $nextpage = $currentpage + 1;
+				   echo " <a class='realbutton' href='".$_SERVER['PHP_SELF']."?p=support&tp=$nextpage'>></a> ";
+				   echo " <a class='realbutton' href='".$_SERVER['PHP_SELF']."?p=support&tp=$totalpages'>>></a>";
+				} 
+				echo "</td></tr>";
+				echo "<tr class='acp-actionbar'>
+							<td colspan='8'><b>*Click on a ticket to see more details.</b></td>
+						</tr>";
+				?>
+		</table>
+    </form>
+	</div>
+</div>
+<?php } else { ?>
+<script type="text/javascript">
+ var selectionsObject = {
+ 	"Change Priority":	['Low', 'Normal', 'High'],
+ 	};
+ function populateSelectbox(selectSource,selectToPopulate,optionsObject) {
+ 	selectToPopulate.options.length = 1
+ 	if (selectSource.value == '') {
+ 		selectToPopulate.disabled = true
+ 		return
+ 	}
+ 	for (var i = 0; i < optionsObject[selectSource.value].length; i++) {
+ 		selectToPopulate.options[i+1] =	new Option(optionsObject[selectSource.value][i],
+ 			optionsObject[selectSource.value][i])
+ 	}
+ 	selectToPopulate.disabled = false
+ }
+</script>
+<div id='content_wrap'>
+	<ol id='breadcrumb'>
+		<li><?php echo $section; ?> Support</li>
+	</ol>
+	<?php
+	$tid = $_GET['tid'];
+	if (!preg_match("/^[0-9]{1,6}+$/", $tid)) {
+		print "<meta http-equiv=\"refresh\" content=\"0;url=cr.php?p=support\">";exit();
+	}
+	if(isset($_POST['action']) && $_POST['action'] == 'reply') {
+		$response = escape_string($_POST['response']);
+		if($response != "") {
+		$th = mysql_query("
+		INSERT INTO `cp_support_tickets_response` (`ticket_id`, `p_id`, `form`, `staff`, `response`, `ip_address`, `created`)
+		VALUES ('$tid', '$inf[id]', '0', '1', '$response', '".$_SERVER['REMOTE_ADDR']."', '".date('Y-m-d h:i:s A')."')
+		");
+		$re = mysql_query("
+		UPDATE `cp_support_tickets` SET `lastresponse` = '".date('Y-m-d h:i:s A')."' WHERE `ticketID` = '$tid'
+		");
+		} 
+	}
+	if(isset($_POST['action']) && $_POST['action'] == 'status') {
+		if($_POST['status'] == 'close') {
+			if($q = mysql_query("UPDATE `cp_support_tickets` SET `status` = 'Closed' where `ticketID` = '".$tid."';")) {
+				$msg = 'Ticket has been closed.';
+				doLog("$inf[id]", "Customer Relations", "Support Tickets", "Closed Ticket #$tid");
+			}
+		}
+		if($_POST['status'] == 'reopen') {
+			if($q = mysql_query("UPDATE `cp_support_tickets` SET `status` = 'Open' where `ticketID` = '".$tid."';")) {
+				$msg = 'Ticket has been re-opened.';
+				doLog("$inf[id]", "Customer Relations", "Support Tickets", "Reopened Ticket #$tid");
+			}
+		}
+	}
+	$t = mysql_query("SELECT * FROM `cp_support_tickets` WHERE `ticketID` = '".$tid."';");
+	$z = mysql_num_rows($t);
+	$r = mysql_fetch_array($t);
+	?>
+	<?php
+		if($z == 0) {
+	?>
+			<div class='acp-box'>
+			<table class='double_pad' cellpadding='0' cellspacing='0' border='1' width='100%' align="center" style='border-color:#ccc;'>
+			<tr class="tablerow1"><td colspan=8><b><h2>Ticket not found or no access to view.</h2></b></td></tr>
+	<?php
+		} else {
+	?>
+	<div class='section_title'>
+		<h2>View Ticket #<?php echo $_GET['tid']; ?> <a href="cr.php?p=support&tid=<?php echo $_GET['tid']; ?>" title="Reload"><img src='https://127.0.0.1/cp//global/images/all/store/arrow_refresh.png' /></a></h2>
+	</div>
+	<?php if(isset($msg)) {
+	 echo "<div class='acp-error'>".$msg."</div>"; }
+	?>
+	<div class='acp-box'>
+	<h3><?php echo $r['subject']; ?></h3>
+	<table width="100%" cellpadding="0" cellspacing="0" border="1" style='border-color:#ccc'>
+    <tr>
+     <td width="50%;">	
+		<table align="left" cellspacing="1" cellpadding="3" width="100%" border="1" style='border-color:#fff'>
+			<tr>
+				<th>Status:</th>
+				<td><?php echo $r['status']; ?></td>
+			</tr>
+			<tr>
+        		<th>Priority:</th>
+        		<td><?php echo $r['priority']; ?></td>
+   	 		</tr>
+            <tr>
+                <th>Area:</th>
+                <td><?php echo $r['area']; ?></td>
+            </tr>
+		</table>
+     </td>
+     <td width="50">
+        <table align="right" cellspacing="1" cellpadding="3" width="100%" border="1" style='border-color:#fff'>
+            <tr>
+                <th>Name:</th>
+                <td><?php echo GetName($r['p_id']); ?></td>
+            </tr>
+            <tr>
+                <th nowrap>Email:</th>
+                <td><?php if (!empty($r['email'])) { echo $r['email']; } else { echo "N/A"; } ?></td>
+            </tr>
+			<tr>
+                <th>Create Date:</th>
+                <td><?php echo date('m/d/Y h:i:s A', strtotime($r['created'])); ?></td>
+            </tr>
+        </table>
+     </td>
+    </tr>
+    <tr>
+     <td width="50%">
+        <table align="center" cellspacing="1" cellpadding="3" width="100%" border="1" style='border-color:#fff'>
+            <tr>
+                <th>Assigned Staff:</th>
+                <td><?php echo GetName($r['a_id']); ?></td>
+            </tr>
+            <tr>
+                <th nowrap>Last Response:</th>
+                <td><?php echo $r['lastresponse']; ?></td>
+            </tr>
+                    </table>
+     </td>
+     <td width=50% valign="top">
+        <table align="center" cellspacing="1" cellpadding="3" width="100%" border="1" style='border-color:#fff'>
+            <tr>
+                <th>IP Address:</th>
+                <td><?php echo FlagWithIP($r['ip_address']); ?></td>
+            </tr>
+            <tr><th nowrap>Last Message:</th>
+                <td><?php echo $r['lastmessage']; ?></td>
+            </tr>
+        </table>
+     </td>
+    </tr>
+</table>
+<div>
+    </div>
+ 
+<table cellpadding="0" cellspacing="2" border="0" width="100%" style='border-color:#ccc'>
+    <tr class='tablerow1'><td>
+        <form method='POST'>
+            <input type='hidden' name='ticket_id' value="729"/>
+            <input type='hidden' name='a' value="process"/>
+            <span for="do"> &nbsp;<b>Action:</b></span>
+            <select name="status" 
+              onchange="populateSelectbox(this,this.form.change_priority,selectionsObject)">
+                <option value="">Select Action</option>
+                <option value="change_priority"  >Change Priority</option>
+                                <option value="overdue"  >Mark Overdue</option>
+                                                
+                                    <?php
+									if($r['status'] != 'Closed') {
+									?>
+									 <option value="close"  >Close Ticket</option>
+									<?php } else {
+									?>
+									 <option value="reopen"  >Reopen Ticket</option>
+									<?php } ?>
+                                        
+                        <option value="banemail" >Ban Email &amp; Close</option>
+                                    
+                                <option value="delete" >Delete Ticket</option>
+                            </select>
+            <span for="ticket_priority">Priority:</span>
+            <select id="ticket_priority" name="ticket_priority" disabled >
+                <option value="0" selected="selected">-Unchanged-</option>
+                                    <option value="1"  >Low</option>
+                                    <option value="2"  >Normal</option>
+                                    <option value="3" >High</option>
+                                    <option value="4"  >Emergency</option>
+                                    <option value="5"  >Pending EA</option>
+                                    <option value="6"  >Pending Logs</option>
+                                    <option value="7"  >Pending Evidence</option>
+                                    <option value="8"  >Under Review</option>
+                                    <option value="10"  >Overdue</option>
+                            </select>
+                &nbsp;&nbsp;
+			<input type="hidden" name="action" value="status">
+            <input class="button" type="submit" value="GO">
+        </form>
+    </tr></td>
+</table>
+<div align="left">
+<table cellspacing="1" cellpadding="3" width="100%" border="0" style='border-color:#ccc'>
+    <h3><img src='https://127.0.0.1/cp//global/images/all/store/comments.png'> Ticket Thread</h3>
+			<?php 
+			$th = mysql_query("SELECT * FROM `cp_support_tickets_response` WHERE `ticket_id` = ".$tid.";");
+			$thn = mysql_num_rows($th);
+			if($thn != 0) {
+			while($thr = mysql_fetch_array($th)) {
+			?>
+			<table cellspacing="5" cellpadding="5" width="100%" border="1" style='border-color:#ccc'>
+		        <tr><td align="left" style='background-color:<?php if ($thr['staff'] == 0) { echo "#B1C2D4"; } else { echo "#ffd8a6"; } ?>'> <?php echo GetName($thr['p_id']); ?> - <?php echo date('D, M d Y h:i A', strtotime($thr['created'])); ?></td></tr>
+                <tr><td><?php echo nl2br($thr['response']); ?></td></tr>
+		    </table>
+			<?php }
+			} else {
+			?>
+			<table cellspacing="5" cellpadding="5" width="100%" border="1" style='border-color:#ccc'>
+		        <tr><td align="center" style="background-color:#B1C2D4"><h4>No responses<h4></td></tr>
+		    </table>
+			<?php 
+			} ?>
+	</table>
+</div>
+<table align="center" cellspacing="0" cellpadding="3" width="90%" border=0>
+    <tr> <td align="center">
+      
+  </td></tr>
+    <tr> <td align="center">
+        <div class="tabber">
+            <div id="reply" class="tabbertab" align="left">
+                <h2>Post Reply</h2>
+                <p>
+                    <form name="reply" method="post">
+                        <input type="hidden" name="ticket_id" value="<?php echo $r['ticketID']; ?>">
+                        <div><font class="error">&nbsp;</font></div>
+                        <div>
+                                                          Canned Response:&nbsp;
+                               <select id="canned" name="canned"
+                                onChange="getCannedResponse(this.options[this.selectedIndex].value,this.form,'response');this.selectedIndex='0';" >
+                                <option value="0" selected="selected">Select a premade reply</option>
+                                    <option value="4" >Pending Staff Assignment</option>
+                                    <option value="13" >Assigner Reply</option>
+                                    <option value="6" >Supervisor Review</option>
+                                    <option value="7" >Double ticket</option>
+                                    <option value="8" >Resolved - No info</option>
+                                    <option value="9" >Resolved - Info</option>
+                                    <option value="10" >Closed</option>
+                                    <option value="11" >No reply</option>
+                                <option value="12" >Assignee Reply</option>
+                            </select>&nbsp;&nbsp;&nbsp;<label><input type='checkbox' value='1' name=append checked="true" />Append</label>
+							<input type='hidden' name='action' value='reply'>
+                            <textarea name="response" id="response" cols="90" rows="9" wrap="soft" style="width:90%"></textarea>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <label for="signature" nowrap>Append Signature:</label>
+                            <label><input type="radio" name="signature" value="none" checked > None</label>
+                            <label><input type="radio" name="signature" value="dept"  > Dept Signature</label>
+                        </div>
+						<div style="margin-top: 3px;">
+							<b>Ticket Status:</b>
+                            <label><input type="checkbox" name="ticket_status" id="l_ticket_status" value="Close"  > Close on Reply</label>
+                        </div>
+                        <p>
+                            <div style="margin-left: 50px; margin-top: 30px; margin-bottom: 10px;border: 0px;">
+                                <input class="button" type='submit' value='Post Reply' />
+                                <input class="button" type='reset' value='Reset' />
+                                <input class="button" type='button' value='Cancel' onClick="history.go(-1)" />
+                            </div>
+                        </p>
+                    </form>                
+                </p>
+            </div>                 
+        </div>
+    </td>
+ </tr>
+
+<?php } ?>
+	</table>
+	</div>
+</div>
+<?php } ?>

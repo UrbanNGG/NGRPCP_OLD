@@ -1,0 +1,109 @@
+<?php if($inf['AdminLevel'] < "1337") {
+	echo $redir;
+	exit();
+}
+
+$section = "Staff";
+$area = "Game Affairs";
+
+if(isset($_POST['action']) && $_POST['action'] == "add") {
+if($_POST['admin'] != $inf['Username']) { echo "Error 1001 - Data tampered with!"; exit(); }
+if($_POST['ip'] != $_SERVER['REMOTE_ADDR']) { echo "Error 1002 - Data tampered with!"; exit(); }
+$removequery = mysql_query("UPDATE `accounts` SET `FactionModerator` = '1' WHERE `id` = '$_POST[fac_user]'");
+$usernamequery = mysql_query("SELECT `Username` FROM `accounts` WHERE `id` = '$_POST[fac_user]'");
+$username = mysql_fetch_array($usernamequery);
+$details = "Added ".$username[0]." as a faction moderator";
+doLog($inf['id'], $section, $area, $details);
+if (!$removequery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $removequery;
+    die($message);
+	}
+}
+
+if(isset($_POST['action']) && $_POST['action'] == "remove") {
+if($_POST['admin'] != $inf['Username']) { echo "Error 1001 - Data tampered with!"; exit(); }
+if($_POST['ip'] != $_SERVER['REMOTE_ADDR']) { echo "Error 1002 - Data tampered with!"; exit(); }
+$removequery = mysql_query("UPDATE `accounts` SET `FactionModerator` = '0' WHERE `id` = '$_POST[userid]'");
+$details = "Removed ".$_POST['facmod_name']."\'s faction moderator";
+doLog($inf['id'], $section, $area, $details);
+if (!$removequery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $removequery;
+    die($message);
+	}
+}
+?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'><li>Game Affairs > Viewing Faction Moderators</li></ol>
+	<div class='section_title'><h2>Faction Moderators</h2></div>
+<div class='acp-box'>
+	<h3>Add a Faction Moderator</h3>
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+			<form method='post' action='gameaffairs.php?p=factionmod'>
+			<tr>
+				<td>Name</td>
+				<td><select name="fac_user">
+					<?php 
+					$userquery = mysql_query("SELECT `id`, `Username` FROM `accounts` WHERE `AdminLevel` > '1' ORDER BY Username ASC");
+					while ($user = mysql_fetch_array($userquery)) {
+					echo "<option value='$user[id]'>$user[Username]</option>";
+					} ?>
+				</select></td>
+				<td>
+					<input type='hidden' name='action' readonly='readonly' value='add'>
+					<input type='hidden' name='admin' readonly='readonly' value='<?php echo $_SESSION['myusername']; ?>'>
+					<input type='hidden' name='ip' readonly='readonly' value='<?php echo $_SERVER['REMOTE_ADDR']; ?>'>
+					<input type='submit' class='button' value='Add'>
+				</td>
+			</tr>
+			</form>
+		</table>
+	<h3>Faction Moderator List</h3>
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+		<tr>
+			<th>Administrator</th><th>Faction</th><th>Last Active</th><th>Remove</th>
+		</tr>
+	<?php $fmod1 = mysql_query("SELECT `id`, `Username`, `UpdateDate`, `Member` FROM `accounts` WHERE `FactionModerator` = '1' ORDER BY Username ASC");
+		while ($fmod = mysql_fetch_array($fmod1)) {
+			if (isset($i) && $i == 1) {
+				print "<tr class='tablerow1'>";
+			$i=0;
+			} else { 
+				print "<tr>";
+			$i=1;
+			}
+			
+		$faclistquery = mysql_query("SELECT `name` FROM `cp_faction` WHERE `id` = $fmod[Member]");
+		$faclist = mysql_fetch_array($faclistquery);
+		if($fmod['Member'] > 0) { $facname = $faclist['0']; }
+		if($fmod['Member'] == 0) { $facname = "None"; }
+		$uDate = date("M j, o - g:iA", strtotime("$fmod[UpdateDate]"));
+		$diff = strtotime("now") - strtotime("$fmod[UpdateDate]");
+		$days = $diff/86400;
+		if($days == 0) { $lo = "<span style='color:green'>$uDate</span>"; }
+		if($days >= 1) { $lo = "<span style='color:blue'>$uDate</span>"; }
+		if($days >= 7) { $lo = "<span style='color:gold'>$uDate</span>"; }
+		if($days >= 14) { $lo = "<span style='color:orange'>$uDate</span>"; }
+		if($days >= 30) { $lo = "<span style='color:red'>$uDate</span>"; }
+			
+	$remove = "<form method='post' action='gameaffairs.php?p=factionmod'>
+	<input type='hidden' name='action' readonly='readonly' value='remove'>
+	<input type='hidden' name='admin' readonly='readonly' value='$_SESSION[myusername]'>
+	<input type='hidden' name='ip' readonly='readonly' value='$_SERVER[REMOTE_ADDR]'>
+	<input type='hidden' name='userid' readonly='readonly' value='$fmod[id]'>
+	<input type='hidden' name='facmod_name' readonly='readonly' value='$fmod[Username]'>
+	<input type='submit' class='button' value='Remove'>
+	</form>";
+			
+		print "
+			<td>$fmod[Username]</td>
+			<td>$facname</td>
+			<td>$lo</td>
+			<td>$remove</td>
+				</tr>
+			";
+		} ?>
+		</table>
+</div>
+</div>

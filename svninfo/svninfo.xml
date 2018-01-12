@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<info>
+<entry
+   path="ngg-ucp-development"
+   revision="162"
+   kind="dir">
+<url>https://subversion.assembla.com/svn/ngg-ucp-development</url>
+<relative-url>^/</relative-url>
+<repository>
+<root>https://subversion.assembla.com/svn/ngg-ucp-development</root>
+<uuid>3f8fc699-6d2e-494e-8f5a-81afcb27064a</uuid>
+</repository>
+<commit
+   revision="162">
+<author>GrandTheftGamer</author>
+<date>2013-11-22T21:14:31.290844Z</date>
+</commit>
+<lock>
+<created>1970-01-01T00:00:00.000000Z</created>
+</lock>
+</entry>
+</info>

@@ -1,0 +1,102 @@
+<?php
+if(isset($_GET['err']) && $_GET['err'] == "003") { echo "That username already exists."; }
+	if($inf['AdminLevel'] >= 99999) { ?>
+		<div id='content_wrap'>
+			<ol id='breadcrumb'><li>User Management > Add User</li></ol> 
+			<div class='section_title'><h2>Add User</h2></div>
+			<div class='acp-box'>
+				<h3>Add Administrator</h3>
+				<table class='double_pad' cellpadding='0' cellspacing='0' border='0' width='100%'>
+					<form method="POST" action="user/proc.php">
+						<tr class="tablerow1"><td width="40%" colspan="2">Username</td><td colspan="4"><input type="text" name="user" length="64"></td></tr>
+						<tr><td colspan="2">Password</td><td colspan="4"><input type="password" name="pass" length="64"></td></tr>
+						<tr class="tablerow1"><td colspan="2">Rank</td>
+							<td colspan="4"><select name="rank">
+								<option value="2">Junior Administrator</option>
+								<option value="3">General Administrator</option>
+							</select></td>
+						</tr>
+						<tr><th colspan="6">Permissions</th></tr>
+						<tr>
+							<td>View Punishments</td><td><input type="hidden" name="vpunish" value="0" /><input type="checkbox" name="vpunish" value="1" /></td>
+							<td>View Refunds</td><td><input type="hidden" name="vrefund" value="0" /><input type="checkbox" name="vrefund" value="1" /></td>
+							<td>View Bans</td><td><input type="hidden" name="vban" value="0" /><input type="checkbox" name="vban" value="1" /></td>
+						</tr>
+						<tr><th colspan="6">Game Log Access</th></tr>
+						<tr class="tablerow1">
+							<td>Admin</td><td><input type="hidden" name="gladmin" value="0" /><input type="checkbox" name="gladmin" value="1" /></td>
+							<td>Admin Give</td><td><input type="hidden" name="gladmingive" value="0" /><input type="checkbox" name="gladmingive" value="1" /></td>
+							<td>Admin Pay</td><td><input type="hidden" name="gladminpay" value="0" /><input type="checkbox" name="gladminpay" value="1" /></td>
+						</tr>
+						<tr>
+							<td>Ban</td><td><input type="hidden" name="glban" value="0" /><input type="checkbox" name="glban" value="1" /></td>
+							<td>Contracts</td><td><input type="hidden" name="glcontracts" value="0" /><input type="checkbox" name="glcontracts" value="1" /></td>
+							<td>Dynamic Door Edit</td><td><input type="hidden" name="glddedit" value="0" /><input type="checkbox" name="glddedit" value="1" /></td>
+						</tr>
+						<tr class="tablerow1">
+							<td>Dynamic Map Icon Edit</td><td><input type="hidden" name="gldmpedit" value="0" /><input type="checkbox" name="gldmpedit" value="1" /></td>
+							<td>Faction</td><td><input type="hidden" name="glfaction" value="0" /><input type="checkbox" name="glfaction" value="1" /></td>
+							<td>Family</td><td><input type="hidden" name="glfamily" value="0" /><input type="checkbox" name="glfamily" value="1" /></td>
+						</tr>
+						<tr>
+							<td>Family Member Count</td><td><input type="hidden" name="glfmembercount" value="0" /><input type="checkbox" name="glfmembercount" value="1" /></td>
+							<td>Gate Edit</td><td><input type="hidden" name="glgedit" value="0" /><input type="checkbox" name="glgedit" value="1" /></td>
+							<td>Gifts</td><td><input type="hidden" name="glgifts" value="0" /><input type="checkbox" name="glgifts" value="1" /></td>
+						</tr>
+						<tr class="tablerow1">
+							<td>Hack</td><td><input type="hidden" name="glhack" value="0" /><input type="checkbox" name="glhack" value="1" /></td>
+							<td>House Edit</td><td><input type="hidden" name="glhedit" value="0" /><input type="checkbox" name="glhedit" value="1" /></td>
+							<td>House</td><td><input type="hidden" name="glhouse" value="0" /><input type="checkbox" name="glhouse" value="1" /></td>
+						</tr>
+						<tr>
+							<td>Kick</td><td><input type="hidden" name="glkick" value="0" /><input type="checkbox" name="glkick" value="1" /></td>
+							<td>Licenses</td><td><input type="hidden" name="gllicenses" value="0" /><input type="checkbox" name="gllicenses" value="1" /></td>
+							<td>Moderator</td><td><input type="hidden" name="glmoderator" value="0" /><input type="checkbox" name="glmoderator" value="1" /></td>
+						</tr>
+						<tr class="tablerow1">
+							<td>Mute</td><td><input type="hidden" name="glmute" value="0" /><input type="checkbox" name="glmute" value="1" /></td>
+							<td>Public Advertisements</td><td><input type="hidden" name="glpads" value="0" /><input type="checkbox" name="glpads" value="1" /></td>
+							<td>Password</td><td><input type="hidden" name="glpassword" value="0" /><input type="checkbox" name="glpassword" value="1" /></td>
+						</tr>
+						<tr>
+							<td>Pay</td><td><input type="hidden" name="glpay" value="0" /><input type="checkbox" name="glpay" value="1" /></td>
+							<td>Player Vehicle</td><td><input type="hidden" name="glplayervehicle" value="0" /><input type="checkbox" name="glplayervehicle" value="1" /></td>
+							<td>RP Special</td><td><input type="hidden" name="glrpspecial" value="0" /><input type="checkbox" name="glrpspecial" value="1" /></td>
+						</tr>
+						<tr class="tablerow1">
+							<td>Security</td><td><input type="hidden" name="glsecurity" value="0" /><input type="checkbox" name="glsecurity" value="1" /></td>
+							<td>Set VIP</td><td><input type="hidden" name="glsetvip" value="0" /><input type="checkbox" name="glsetvip" value="1" /></td>
+							<td>Shop Confirmed Orders</td><td><input type="hidden" name="glshopconfirmedorders" value="0" /><input type="checkbox" name="glshopconfirmedorders" value="1" /></td>
+						</tr>
+						<tr>
+							<td>Shop</td><td><input type="hidden" name="glshoplog" value="0" /><input type="checkbox" name="glshoplog" value="1" /></td>
+							<td>Shop Orders</td><td><input type="hidden" name="glshoporders" value="0" /><input type="checkbox" name="glshoporders" value="1" /></td>
+							<td>Stats</td><td><input type="hidden" name="glstats" value="0" /><input type="checkbox" name="glstats" value="1" /></td>
+						</tr>
+						<tr class="tablerow1">
+							<td>Undercover</td><td><input type="hidden" name="glundercover" value="0" /><input type="checkbox" name="glundercover" value="1" /></td>
+							<td>VIP Name-Changes</td><td><input type="hidden" name="glvipnamechanges" value="0" /><input type="checkbox" name="glvipnamechanges" value="1" /></td>
+							<td>VIP Remove</td><td><input type="hidden" name="glvipremove" value="0" /><input type="checkbox" name="glvipremove" value="1" /></td>
+						</tr>
+						<tr><th colspan="6">CP Log Access</th></tr>
+						<tr>
+							<td>General</td><td><input type="hidden" name="cplgeneral" value="0" /><input type="checkbox" name="cplgeneral" value="1" /></td>
+							<td>Staff</td><td><input type="hidden" name="cplstaff" value="0" /><input type="checkbox" name="cplstaff" value="1" /></td>
+							<td>Faction</td><td><input type="hidden" name="cplfaction" value="0" /><input type="checkbox" name="cplfaction" value="1" /></td>
+						</tr>
+						<tr class="tablerow1">
+							<td>Family</td><td><input type="hidden" name="cplfamily" value="0" /><input type="checkbox" name="cplfamily" value="1" /></td>
+							<td colspan="4"></td>
+						</tr>
+						<tr><td class="acp-actionbar" colspan="6">
+							<input type="hidden" name="action" readonly="readonly" value="adduser">
+							<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+							<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+							<input type="submit" class="button" value="Create User">
+						</td></tr>
+					</form>
+				</table>
+			</div>
+		</div>
+	<?php }
+	else { echo "You do not have access to this section."; } ?>

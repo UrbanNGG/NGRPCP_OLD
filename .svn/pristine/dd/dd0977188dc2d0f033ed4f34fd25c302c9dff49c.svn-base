@@ -1,0 +1,33 @@
+<?php $section = 'Main';
+function SideNav($inf) {
+	print "<ul>";
+	if($_SERVER["REQUEST_URI"] == "/staff/index.php?p=dashboard") {
+	print "<li class='active'><a href=\"index.php?p=dashboard\">Dashboard</a></li>";
+	}
+	else {
+	print "<li><a href=\"index.php?p=dashboard\">Dashboard</a></li>";
+	}
+	//if($_SERVER["REQUEST_URI"] == "/admin/index.php?p=checkin") {
+	//print "<li class='active'><a href=\"index.php?p=checkin\">Check-In</a></li>";
+	//}
+	//else {
+	//print "<li><a href=\"index.php?p=checkin\">Check-In</a></li>";
+	//}
+	if($inf['AdminLevel'] > 1) {
+	if($_SERVER["REQUEST_URI"] == "/staff/index.php?p=shift") {
+	print "<li class='active'><a href=\"index.php?p=shift\">Shift Sign-Up</a></li>";
+	}
+	else {
+	print "<li><a href=\"index.php?p=shift\">Shift Sign-Up</a></li>";
+	}
+	if($_SERVER["REQUEST_URI"] == "/staff/index.php?p=leave") {
+	print "<li class='active'><a href=\"index.php?p=leave\">On-Leave Request</a></li>";
+	}
+	else {
+	print "<li><a href=\"index.php?p=leave\">On-Leave Request</a></li>";
+	}
+	}
+	print "</ul>";
+}
+
+?>

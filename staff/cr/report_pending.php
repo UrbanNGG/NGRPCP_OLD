@@ -1,0 +1,54 @@
+<?php if($inf['AdminLevel'] >= 1337 || $inf['ShopTech'] >= 2) { ?>
+<div id='content_wrap'> 
+	<ol id='breadcrumb'><li><?php echo $section; ?> > Viewing Pending Reports</li></ol> 
+	<div class='section_title'><h2>Weekly Reports</h2></div>
+	<?php if(isset($_GET['n']) && $_GET['n'] == 1) { echo "<div class='acp-message'>Report approved!</div>"; }
+	if(isset($_GET['n']) && $_GET['n'] == 2) { echo "<div class='acp-message'>Report denied!</div>"; } ?>
+	<div class='acp-box'>
+	<h3>Pending Reports</h3>
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'> 
+		<tr>
+			<th>Administrator</th><th>Date</th><th>How has your week been?</th><th>Have you experienced any issues?</th><th>Hours spent on-duty</th><th>If you haven't completed 21 hours of duty this week, why haven't you?</th><th>What shifts have you been working in?</th><th>Approve/Deny</th>
+		</tr>
+		<?php
+			$sql = mysql_query("SELECT * FROM `cp_weekly_reports` WHERE `status` = 1");
+			while ($result = mysql_fetch_array($sql)) {
+			$approve = "<form method='post' action='cr/proc.php'>
+				<input type='hidden' name='action' readonly='readonly' value='report_approve'>
+				<input type='hidden' name='admin' readonly='readonly' value='$_SESSION[myusername]'>
+				<input type='hidden' name='ip' readonly='readonly' value='$_SERVER[REMOTE_ADDR]'>
+				<input type='hidden' name='id' readonly='readonly' value='$result[id]'>
+				<input type='image' src='/global/images/all/icons/tick.png' alt='Approve'></form>";
+			
+			$deny = "<form method='post' action='cr/proc.php'>
+				<input type='hidden' name='action' readonly='readonly' value='report_remove'>
+				<input type='hidden' name='admin' readonly='readonly' value='$_SESSION[myusername]'>
+				<input type='hidden' name='ip' readonly='readonly' value='$_SERVER[REMOTE_ADDR]'>
+				<input type='hidden' name='id' readonly='readonly' value='$result[id]'>
+				<input type='image' src='/global/images/all/icons/cross.png' alt='Deny'></form>";
+
+			if (isset($i) && $i == 1) {
+				print "<tr class='tablerow1'>";
+			$i=0;
+			} else { 
+				print "<tr>";
+			$i=1;
+			}
+			
+			print "
+				<td>".GetName($result['admin_id'])."</td>
+				<td>$result[date]</td>
+				<td>$result[q1]</td>
+				<td>$result[q2]</td>
+				<td>$result[q3]</td>
+				<td>$result[q4]</td>
+				<td>$result[q5]</td>
+				<td>$approve $deny</td>
+			</tr>
+			";
+			}
+		?>
+		</table>
+</div></div>
+<?php }
+else { echo "<div id='content_wrap'><div class='section_title'><h2>You do not have access to this page.</h2></div></div>"; } ?>

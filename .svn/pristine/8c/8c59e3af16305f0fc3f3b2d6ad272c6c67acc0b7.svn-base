@@ -1,0 +1,38 @@
+<?php if($inf['AdminLevel'] < 1338) {
+	echo $redir2;
+	exit();
+}
+?>
+
+			<div id='content_wrap'>
+				<ol id='breadcrumb'><li>User Management > View Archived Leaves</li></ol>
+				<div class='section_title'><h2>Archived Leaves</h2></div>
+			<div class='acp-box'>
+				<h3>Archived Leaves</h3>
+					<table class='double_pad' cellpadding='0' cellspacing='0' border='0' width='100%'> 
+<tr><th>Admin</th><th>Date of Leave</th><th>Date Returned</th><th>Reason</th></tr>
+
+<?php
+$query = mysql_query("SELECT * FROM `user_leaves` ORDER BY `uid` ASC, `date_leave` ASC");
+while ($result = mysql_fetch_array($query)) {
+
+		if (isset($i) && $i == 1) {
+			print "<tr class='tablerow1'>";
+		$i=0;
+		} else { 
+			print "<tr>";
+		$i=1;
+		}
+
+print "
+<td>$result[uid]</td>
+<td>$result[date_leave]</td>
+<td>$result[date_return]</td>
+<td>$result[reason]</td>
+</tr>
+";
+}
+?>
+	</table>
+	<div class='acp-actionbar'></div>
+</div></div>

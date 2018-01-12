@@ -1,0 +1,91 @@
+<?php if($inf['FactionModerator'] > 0 || $inf['AdminLevel'] > 3) { ?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'><li>Game Affairs > Viewing Faction Bans</li></ol>
+	<div class='section_title'><h2>Faction Bans</h2></div>
+<div class='acp-box'>
+	<h3>Faction Ban List</h3>
+			<?php
+			if(isset($_GET['n']) && $_GET['n'] == 1) { echo "<div class='acp-error'>That player does not exist. Please try again.</div>"; }
+			if(isset($_GET['n']) && $_GET['n'] == 2) { echo "<div class='acp-error'>That player is currently in-game. Please issue the faction ban in-game or try again later.</div>"; }
+			if(isset($_GET['n']) && $_GET['n'] == 3) { echo "<div class='acp-message'>Faction ban added successfully!</div>"; }
+			if(isset($_GET['n']) && $_GET['n'] == 11) { echo "<div class='acp-error'>That player is currently in-game. Please remove the faction ban in-game or try again later.</div>"; }
+			if(isset($_GET['n']) && $_GET['n'] == 12) { echo "<div class='acp-message'>Faction ban removed successfully!</div>"; }
+			?>
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+		<tr>
+			<th width='5%'></th><th width='5%'></th><th>Player</th><th>Faction</th><th>Last Active</th><th>Remove</th>
+		</tr>
+	<?php $fmem1 = mysql_query("SELECT `id`, `Username`, `UpdateDate`, `IP`, `FactionBanned`, `CSFBanned` FROM `accounts` WHERE (`FactionBanned` > '0' OR `CSFBanned` = '1') ORDER BY `Username` ASC");
+		while ($fmem = mysql_fetch_array($fmem1)) {
+			if (isset($i) && $i == 1) {
+				print "<tr>";
+			$i=0;
+			} else {
+				print "<tr class='tablerow1'>";
+			$i=1;
+			}
+
+			$faclistquery = mysql_query("SELECT `Name` FROM `groups` WHERE `id` = $fmem[FactionBanned]");
+			$faclist = mysql_fetch_array($faclistquery);
+			
+			$remove = "
+			<form method='POST' action='gameaffairs/proc.php'>
+			<input type='hidden' name='action' readonly='readonly' value='fban_remove'>
+			<input type='hidden' name='admin' readonly='readonly' value='$_SESSION[myusername]'>
+			<input type='hidden' name='ip' readonly='readonly' value='$_SERVER[REMOTE_ADDR]'>
+			<input type='hidden' name='leader' readonly='readonly' value='$fmem[Username]'>
+			<input type='hidden' name='name' readonly='readonly' value='$faclist[0]'>
+			<input type='image' src='../../global/images/all/icons/cross.png' alt='Remove'></form>
+			";
+			
+			if($fmem['CSFBanned'] == 1) { $faclist[0] = "All"; }
+			
+			if(IsPlayerOnline($fmem['id']) > 0) { $status = "<img src='../../global/images/all/icon_components/topics/user-online.png' alt='Online' />"; }
+			if(IsPlayerOnline($fmem['id']) == 0) { $status = "<img src='../../global/images/all/icon_components/topics/user-offline.png' alt='Offline' />"; }
+			
+		print "
+			<td>$status</td>
+			<td>".FlagByIP($fmem['IP'])."</td>
+			<td>$fmem[Username]</td>
+			<td>$faclist[0]</td>
+			<td>".LastOnline($fmem['id'])."</td>
+			<td>$remove</td>
+				</tr>
+			";
+		} ?>
+		</table>
+</div>
+<div class='acp-box'>
+<h3>Add a Faction Ban</h3>
+<form method="POST" action="gameaffairs/proc.php">
+	<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%' style='font-weight:bold'> 
+		<tr class='tablerow1'>
+			<td width='10%'>Name</td>
+			<td width='35%'>
+				<input type="text" name="leader" length="64">
+			</td>
+			<td width='10%'>Faction</td>
+			<td width='35%'>
+				<select name="ga_id">
+					<option value='0'>All Factions</option>
+					<?php
+					$faclistquery = mysql_query("SELECT `id`, `Name` FROM `groups` ORDER BY id ASC");
+					while ($faclist = mysql_fetch_array($faclistquery)) {
+					 if($faclist['Name'] != "") { echo "<option value='$faclist[id]'>$faclist[Name]</option>"; }
+					}
+					?>
+				</select>
+			</td>
+			<td width='10%'>
+				<input type="hidden" name="action" readonly="readonly" value="fban_add">
+				<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+				<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+				<input type="submit" class="button" value="Add Ban">
+			</td>
+		</tr>
+	</table>
+</form>
+</div>
+</div>
+<?php } 
+else { echo "<div id='content_wrap'><div class='section_title'><h2>You do not have access to this page.</h2></div></div>"; } ?>

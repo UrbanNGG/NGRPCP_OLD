@@ -1,0 +1,41 @@
+<?php
+function SideNav($access) {
+	print "<ul>";
+	if($_SERVER["REQUEST_URI"] == "/staff/log.php?p=index") {
+	print "<li class='active'><a href='log.php?p=index'>Log Index</a></li>";
+	}
+	else {
+	print "<li><a href='log.php?p=index'>Log Index</a></li>";
+	}
+	if($_SERVER["REQUEST_URI"] == "/staff/log.php?p=cp" || isset($_GET['log']) || isset($_GET['l'])) {
+	print "<li class='active'>CP Logs";
+	print "<ul>";
+	if($access['cplgeneral'] == 1) { print "<li><a href='log.php?p=cp&log=general'>General</a></li>"; }
+	if($access['cplstaff'] == 1) { print "<li><a href='log.php?p=cp&log=staff'>Staff</a></li>"; }
+	if($access['cplfaction'] == 1) { print "<li><a href='log.php?p=cp&log=faction'>Faction</a></li>"; }
+	if($access['cplfamily'] == 1) { print "<li><a href='log.php?p=cp&log=family'>Family</a></li>"; }
+	if($access['cplcr'] == 1) { print "<li><a href='log.php?p=cp&log=cr'>Customer Relations</a></li>"; }
+	print "</ul></li>";
+	}
+	else {
+	print "<li>CP Logs";
+	print "<ul>";
+	if($access['cplgeneral'] == 1) { print "<li><a href='log.php?p=cp&log=general'>General</a></li>"; }
+	if($access['cplstaff'] == 1) { print "<li><a href='log.php?p=cp&log=staff'>Staff</a></li>"; }
+	if($access['cplfaction'] == 1) { print "<li><a href='log.php?p=cp&log=faction'>Faction</a></li>"; }
+	if($access['cplfamily'] == 1) { print "<li><a href='log.php?p=cp&log=family'>Family</a></li>"; }
+	if($access['cplcr'] == 1) { print "<li><a href='log.php?p=cp&log=cr'>Customer Relations</a></li>"; }
+	print "</ul></li>";
+	}
+	if($_GET["p"] == "game") {
+	print "<li class='active'>Game Logs</li>";
+
+	}
+	else {
+	print "<li>Game Logs</li>";
+
+	}
+	print "</ul>";
+}
+
+?>

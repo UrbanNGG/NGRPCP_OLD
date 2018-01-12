@@ -1,0 +1,63 @@
+<?php
+function SideNav($inf) {
+	print "<ul>";
+	if($inf['AdminLevel'] >= 4 || $inf['FactionModerator'] > 0) {
+	if($_SERVER["REQUEST_URI"] == "/staff/gameaffairs.php?p=factionmod" || $_SERVER["REQUEST_URI"] == "/staff/gameaffairs.php?p=factionleader" || $_SERVER["REQUEST_URI"] == "/staff/gameaffairs.php?p=factionmember" || $_SERVER["REQUEST_URI"] == "/staff/gameaffairs.php?p=factionban" || isset($_GET['mem'])) {
+	print "<li class='active'><a href='gameaffairs.php?p=faction'>Factions</a>";
+	print "<ul>";
+	if($inf['AdminLevel'] >= 1337 || $inf['FactionModerator'] == 2) {
+	print "<li><a href=\"gameaffairs.php?p=factionmod\">Faction Moderators</a></li>";
+	}
+	print "<li><a href=\"gameaffairs.php?p=factionleader\">Faction Leaders</a></li>";
+	print "<li><a href=\"gameaffairs.php?p=factionmember\">Faction Members</a></li>";
+	print "<li><a href=\"gameaffairs.php?p=factionban\">Faction Ban List</a></li>";
+	print "</ul></li>";
+	}
+	else {
+	print "<li><a href='gameaffairs.php?p=faction'>Factions</a>";
+	print "<ul>";
+	if($inf['AdminLevel'] >= 1337 || $inf['FactionModerator'] == 2) {
+	print "<li><a href=\"gameaffairs.php?p=factionmod\">Faction Moderators</a></li>";
+	}
+	print "<li><a href=\"gameaffairs.php?p=factionleader\">Faction Leaders</a></li>";
+	print "<li><a href=\"gameaffairs.php?p=factionmember\">Faction Members</a></li>";
+	print "<li><a href=\"gameaffairs.php?p=factionban\">Faction Ban List</a></li>";
+	print "</ul></li>";
+	}
+	}
+	if($inf['AdminLevel'] >= 4 || $inf['GangModerator'] > 0) {
+	if($_GET['p'] == "gangmod" || $_GET['p'] == "gangleader" || $_GET['p'] == "gangmember" || $_GET['p'] == "gangban" || isset($_GET['fmem'])) {
+	print "<li class='active'><a href='gameaffairs.php?p=gang'>Gangs</a>";
+	print "<ul>";
+	if($inf['AdminLevel'] >= 1337 || $inf['GangModerator'] == 2) {
+	print "<li><a href=\"gameaffairs.php?p=gangmod\">Gang Moderators</a></li>";
+	}
+	print "<li><a href=\"gameaffairs.php?p=gangleader\">Gang Leaders</a></li>";
+	print "<li><a href=\"gameaffairs.php?p=gangmember\">Gang Members</a></li>";
+	print "<li><a href=\"gameaffairs.php?p=gangban\">Gang Ban List</a></li>";
+	print "</ul></li>";
+	}
+	else {
+	print "<li><a href='gameaffairs.php?p=gang'>Gangs</a>";
+	print "<ul>";
+	if($inf['AdminLevel'] >= 1337 || $inf['GangModerator'] == 2) {
+	print "<li><a href=\"gameaffairs.php?p=gangmod\">Gang Moderators</a></li>";
+	}
+	print "<li><a href=\"gameaffairs.php?p=gangleader\">Gang Leaders</a></li>";
+	print "<li><a href=\"gameaffairs.php?p=gangmember\">Gang Members</a></li>";
+	print "<li><a href=\"gameaffairs.php?p=gangban\">Gang Ban List</a></li>";
+	print "</ul></li>";
+	}
+	}
+	if($inf['AdminLevel'] >= 1337 || $inf['Undercover'] == 2) {
+	if($_SERVER["REQUEST_URI"] == "/staff/gameaffairs.php?p=specops") {
+	print "<li class='active'><a href='gameaffairs.php?p=specops'>Special Operations</a></li>";
+	}
+	else {
+	print "<li><a href='gameaffairs.php?p=specops'>Special Operations</a></li>";
+	}
+	}
+	print "</ul>";
+}
+
+?>

@@ -1,0 +1,27 @@
+<?php if($inf['AdminLevel'] >= 1337) { ?>
+				<h3>Disabled List</h3>
+<?php
+$sql = "SELECT `Username`,`Disabled` FROM `accounts` WHERE `Disabled` = '1' ORDER BY Username ASC";
+?>
+<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%' style='font-weight:bold'> 
+<tr><th>Name</th></tr>
+<?php
+$userM1 = mysql_query($sql);
+while ($userM = mysql_fetch_array($userM1)) {
+
+	if (isset($i) && $i == 1) { print "<tr class='tablerow1'>";
+		$i=0;
+	} else { print "<tr>";
+		$i=1;
+	}
+
+print "
+<td><a href=#>$userM[Username]</a></td>
+</tr>
+";
+}
+
+?>
+	</table>
+<?php }
+else { echo "You do not have access to this section."; } ?>

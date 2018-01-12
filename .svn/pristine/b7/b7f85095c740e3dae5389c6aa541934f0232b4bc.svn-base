@@ -1,0 +1,436 @@
+<?php
+if(isset($_GET['sp']) && $_GET['sp'] == 'main') {
+
+if (isset($_POST['update'])) {
+	if(isset($_POST['status'])) {
+		$status = $_POST['status'];
+	} 
+	
+	if($_POST['update'] == 'status') {
+		$store = mysql_query("UPDATE `cp_store_manage` SET `store_online`='".$status."';");
+		$editmsg = "<div class='acp-message'>Store Status has been updated</div>";
+	}
+}
+if (isset($_POST['edit'])) {
+	if(preg_match('%^[0-9]{3,}$%', $_POST['pack_tokens']) && preg_match('%^[0-9]{0,}$%', ($_POST['pack_b_tokens']))) {
+		list($width, $height) = getimagesize($_POST['pack_picture']);
+		if($_POST['pack_tokens'] >= 50 && $_POST['pack_tokens'] <= 150 && $_POST['pack_price'] >= '2.50' && $_POST['pack_price'] <= '10.00' ||
+		$_POST['pack_tokens'] >= 150 && $_POST['pack_tokens'] <= 300 && $_POST['pack_price'] >= '5.00' && $_POST['pack_price'] <= '15.00' ||
+		$_POST['pack_tokens'] >= 400 && $_POST['pack_tokens'] <= 700 && $_POST['pack_price'] >= '24.99' && $_POST['pack_price'] <= '35.00' ||
+		$_POST['pack_tokens'] >= 800 && $_POST['pack_tokens'] <= 3000 && $_POST['pack_price'] >= '49.99' && $_POST['pack_price'] <= '75.00' ||
+		$_POST['pack_tokens'] >= 1500 && $_POST['pack_tokens'] <= 3000 && $_POST['pack_price'] >= '75.00' && $_POST['pack_price'] <= '150.00') {
+			if($_POST['pack_tokens'] >= 50 && $_POST['pack_tokens'] <= 3000) {
+				$btokens = $_POST['pack_b_tokens'];
+				$ttokens = $_POST['pack_tokens'];
+				if(preg_match('%^[0-9]*\.[0-9]{2,2}$%', $_POST['pack_price']) && $_POST['pack_price'] >= '4.99' && $_POST['pack_price'] <= '150.00') {
+					$price = $_POST['pack_price'];
+					$sprice = $_POST['old_price'];
+					if(preg_match('%^((http://)|(www\.))([a-z0-9-].?)+(:[0-9]+)?(/.*)?$%i', $_POST['pack_picture']) && $width <= 120 && $height <= 120) {
+						$picture = $_POST['pack_picture'];
+						for ($i=1; $i<=5; $i++) {
+							if($_POST['edit'] == 'p'.$i.'') {
+								$updatePack = mysql_query("UPDATE `cp_store_manage` SET `total_tokens`='".$ttokens."', `additional_tokens`='".$btokens."', `total_price`='".$price."', `old_price`='".$sprice."', `pack_picture`='".$picture."' WHERE `pack_id`='".$i."';");
+								$editmsg = "<div class='acp-message'>Pack ".$i." has been edited</div>";
+							}
+						}
+					} else {
+						$editmsg = "<div class='acp-message'>Invalid picture URL or exceeds the 120x120 size limit.</div>";
+					}
+				} else {
+					$editmsg = "<div class='acp-message'>Price must be between $4.99 and $99.99 and including the following cent amount (i.e $0.00)</div>";
+				}
+			} else {
+				$editmsg = "<div class='acp-message'>Token amount must be between 50 and 3000.</div>";
+			}
+		} else {
+			$editmsg = "<div class='acp-message'>Token/Price amount is to low or to high to fit the range. Ranges;<br><br>500 - 1000 tokens ($4.99 - $9.99)<br>1001 - 2500 tokens ($9.99 - $24.99)<br>2501 - 5000 tokens 
+			($24.99 - $49.99)<br>5001 - 10000 tokens ($49.99 - $99.99)</div>";
+		}
+	} else {
+		$editmsg = "<div class='acp-message'>Token amount must be a number.</div>";
+	}
+}
+
+$statusc = mysql_query("SELECT `store_online` FROM `cp_store_manage`");
+$sc = mysql_fetch_array($statusc);
+?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'><li><?php echo $section; ?> > Store Manage</li></ol>
+	<div class='section_title'><h2>Store Management</h2></div>
+	<?php if(isset($editmsg)) { echo $editmsg; } ?>
+	<div class='acp-box'>
+		<h3>Store Status</h3>
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='1' width='100%' style='border-color:#ccc;'>
+			<form method="POST">
+				<tr class="tablerow1"><td style="width: 50%;">Status</td><td><input type='radio' name='status' value="ON" <?php if ($sc['store_online'] == 'ON') { echo "checked='checked'"; } ?>>Online &nbsp; <input type='radio' name='status' value="OFF" <?php if ($sc['store_online'] == 'OFF') { echo "checked='checked'"; } ?>>Offline </td></tr>
+			<tr class="acp-actionbar">
+				<td colspan="2"><input type="hidden" name="update" value="status"><input type="submit" class="button" value="Update"></td>
+			</tr>
+			</form>
+		</table>
+	</div>
+	<?php 
+	for ($i=1; $i<=5; $i++) {
+	?>
+	<div class='acp-box'>
+		<h3>Pack <?php echo $i; ?></h3>
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='1' width='100%' style='border-color:#ccc;'>
+			<form method="POST">
+			<th>Name</th><th>Edit</th>
+				<tr class="tablerow1"><td style="width: 50%;">Token Amount:</td><td><input name="pack_tokens" value="<?php echo GetTotalTokens($i); ?>" type="text"></td></tr>
+				<tr class="tablerow1"><td>Bonus Tokens:</td><td><input name="pack_b_tokens" value="<?php echo GetAdditionalTokens($i); ?>" type="text" title="Only set if you're adding bonus tokens to total amount"></td></tr>
+				<tr class="tablerow1"><td>Regular Price:</td><td>$<input name="pack_price" value="<?php echo GetStorePrice($i); ?>" type="text"></td></tr>
+				<tr class="tablerow1"><td>Previous Price:</td><td>$<input name="old_price" title="Place old price if you want to show a sale" value="<?php echo GetOldPrice($i); ?>" type="text"></td></tr>
+				<tr class="tablerow1"><td>Picture:</td><td><img src='<?php echo GetPackPicture($i); ?>' />&nbsp;<input name="pack_picture" value="<?php echo GetPackPicture($i); ?>" type="text" size="70" title="Put direct link to image (with image extension i.e .png)"><br></td></tr>
+			<tr class="acp-actionbar">
+				<td colspan="2"><input type="hidden" name="edit" value="p<?php echo $i; ?>"><input type="submit" class="button" value="Update"></td>
+			</tr>
+			</form>
+		</table>
+	</div>
+	<?php
+	}
+	?>
+</div>
+<?php 
+}
+if(isset($_GET['sp']) && $_GET['sp'] == 'items' && !isset($_GET['item_id']) && !isset($_GET['f'])) {
+?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'>
+		<li><?php echo $section; ?> > Store Manage</li>
+	</ol>
+	<div class='section_title'>
+		<h2>Customer Support</h2>
+	</div>
+	<div class='acp-box'>
+		<h3>Store Items</h3>
+	<table class='double_pad' cellpadding='0' cellspacing='0' border='0' width='100%' align="center">
+		<?php
+		$cp_support_items = mysql_query("SELECT * FROM `cp_support_items` ORDER BY `item_category`, `sort_id` ASC");
+		$row = 1;
+		while($item = mysql_fetch_array($cp_support_items)) {
+			if ($row % 5 == 1) { 
+				echo "</tr>";
+				echo "<tr>";
+			}
+			?>
+			<td width="20%"><a href="?p=manage&sp=items&item_id=<?php echo $item['id']; ?>"><div id="sbutton"><span style='font-size:16px;color:#2d4a94;text-shadow: 0 1 0.1em black, 0 1 0.1em black'><?php echo $item['item_name']; ?></span><br><img style="margin-top:10px;" src='<?php echo $item['item_picture']; ?>'></div></a></td>
+			<?php
+			$row++;
+		}
+		?>
+		</tr>
+		<tr>
+			<td class='acp-actionbar' colspan='4'></td><td class='acp-actionbar' colspan='1'><b><span style='text-align:right;'><img src='http://cdn1.iconfinder.com/data/icons/silk2/add.png'> <a href='?p=manage&sp=items&f=newitem'>Add New</a></span></b></td>
+		</tr>
+	</table>
+	</div>
+	</div>
+<?php }
+if(isset($_GET['f']) && $_GET['f'] == 'newitem') {
+
+if(isset($_POST['action']) && $_POST['action'] == 'create') {
+	if($c = mysql_query("INSERT INTO `cp_support_items` (`item_name`, `item_category`, `item_picture`, `item_credit_price`, `item_description`) VALUES ('".escape_string($_POST['name'])."', '', '".escape_string($_POST['picture'])."', '".escape_string($_POST['credits'])."', '".escape_string($_POST['description'])."');")) {
+		$msg = 'Item has been created';
+	} else {
+		$msg = 'Error with database, cannot create.';
+	}
+}
+?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'>
+		<li><?php echo $section; ?> &raquo; Support</li>
+	</ol>
+	<div class='section_title'>
+		<h2>Customer Support</h2>
+	</div>
+	<a href="?p=manage&sp=items"><input style='float:left;width:100px;display: inline;font-size:10px;' type='button' class='button' value='Back'></a><br><br>
+	<?php if(isset($msg)) { echo "<div class='acp-message'>".$msg."</div>"; } ?>
+	<div class='acp-box'>
+	<h3>New Item</h3>
+	<table class='double_pad' cellpadding='0' cellspacing='0' border='1' width='100%' align="center" style='border-color:#ccc;'>
+	<form method="POST">
+	<tr>
+		<td width='50%'>Item Name:</td>
+		<td><input type='text' name='name'></td>
+	</tr>
+	<tr>
+		<td width='50%'>Total Credits:</td>
+		<td><input type='text' name='credits'></td>
+	</tr>
+	<tr>
+		<td>Description:</td>
+		<td><textarea rows='6' cols='50' name='description'></textarea></td>
+	</tr>
+	<tr>
+		<td width='50%'>Item Picture:</td>
+		<td><input type='text' name='picture'></td>
+	</tr>
+	<tr class='acp-actionbar'>
+		<input type='hidden' name='action' value='create'></td>
+		<td colspan='2'><input type='submit' value='Create' class='button'></td>
+	</tr>
+	</form>
+	</table>
+	</div>
+</div>
+
+<?php
+}
+if(isset($_GET['item_id'])) {
+if (!preg_match("/^[0-9]{1,6}+$/", $_GET['item_id'])) {
+		print "<meta http-equiv=\"refresh\" content=\"0;url=cr.php?p=manage&sp=items\">";exit();
+}
+
+if(isset($_POST['action']) && $_POST['action'] == 'edit') {
+	if($c = mysql_query("UPDATE `cp_support_items` SET `sort_id` = '".escape_string($_POST['sort_id'])."', `item_name` = '".escape_string($_POST['item_name'])."', `item_picture` = '".escape_string($_POST['item_picture'])."', `item_credit_price` = '".escape_string($_POST['item_credit_price'])."', `item_description` = '".escape_string($_POST['item_description'])."' WHERE `id` = '".escape_string($_GET['item_id'])."';")) {
+		$msg = 'Item has been edited.';
+	} else {
+		$msg = 'Error with database, cannot edit.';
+	}
+}
+
+if(isset($_POST['action']) && $_POST['action'] == 'delete') {
+	if($q = mysql_query("DELETE FROM `cp_support_items` WHERE `id` = '".escape_string($_POST['id'])."';")) {
+		$msg = 'Item has been deleted.';
+	}
+}
+
+$cp_support_items = mysql_query("SELECT * FROM `cp_support_items` WHERE `id` = '".escape_string($_GET['item_id'])."'");
+$item = mysql_fetch_array($cp_support_items);
+?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'>
+		<li><?php echo $section; ?> &raquo; Support</li>
+	</ol>
+	<div class='section_title'>
+		<h2>Customer Support</h2>
+	</div>
+	<a href="?p=manage&sp=items"><input style='float:left;width:100px;display: inline;font-size:10px;' type='button' class='button' value='Back'></a><br><br>
+	<?php if(isset($msg)) { echo "<div class='acp-message'>".$msg."</div>"; } ?>
+	<div class='acp-box'>
+		<h3><?php echo $item['item_name']; ?></h3>
+	<table class='double_pad' cellpadding='0' cellspacing='0' border='0' width='100%' align="center">
+	<form method="POST">
+		<tr class='tablerow1'>
+			<td width="25%"><img src='<?php echo $item['item_picture']; ?>'><br><br><input type='text' name='item_picture' size='50' value='<?php echo $item['item_picture']; ?>'></td>
+			<td width="25%"><span style='font-size:21px;color:#2d4a94;text-shadow: 0 1 0.1em black, 0 1 0.1em black'><input type='text' name='item_name' value='<?php echo $item['item_name']; ?>'></span></td>
+			<td width="5%"></td>
+		</tr>
+		<tr class='tablerow1'>
+			<td width="5%"></td>
+			<td width="5%"><span style='font-size:12px;color:#2d4a94;'>Price:</span></td>
+			<td width="25%">
+				<span style='font-size:12px;'><input type='text' name='item_credit_price' value='<?php echo $item['item_credit_price']; ?>'>
+				<?php
+					if($item['item_credit_price'] < 500) {
+						echo "<img src='http://cdn1.iconfinder.com/data/icons/fatcow/16/coin_single_gold.png' title='credits'>";
+					}
+					if($item['item_credit_price'] >= 500) {
+						echo "<img src='http://cdn1.iconfinder.com/data/icons/fatcow/16/coin_stack_gold.png' title='credits'>";
+					}
+				?>
+				</span>
+			</td>
+		</tr>
+		<tr class='tablerow1'>
+			<td width="5%"></td>
+			<td width="25%"><span style='font-size:12px;color:#2d4a94;'>Description:</span></td>
+			<td width="85%"><span style='font-size:12px;'><textarea rows='6' cols='50' name='item_description'><?php echo $item['item_description']; ?></textarea></span></td>
+		</tr>
+		<tr class='tablerow1'>
+			<td width="5%"></td>
+			<td width="25%"><span style='font-size:12px;color:#2d4a94;'>Sort ID:</span></td>
+			<td width="85%"><span style='font-size:12px;'><input type='text' name='sort_id' value='<?php echo $item['sort_id']; ?>'></span></td>
+		</tr>
+		<tr class='acp-actionbar'>
+			<input type='hidden' name='action' value='edit'>
+			<td colspan='3'><img src='http://cdn1.iconfinder.com/data/icons/nuvola2/16x16/actions/button_ok.png'> <input type='submit' style='border: none;border-color: transparent;' value='Edit Item'></td>
+			</form>
+			<form method="POST"><td><img src='http://cdn1.iconfinder.com/data/icons/uidesignicons/delete.png' /> 
+			<input type='hidden' name='action' value='delete'><input type='hidden' name='id' value='<?php echo $_GET['item_id']; ?>'><input type='submit' style='border: none;border-color: transparent;' value='Delete Item'></td>
+			</form>
+		</tr>
+	</table>
+	</div>
+	</div>
+<?php 
+}
+if(isset($_GET['sp']) && $_GET['sp'] == 'faq') {
+
+/*
+if(isset($_POST['action']) && $_POST['action'] == 'edit') {
+	if($c = mysql_query("UPDATE `tickets_preply` SET `dept_id` = '".$_POST['dept']."', `isenabled` = '".$_POST['status']."', `title` = '".$_POST['title']."', `response` = '".escape_string($_POST['response'])."', `updated` = '".date('Y-m-d h:i:s')."' WHERE `premade_id` = '".$_GET['rid']."';")) {
+		$msg = 'Pre-made reply edited.';
+	} else {
+}
+*/
+
+if(!isset($_GET['qid']) && !isset($_GET['f'])) { 
+?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'>
+		<li><?php echo $section; ?> &raquo; FAQ</li>
+	</ol>
+	<div class='section_title'>
+		<h2>Frequently Asked Questions</h2>
+	</div>
+	<?php if(isset($msg)) { echo "<div class='acp-message'>".$msg."</div>"; } ?>
+	<div class='acp-box'>
+	<h3>Frequently Asked Questions</h3>
+	<table class='double_pad' cellpadding='0' cellspacing='0' border='1' width='100%' align="center" style='border-color:#ccc;'>
+	<th>Question</th>
+	<th>Answer</th>
+	<th>Category</th>
+	<th>Enabled</th>
+	<?php
+	$qs = mysql_query("SELECT * FROM `cp_support_faq`");
+	while($q = mysql_fetch_array($qs)) {
+		if(isset($i) && $i == 1) {
+			print "<tr class='tablerow1'>";
+			$i=0;
+		} else { 
+			print "<tr>";
+			$i=1;
+		}
+    ?>
+	<td width='40%'><a href='http://<?php echo $_SERVER['SERVER_NAME']; ?>/staff/cr.php?p=manage&sp=faq&qid=<?php echo $q['faq_id']; ?>'><?php echo $q['question']; ?></a></td>
+	<td width='40%'><?php echo $q['answer']; ?></td>
+	<td width='10%'><?php echo $q['category']; ?></td>
+	<td width='10%'><?php if($q['isenabled'] == 1) { echo 'Yes'; } else { echo 'No'; } ?></td>
+	<?php
+		print "</tr>";
+	}
+	?>
+	<tr>
+		<td class='acp-actionbar' colspan='3'></td><td class='acp-actionbar' colspan='1'><b><span style='text-align:right;'><img src='http://cdn1.iconfinder.com/data/icons/silk2/add.png'> <a href='?p=manage&sp=faq&f=newquestion'>Add New</a></span></b></td>
+	</tr>
+	</table>
+	</div>
+</div>
+<?php } 
+if(isset($_GET['qid']) && !isset($_GET['f'])) { 
+	$qid = $_GET['qid'];
+	if (!preg_match("/^[0-9]{2}+$/", $qid)) {
+		print "<meta http-equiv=\"refresh\" content=\"0;url=http://".$_SERVER['SERVER_NAME']."/staff/cr.php?p=manage&sp=faq\">";exit();
+	}
+	if(isset($_POST['action']) && $_POST['action'] == 'edit') {
+		if($q = mysql_query("UPDATE `cp_support_faq` SET `question` = '".escape_string($_POST['question'])."', `answer` = '".escape_string($_POST['answer'])."', `isenabled` = '".$_POST['status']."', `category` = '".escape_string($_POST['category'])."', `updated` = '".date('Y-m-d h:i:s A')."' WHERE `faq_id` = '".$_GET['qid']."';")) {
+			$msg = 'Question has been edited.';
+		} else {
+			$msg = 'Error in database, cannot edit.';
+		}
+	}
+	if(isset($_POST['action']) && $_POST['action'] == 'delete') {
+		if($q = mysql_query("DELETE FROM `cp_support_faq` WHERE `faq_id` = '".$_GET['qid']."';")) {
+			$msg = 'Question has been deleted.';
+		} else {
+			$msg = 'Error in database, cannot delete.';
+		}
+	}
+	$qs = mysql_query("SELECT * FROM `cp_support_faq` WHERE `faq_id` = '".$_GET['qid']."';");
+	$q = mysql_fetch_array($qs);
+	$num = mysql_num_rows($qs);
+	if($num == 1) {
+?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'>
+		<li><?php echo $section; ?> &raquo; FAQ</li>
+	</ol>
+	<div class='section_title'>
+		<h2>View Question #<?php echo $_GET['qid']; ?></h2>
+	</div>
+	<a href="?p=manage&sp=faq"><input style='float:left;width:100px;display: inline;font-size:10px;' type='button' class='button' value='Back'></a><br><br>
+	<?php if(isset($msg)) { echo "<div class='acp-message'>".$msg."</div>"; } ?>
+	<div class='acp-box'>
+	<h3>Edit Information</h3>
+	<table class='double_pad' cellpadding='0' cellspacing='0' border='1' width='100%' align="center" style='border-color:#ccc;'>
+	<form method='POST'>
+	<tr>
+		<td width='50%'>Question:</td>
+		<td><input type='text' name='question' value='<?php echo $q['question']; ?>'></td>
+	</tr>
+	<tr class='tablerow1'>
+		<td>Status:</td>
+		<td><input type='radio' name='status' value='1' <?php if ($q['isenabled'] == '1') { echo "checked='checked'"; } ?>> Active &nbsp; <input type='radio' name='status' value='0' <?php if ($q['isenabled'] == '0') { echo "checked='checked'"; } ?>> Offline
+	</tr>
+	<tr>
+		<td>Answer:</td>
+		<td><textarea rows='6' cols='50' name='answer'><?php echo $q['answer']; ?></textarea></td>
+	</tr>
+	<tr class='tablerow1'>
+		<td>Category:</td>
+		<td>
+			<input type='text' name='category' value='<?php echo $q['category']; ?>'>
+		</td>
+	</tr>
+	<tr class='acp-actionbar'>
+			<td><input type='hidden' name='action' value='edit'></td>
+			<td><img src='http://cdn1.iconfinder.com/data/icons/nuvola2/16x16/actions/button_ok.png'> <input type='submit' style='border: none;border-color: transparent;' value='Edit Question'>
+			</form><br><br><br>
+			<form method="POST"><img src='http://cdn1.iconfinder.com/data/icons/uidesignicons/delete.png' /> 
+			<input type='hidden' name='action' value='delete'><input type='hidden' name='id' value='<?php echo $_GET['item_id']; ?>'><input type='submit' style='border: none;border-color: transparent;' value='Delete Question'></td>
+			</form>
+		</tr>
+	</form>
+	</table>
+	</div>
+</div>
+<?php } else { print "<meta http-equiv=\"refresh\" content=\"0;url=http://".$_SERVER['SERVER_NAME']."/staff/cr.php?p=manage&sp=faq\">";exit(); }
+}
+if(!isset($_GET['qid']) && isset($_GET['f']) && $_GET['f'] == 'newquestion') {
+
+
+if(isset($_POST['action']) && $_POST['action'] == 'create') {
+	if($c = mysql_query("INSERT INTO `cp_support_faq` 
+	(`question`, `answer`, `isenabled`, `category`, `created`) VALUES
+	('".escape_string($_POST['question'])."', '".escape_string($_POST['answer'])."', '".$_POST['status']."', '".escape_string($_POST['category'])."', '".date('Y-m-d h:i:s A')."');")) {
+		$msg = 'Question has been created';
+	} else {
+		$msg = 'Error with database, cannot create.';
+	}
+}
+
+?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'>
+		<li><?php echo $section; ?> &raquo; FAQ</li>
+	</ol>
+	<div class='section_title'>
+		<h2>Frequently Asked Questions</h2>
+	</div>
+	<a href="?p=manage&sp=faq"><input style='float:left;width:100px;display: inline;font-size:10px;' type='button' class='button' value='Back'></a><br><br>
+	<?php if(isset($msg)) { echo "<div class='acp-message'>".$msg."</div>"; } ?>
+	<div class='acp-box'>
+	<h3>New Question</h3>
+	<table class='double_pad' cellpadding='0' cellspacing='0' border='1' width='100%' align="center" style='border-color:#ccc;'>
+	<form method="POST">
+	<tr>
+		<td width='50%'>Question:</td>
+		<td><input type='text' name='question'></td>
+	</tr>
+	<tr>
+		<td>Answer:</td>
+		<td><textarea rows='6' cols='50' name='answer'></textarea></td>
+	</tr>
+	<tr>
+		<td width='50%'>Category:</td>
+		<td><input type='text' name='category'></td>
+	</tr>
+	<tr class='tablerow1'>
+		<td>Status:</td>
+		<td><input type='radio' name='status' value='1'> Active &nbsp; <input type='radio' name='status' value='0'> Offline
+	</tr>
+	<tr class='acp-actionbar'>
+		<input type='hidden' name='action' value='create'></td>
+		<td colspan='2'><input type='submit' value='Create' class='button'></td>
+	</tr>
+	</form>
+	</table>
+	</div>
+</div>
+<?php
+}
+}
+?>

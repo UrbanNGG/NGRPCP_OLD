@@ -1,0 +1,43 @@
+<?php if($inf['FactionModerator'] > 0 || $inf['AdminLevel'] > 3) { ?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'><li>Game Affairs > Viewing Faction Leaders</li></ol>
+	<div class='section_title'><h2>Faction Leaders</h2></div>
+<div class='acp-box'>
+	<h3>Faction Leader List</h3>
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+		<tr>
+			<th>Player</th><th>Faction</th><th>Last Active</th>
+		</tr>
+	<?php $flead1 = mysql_query("SELECT `Username`, `UpdateDate`, `Leader` FROM `accounts` WHERE `AdminLevel` < '2' AND `Disabled` = '0' AND `Leader` > '1' ORDER BY Username ASC");
+		while ($flead = mysql_fetch_array($flead1)) {
+			if (isset($i) && $i == 1) {
+				print "<tr class='tablerow1'>";
+			$i=0;
+			} else { 
+				print "<tr>";
+			$i=1;
+			}
+			
+		$faclistquery = mysql_query("SELECT `name` FROM `cp_faction` WHERE `id` = $flead[Leader]");
+		$faclist = mysql_fetch_array($faclistquery);
+		$uDate = date("M j, o - g:iA", strtotime("$flead[UpdateDate]"));
+		$diff = strtotime("now") - strtotime("$flead[UpdateDate]");
+		$days = $diff/86400;
+		if($days == 0) { $lo = "<span style='color:green'>$uDate</span>"; }
+		if($days >= 1) { $lo = "<span style='color:blue'>$uDate</span>"; }
+		if($days >= 7) { $lo = "<span style='color:gold'>$uDate</span>"; }
+		if($days >= 14) { $lo = "<span style='color:orange'>$uDate</span>"; }
+		if($days >= 30) { $lo = "<span style='color:red'>$uDate</span>"; }
+			
+		print "
+			<td>$flead[Username]</td>
+			<td>$faclist[0]</td>
+			<td>$lo</td>
+				</tr>
+			";
+		} ?>
+		</table>
+</div>
+</div>
+<?php } 
+else { echo "<div id='content_wrap'><div class='section_title'><h2>You do not have access to this page.</h2></div></div>"; } ?>

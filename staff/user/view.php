@@ -1,0 +1,25 @@
+			<div id='content_wrap'>
+				<ol id='breadcrumb'><li>User Management > View Users</li></ol>
+				<div class='section_title'><h2>User Manager</h2></div>
+			<div class='acp-box'>
+				<?php if ($_GET['g']=="admin"){
+				include('view/admin.php');
+				}
+				if ($_GET['g']=="advisor"){
+				include('view/advisor.php');
+				}
+				if ($_GET['g']=="moderator"){
+				include('view/moderator.php');
+				}
+				if ($_GET['g']=="watchdog"){
+				include('view/watchdog.php');
+				}
+				if ($_GET['g']=="helper"){
+				include('view/helper.php');
+				}
+				if ($_GET['g']=="disabled"){
+				include('view/disabled.php');
+				}
+				?>
+			<div class='acp-actionbar'></div>
+			</div></div>

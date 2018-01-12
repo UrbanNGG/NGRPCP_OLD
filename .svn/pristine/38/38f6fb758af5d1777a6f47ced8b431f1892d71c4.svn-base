@@ -1,0 +1,225 @@
+<?php 
+require('class/user.php');
+ini_set('SMTP', 'ng-gaming.net');
+date_default_timezone_set('America/Chicago');
+/*if ($_GET['m']=="1"){
+echo '<p id="msg" style="display:none;"><table bgcolor="yellow"><td style="color:black;"><center><font style="font-size:15px;">Refund request has been sent, a refund moderator will flag the player.</font></center></td></table></p>';
+}elseif ($_GET['m']=="2"){
+echo '<p id="msg" style="display:none;"><table bgcolor="yellow"><td style="color:black;"><center><font style="font-size:15px;">Punishment request has been sent.</font></center></td></table></p>';
+}elseif ($_GET['m']=="3"){
+echo '<p id="msg" style="display:none;"><table bgcolor="yellow"><td style="color:black;"><center><font style="font-size:15px;font-weight:bold;">You may only check-in once per day.</font></center></td></table></p>';
+}elseif ($_GET['m']=="4"){
+echo '<p id="msg" style="display:none;"><table bgcolor="yellow"><td style="color:black;"><center><font style="font-size:15px;font-weight:bold;">You have successfully checked in.</font></center></td></table></p>';
+}*/
+//echo '<p><table bgcolor="green"><td style="color:white;font-weight:bold;"><center><font style="font-size:15px;"><img src="global/images/excla.png" height="20">  A brand new version of the CMS is coming soon. Be prepared</font></center></td></table></p>';
+
+//echo '<p><table bgcolor="yellow"><td style="color:black;font-weight:bold;"><center><font style="font-size:15px;"><img src="global/images/excla.png" height="20"> Test of CMS v5.0</font></center></td></table></p>';
+
+function Susp($inf) {
+	if($inf['Disabled'] == "1") {
+		$suspendredir = '<meta http-equiv="refresh" content="0;url=suspended.php">';
+		echo $suspendredir;
+		exit();
+	}
+}
+Susp($inf);
+
+
+function OnLeave($inf) {
+	$onleavechkquery = mysql_query("SELECT * FROM `cp_leave` WHERE `user_id` = '$inf[id]' && `date_leave` < DATE(NOW()) && `date_return` > DATE(NOW()) ORDER BY `id` ASC LIMIT 1");
+	$numchk = mysql_num_rows($onleavechkquery);
+	$onleavechk = mysql_fetch_array($onleavechkquery);
+	if($numchk == 1) {
+		$onleaveredir = '<meta http-equiv="refresh" content="0;url=http://'.$_SERVER["SERVER_NAME"].'/onleave.php?id='.$onleavechk["id"].'">';
+		echo $onleaveredir;
+		exit();
+	}
+}
+if($_SERVER['SCRIPT_NAME'] != "/onleave.php") { OnLeave($inf); }
+
+
+//Removing archive function - No longer needed
+/*function Archive($inf) {
+	if($inf['gid'] == "0") {
+		$archiveredir = '<meta http-equiv="refresh" content="0;url=archived.php">';
+		echo $archiveredir;
+		exit();
+	}
+}
+
+Archive($inf);*/
+
+function Nav($inf,$access) {
+?>
+	<div id='navigation'> 
+		<?php if($_SERVER["PHP_SELF"] == "/index.php" || $_SERVER["PHP_SELF"] == "/faction.php" || $_SERVER["PHP_SELF"] == "/gang.php") { require('./nav.php'); } ?>
+		<?php if($_SERVER["PHP_SELF"] == "/staff/index.php" || $_SERVER["PHP_SELF"] == "/staff/request.php" || $_SERVER["PHP_SELF"] == "/staff/punish.php" || $_SERVER["PHP_SELF"] == "/staff/refund.php" || $_SERVER["PHP_SELF"] == "/staff/ban.php" || $_SERVER["PHP_SELF"] == "/staff/gameaffairs.php" || $_SERVER["PHP_SELF"] == "/staff/flag.php" || $_SERVER["PHP_SELF"] == "/staff/player.php" || $_SERVER["PHP_SELF"] == "/staff/log.php" || $_SERVER["PHP_SELF"] == "/staff/user.php") { require('../staff/nav.php'); } ?>
+	</div></div>
+
+<?php
+}
+
+function doLog($user, $section, $area, $details) {
+$ip = $_SERVER['REMOTE_ADDR'];
+$date = date('Y-m-d H:i:s');
+if($section == "General") { $logquery = "INSERT INTO `cp_log_general` (`id`, `date`, `user_id`, `area`, `details`, `ip_address`) VALUES (NULL, '$date', '$user', '$area', '$details', '$ip')"; }
+if($section == "Staff") { $logquery = "INSERT INTO `cp_log_staff` (`id`, `date`, `user_id`, `area`, `details`, `ip_address`) VALUES (NULL, '$date', '$user', '$area', '$details', '$ip')"; }
+if($section == "Faction") { $logquery = "INSERT INTO `cp_log_faction` (`id`, `date`, `user_id`, `area`, `details`, `ip_address`) VALUES (NULL, '$date', '$user', '$area', '$details', '$ip')"; }
+if($section == "Family") { $logquery = "INSERT INTO `cp_log_family` (`id`, `date`, `user_id`, `area`, `details`, `ip_address`) VALUES (NULL, '$date', '$user', '$area', '$details', '$ip')"; }
+$runquery = mysql_query($logquery);
+if (!$runquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $logquery;
+    die($message);
+	}
+}
+
+$logdir = "C:/wamp/www/cp/global/";
+
+function LogFile($directory,$filename,$content) {
+$content = "[".date('Y-m-d H:i:s')."] ".$content."\r\n";
+$file = $directory . "" . $filename;
+
+if (is_writable($file)) {
+    if (!$handle = fopen($file, 'a')) {
+         echo "Cannot open file ($filename)";
+         exit;
+    }
+    if (fwrite($handle, $content) === FALSE) {
+        echo "Cannot write to file ($filename)";
+        exit;
+    }
+    fclose($handle);
+
+} else {
+    echo "The file $filename is not writable";
+}
+}
+
+function CheckName($username) {
+	$query = mysql_query("SELECT `id` FROM `accounts` WHERE `Username` = '$username'");
+	$name = mysql_num_rows($query);
+	return $name;
+}
+
+function GetName($id) {
+	$query = mysql_query("SELECT `Username` FROM `accounts` WHERE `id` = '$id'");
+	$username = mysql_fetch_array($query);
+	return $username[0];
+}
+
+function IsPlayerOnline($userid) {
+	$query = mysql_query("SELECT `Online` FROM `accounts` WHERE `id` = '$userid'");
+	$online = mysql_fetch_array($query);
+	return $online[0];
+}
+
+function FlagByIP($ip) {
+require_once("geoip.inc");
+$gi = geoip_open("GeoIP.dat",GEOIP_STANDARD);
+$country_code = geoip_country_code_by_addr($gi, $ip);
+$country_name = geoip_country_name_by_addr($gi, $ip);
+$flag = "<img src='http://".$_SERVER['SERVER_NAME']."/global/images/flags/$country_code.png' alt='$country_name' />";
+return $flag;
+geoip_close($gi);
+}
+
+function LastOnline($userid) {
+	$query = mysql_query("SELECT `UpdateDate` FROM `accounts` WHERE `id` = '$userid'");
+	$user = mysql_fetch_array($query);
+	$uDate = date("M j, o - g:iA", strtotime("$user[UpdateDate]"));
+	$diff = strtotime("now") - strtotime("$user[UpdateDate]");
+	$num = $diff/86400;
+	$days = intval($num);
+	if($days == 0) { $lo = "<span style='color:green'>$uDate</span>"; }
+	if($days >= 1) { $lo = "<span style='color:blue'>$uDate</span>"; }
+	if($days >= 7) { $lo = "<span style='color:gold'>$uDate</span>"; }
+	if($days >= 14) { $lo = "<span style='color:orange'>$uDate</span>"; }
+	if($days >= 30) { $lo = "<span style='color:red'>$uDate</span>"; }
+	return $lo;
+}
+
+function VIPrank($viprank) {
+	if($viprank == 0) { $viprank = "None"; }
+	if($viprank == 1) { $viprank = "Bronze"; }
+	if($viprank == 2) { $viprank = "Silver"; }
+	if($viprank == 3) { $viprank = "Gold"; }
+	if($viprank == 4) { $viprank = "Platinum"; }
+	if($viprank == 5) { $viprank = "VIP Moderator"; }
+	return $viprank;
+}
+
+function redirect($type, $code) {
+$ip = $_SERVER['REMOTE_ADDR'];
+$date = date('Y-m-d H:i:s');
+if($section == "General") { $logquery = "INSERT INTO `cp_log_general` (`id`, `date`, `user_id`, `area`, `details`, `ip_address`) VALUES (NULL, '$date', '$user', '$area', '$details', '$ip')"; }
+if($section == "Staff") { $logquery = "INSERT INTO `cp_log_staff` (`id`, `date`, `user_id`, `area`, `details`, `ip_address`) VALUES (NULL, '$date', '$user', '$area', '$details', '$ip')"; }
+if($section == "Faction") { $logquery = "INSERT INTO `cp_log_faction` (`id`, `date`, `user_id`, `area`, `details`, `ip_address`) VALUES (NULL, '$date', '$user', '$area', '$details', '$ip')"; }
+if($section == "Family") { $logquery = "INSERT INTO `cp_log_family` (`id`, `date`, `user_id`, `area`, `details`, `ip_address`) VALUES (NULL, '$date', '$user', '$area', '$details', '$ip')"; }
+$runquery = mysql_query($logquery);
+if (!$runquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $logquery;
+    die($message);
+	}
+}
+
+function aRank($inf) {
+	if($inf['AdminLevel'] == 1) { $rank = '<font color="Yellow">Server Moderator</font>'; }
+	if($inf['Helper'] == 2) { $rank = '<font color="Cyan">Community Advisor</font>'; }
+	if($inf['Helper'] == 3) { $rank = '<font color="Cyan">Senior Advisor</font>'; }
+	if($inf['Helper'] == 4) { $rank = '<font color="Cyan">Chief Advisor</font>'; }
+	if($inf['AdminLevel'] == 2) { $rank = '<font color="Lime">Junior Admin</font>'; }
+	if($inf['AdminLevel'] == 3) { $rank = '<font color="Lime">General Admin</font>'; }
+	if($inf['AdminLevel'] == 4) { $rank = '<font color="SandyBrown">Senior Admin</font>'; }
+	if($inf['AdminLevel'] == 1337) { $rank = '<font color="Red">Head Admin</font>'; }
+	if($inf['AdminLevel'] == 1338) { $rank = '<font color="Red">Admin Director</font>'; }
+	if($inf['AdminLevel'] == 99999) { $rank = '<font color="Red">Executive Admin</font>'; }
+	return $rank;
+}
+
+function UserRank($level,$helper,$username) {
+	if($level == 1) { $ruser = "<span style='color:yellow;font-weight:bolder'>".$username."</span>"; }
+	if($helper > 1) { $ruser = "<span style='color:cyan;font-weight:bolder'>".$username."</span>"; }
+	if($level == 2 || $level == 3) { $ruser = "<span style='color:lime;font-weight:bolder'>".$username."</span>"; }
+	if($level == 4) { $ruser = "<span style='color:sandybrown;font-weight:bolder'>".$username."</span>"; }
+	if($level > 4) { $ruser = "<span style='color:red;font-weight:bolder'>".$username."</span>"; }
+	if($level == 0 && $helper < 2) { $ruser = "<span style='color:white;font-weight:bolder'>".$username."</span>"; }
+	return $ruser;
+}
+
+function head() {
+	require('head.php');
+}
+
+//function footer() {
+//	require('footer.php');
+//}
+
+function headbar($inf) {
+echo '<body id=\'ipboard_body\'> ';
+echo '<p id="admin_bar">';
+
+
+
+if(($inf['AdminLevel'] > 0 || $inf['Helper'] > 1) && $_SERVER["PHP_SELF"] == "/index.php" || $_SERVER["PHP_SELF"] == "/faction.php" || $_SERVER["PHP_SELF"] == "/gang.php") {
+echo '[<a href="/"><span class="sec_active">Dashboard</span></a> &#8226; <a href="/staff"><span class="sec_inactive">Staff</span></a>]';
+}
+
+if(($inf['AdminLevel'] > 0 || $inf['Helper'] > 1) && $_SERVER["PHP_SELF"] == "/staff/index.php" || $_SERVER["PHP_SELF"] == "/staff/request.php" || $_SERVER["PHP_SELF"] == "/staff/punish.php" || $_SERVER["PHP_SELF"] == "/staff/refund.php" || $_SERVER["PHP_SELF"] == "/staff/ban.php" || $_SERVER["PHP_SELF"] == "/staff/gameaffairs.php" || $_SERVER["PHP_SELF"] == "/staff/flag.php" || $_SERVER["PHP_SELF"] == "/staff/log.php" || $_SERVER["PHP_SELF"] == "/staff/user.php") {
+echo '[<a href="/"><span class="sec_inactive">Dashboard</span></a> &#8226; <a href="/staff"><span class="sec_active">Staff</span></a>]';
+}
+
+
+	echo '<span id=\'logged_in\'>';
+		//if(date('Y-m-d',strtotime( $inf['dCheckin'] )) != date('Y-m-d')) { echo "<span id='check_in' style='color:orange'>You need to check in [<a href='/admin/index.php?p=checkin'>Check In</a>]</span>"; }
+	//else { echo "<span id='check_in' style='color:green'>You have checked in today.</span>"; }
+	echo "Logged in as ".UserRank($inf['AdminLevel'],$inf['Helper'],$inf['Username'])." (<a href='index.php?action=logout'>Log Out</a>)</span>";
+	echo '</p>';
+	echo '<div id=\'header\'> ';
+	echo '<div id=\'branding\'> ';
+	echo '<a href="http://'.$_SERVER['SERVER_NAME'].'"><img src=\'http://'.$_SERVER['SERVER_NAME'].'/global/images/all/logo.png\' alt=\'Logo\' /></a>';
+	echo '</div>';
+
+}
+?>

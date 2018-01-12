@@ -1,0 +1,109 @@
+<?php
+function SideNav($level) {
+	print "<ul>";
+	if($_SERVER["REQUEST_URI"] == "/staff/user.php?p=admincreate") {
+	print "<li class='active'><a href='user.php?p=admincreate'>Add Administrator</a></li>";
+	}
+	else {
+	print "<li><a href='user.php?p=admincreate'>Add Administrator</a></li>";
+	}
+	if($_SERVER["REQUEST_URI"] == "/staff/user.php?p=view" || $_SERVER["REQUEST_URI"] == "/staff/user.php?p=edit" || isset($_GET['g']) || isset($_GET['uID'])) {
+	print "<li class='active'>View Users";
+	print "<ul>";
+		if($level > 4) {
+	print "<li><a href='user.php?p=view&g=admin'>Administrators</a></li>";
+		}
+		if($level > 4) {
+	print "<li><a href='user.php?p=view&g=advisor'>Advisors</a></li>";
+		}
+		if($level > 4) {
+	print "<li><a href='user.php?p=view&g=moderator'>Moderators</a></li>";
+		}
+		if($level > 4) {
+	print "<li><a href='user.php?p=view&g=watchdog'>Watchdogs</a></li>";
+		}
+		if($level > 4) {
+	print "<li><a href='user.php?p=view&g=helper'>Helpers</a></li>";
+		}
+		if($level > 1337) {
+	print "<li><a href='user.php?p=view&g=disabled'>Disabled</a></li>";
+		}
+	print "</ul></li>";
+	}
+	else {
+	print "<li>View Users";
+	print "<ul>";
+		if($level > 4) {
+	print "<li><a href='user.php?p=view&g=admin'>Administrators</a></li>";
+		}
+		if($level > 4) {
+	print "<li><a href='user.php?p=view&g=advisor'>Advisors</a></li>";
+		}
+		if($level > 4) {
+	print "<li><a href='user.php?p=view&g=moderator'>Moderators</a></li>";
+		}
+		if($level > 4) {
+	print "<li><a href='user.php?p=view&g=watchdog'>Watchdogs</a></li>";
+		}
+		if($level > 4) {
+	print "<li><a href='user.php?p=view&g=helper'>Helpers</a></li>";
+		}
+		if($level > 1337) {
+	print "<li><a href='user.php?p=view&g=disabled'>Disabled</a></li>";
+		}
+	print "</ul></li>";
+	}
+	if($_SERVER["REQUEST_URI"] == "/staff/user.php?p=addnote") {
+	print "<li class='active'><a href='user.php?p=addnote'>Add User Note</a></li>";
+	}
+	else {
+	print "<li><a href='user.php?p=addnote'>Add User Note</a></li>";
+	}
+	if($_SERVER["REQUEST_URI"] == "/staff/user.php?p=onleave") {
+	print "<li class='active'><a href='user.php?p=onleave'>Users On-Leave</a></li>";
+	}
+	else {
+	print "<li><a href='user.php?p=onleave'>Users On-Leave</a></li>";
+	}
+	if($_SERVER["REQUEST_URI"] == "/staff/user.php?p=pendingnote" || $_SERVER["REQUEST_URI"] == "/staff/user.php?p=pendingleave" || $_SERVER["REQUEST_URI"] == "/staff/user.php?p=archiveleave" || $_SERVER["REQUEST_URI"] == "/staff/user.php?p=allnote" || $_SERVER["REQUEST_URI"] == "/staff/user.php?p=archivenote" || $_SERVER["REQUEST_URI"] == "/staff/user.php?p=pendingcheckin" || isset($_GET['m'])) {
+	print "<li class='active'>Management";
+	print "<ul>";
+	print "<li><a href='user.php?p=pendingleave'>Leaves Pending</a></li>";
+	print "<li><a href='user.php?p=archiveleave'>Archived Leaves</a></li>";
+	print "<li><a href='user.php?p=pendingnote'>Notes Pending</a></li>";
+	print "<li><a href='user.php?p=allnote'>All Notes</a></li>";
+	print "<li><a href='user.php?p=archivenote'>Archived Notes</a></li>";
+	//print "<li><a href='user.php?p=pendingcheckin'>Check-Ins Pending</a></li>";
+	print "</ul></li>";
+	}
+	else {
+	print "<li>Management";
+	print "<ul>";
+	print "<li><a href='user.php?p=pendingleave'>Leaves Pending</a></li>";
+	print "<li><a href='user.php?p=archiveleave'>Archived Leaves</a></li>";
+	print "<li><a href='user.php?p=pendingnote'>Notes Pending</a></li>";
+	print "<li><a href='user.php?p=allnote'>All Notes</a></li>";
+	print "<li><a href='user.php?p=archivenote'>Archived Notes</a></li>";
+	//print "<li><a href='user.php?p=pendingcheckin'>Check-Ins Pending</a></li>";
+	print "</ul></li>";
+	}
+	if($_SERVER["REQUEST_URI"] == "/staff/user.php?p=shiftpending" || $_SERVER["REQUEST_URI"] == "/staff/user.php?p=shiftneeds" || $_SERVER["REQUEST_URI"] == "/staff/user.php?p=assigncal" || $_SERVER["REQUEST_URI"] == "/staff/user.php?p=alert" || isset($_GET['d']) || isset($_GET['assignid']) || isset($_GET['week'])) {
+	print "<li class='active'>Shifts";
+	print "<ul>";
+	print "<li><a href='user.php?p=alert'>Alerts</a></li>";
+	print "<li><a href='user.php?p=assigncal'>View & Issue Assignments</a></li>";
+	print "<li><a href='user.php?p=shiftneeds'>Shift Needs & Leaders</a></li>";
+	print "</ul></li>";
+	}
+	else {
+	print "<li>Shifts";
+	print "<ul>";
+	print "<li><a href='user.php?p=alert'>Alerts</a></li>";
+	print "<li><a href='user.php?p=assigncal'>View & Issue Assignments</a></li>";
+	print "<li><a href='user.php?p=shiftneeds'>Shift Needs & Leaders</a></li>";
+	print "</ul></li>";
+	}
+	print "</ul>";
+}
+
+?>

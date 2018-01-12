@@ -1,0 +1,79 @@
+<?php if($access['ban'] != 1 && $inf['BanAppealer'] < 1 && $inf['AdminLevel'] > 4) {
+	echo $redir;
+	exit();
+}
+
+$banid = $_POST['id'];
+$banquery = mysql_query("SELECT * FROM `bans` WHERE `id` = $banid");
+$ban = mysql_fetch_array($banquery);
+
+if($ban['status'] < 3 || $ban['status'] == 5) {
+?>
+
+		<div id='content_wrap'>
+			<ol id='breadcrumb'><li>Bans > Editing Ban Details</li></ol>
+			<div class='section_title'><h2>Editing <?php echo GetName($ban['user_id']); ?>'s Ban Details</h2></div>
+			<div class='acp-box'>
+				<h3>Edit Ban #<?php echo $ban['id']; ?></h3>
+				<table class='double_pad' cellpadding='0' cellspacing='0' border='0' width='100%'>
+				<form method="post" action="ban/proc.php">
+					<tr class='tablerow1'>
+						<td width='40%'>Player</td>
+						<td><?php echo GetName($ban['user_id']); ?></td>
+					</tr>
+					<tr>
+						<td>IP Address</td>
+						<td><?php echo $ban['ip_address']; ?></td>
+					</tr>
+					<tr class='tablerow1'>
+						<td>Reason</td>
+						<td><?php echo $ban['reason']; ?></td>
+					</tr>
+					<tr>
+						<td>Date Added</td>
+						<td><?php echo date("F j, Y - g:iA", strtotime($ban['date_added'])); ?></td>
+					</tr>
+					<tr class='tablerow1'>
+						<td>Unban Date</td>
+						<td>
+						<?php require_once('../global/class/tc_calendar.php');
+						$myCalendar = new tc_calendar("dateunban", true);
+						$myCalendar->setIcon("../global/images/iconCalendar.gif");
+						$myCalendar->setAlignment("right", "top");
+						$myCalendar->setDate(date("d"), date("m"), date("Y"));
+						$myCalendar->writeScript(); ?>
+						</td>
+					</tr>
+					<tr>
+						<td>Status</td>
+						<td>
+							<select name="status">
+								<option value="1"<?php if($ban['status'] == "1") { echo " selected"; } ?>>Pending Appeal</option>
+								<option value="2"<?php if($ban['status'] == "2") { echo " selected"; } ?>>Temporary Banned</option>
+								<option value="3"<?php if($ban['status'] == "3") { echo " selected"; } ?>>Permanent Banned</option>
+								<option value="4"<?php if($ban['status'] == "4") { echo " selected"; } ?>>Unbanned</option>
+								<option value="5"<?php if($ban['status'] == "5") { echo " selected"; } ?>>Archived</option>
+							</select>
+						</td>
+					</tr>
+					<tr class='tablerow1'>
+						<td>Link to Appeal</td>
+						<td><input type="text" name="link" size="30"></td>
+					</tr>
+					<tr>
+						<td>Banned By</td>
+						<td><?php echo $ban['admin']; ?></td>
+					</tr>
+					<tr class='acp-actionbar'><td colspan='2'>
+					<input type="hidden" name="action" readonly="readonly" value="edit">
+					<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+					<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+					<input type="hidden" name="id" readonly="readonly" value="<?php echo $banid; ?>">
+					<input type="submit" class="button" value="Edit">
+					</form>
+					</td></tr>
+				</table>
+			</div>
+		</div>
+<?php }
+else { echo '<meta http-equiv="refresh" content="0;url=../ban.php?p=view&type=pending">'; } ?>

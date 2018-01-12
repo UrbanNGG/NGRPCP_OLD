@@ -1,0 +1,23 @@
+<?php
+$section = 'Store';
+function SideNav($inf) {
+	print "<ul>";
+	if($_GET['p'] == "main" || $_GET['p'] == "cart" || $_GET['p'] == "addcart" || $_GET['p'] == "info") {
+				print "<li class='active'>Main";
+			}
+			else print "<li>Main";
+				print "<ul>";
+				print "<li><a href='store.php?p=main'>Store</a></li>";
+				print "<li><a href='store.php?p=cart'>Checkout</a></li>";
+				print "</ul></li>";
+	if($_GET['p'] == "history" || $_GET['p'] == "support") {
+				print "<li class='active'>Support";
+			}
+			else print "<li>Support";
+				print "<ul>";
+				print "<li><a href='store.php?p=history'>Purchase History</a></li>";
+				print "<li><a href='store.php?p=support'>Customer Support</a></li>";
+				print "</ul></li>";
+	print "</ul>";
+}
+?>

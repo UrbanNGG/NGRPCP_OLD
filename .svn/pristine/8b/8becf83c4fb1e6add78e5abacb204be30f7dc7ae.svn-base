@@ -1,0 +1,31 @@
+<?php
+function SideNav() {
+	print "<ul>";
+	if(isset($_GET['ban']) && $_GET['ban'] == "banned") {
+	print "<li class='active'><a href=\"ban.php?p=view&ban=banned\">Banned Players</a></li>";
+	}
+	else {
+	print "<li><a href=\"ban.php?p=view&ban=banned\">Banned Players</a></li>";
+	}
+	if(isset($_GET['ban']) && $_GET['ban'] == "temporary") {
+	print "<li class='active'><a href=\"ban.php?p=view&ban=temporary\">Temporarily Banned Players</a></li>";
+	}
+	else {
+	print "<li><a href=\"ban.php?p=view&ban=temporary\">Temporarily Banned Players</a></li>";
+	}
+	if(isset($_GET['ban']) && $_GET['ban'] == "permanent") {
+	print "<li class='active'><a href=\"ban.php?p=view&ban=permanent\">Permanently Banned Players</a></li>";
+	}
+	else {
+	print "<li><a href=\"ban.php?p=view&ban=permanent\">Permanently Banned Players</a></li>";
+	}
+	if(isset($_GET['ban']) && $_GET['ban'] == "unbanned") {
+	print "<li class='active'><a href=\"ban.php?p=view&ban=unbanned\">Unbanned Players</a></li>";
+	}
+	else {
+	print "<li><a href=\"ban.php?p=view&ban=unbanned\">Unbanned Players</a></li>";
+	}
+	print "</ul>";
+}
+
+?>

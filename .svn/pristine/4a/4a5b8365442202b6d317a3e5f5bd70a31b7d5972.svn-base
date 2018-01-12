@@ -1,0 +1,55 @@
+	<div id='content_wrap'> 
+		<ol id='breadcrumb'> 
+			<li>Logs > Index</li>
+		</ol>
+
+	<div class='section_title'>
+		<h2>Log Index</h2>
+	</div>
+	<div class='acp-box'>
+		<h3>Game Logs</h3>
+<?php
+echo '<table cellpadding="0" class="double_pad" cellspacing="0" border="0" width="100%">';
+$names = array('Admin Log', 'Admin Give Log', 'Admin Pay Log', 'Ban Log', 'Contracts Log', 'Dynamic Door Edit Log', 'Dynamic Map Icon Edit Log', 'Faction Log', 'Family Log', 'Family Member Count Log', 'Gate Edit Log', 'Gifts Log', 'Hack Log', 'House Edit Log', 'House Log', 'Kick Log', 'Licenses Log', 'Moderator Log', 'Mute Log', 'Priority Advertisements Log', 'Password Log', 'Pay Log', 'Player Vehicle Log', 'RP Special Log', 'Security Log', 'Set VIP Log', 'Shop Confirmed Orders Log', 'Shop Log', 'Shop Orders Log', 'Stats Log', 'Undercover Log', 'VIP Name-Changes Log', 'VIP Remove Log');
+$names1 = array($access['gladmin'], $access['gladmingive'], $access['gladminpay'], $access['glban'], $access['glcontracts'], $access['glddedit'], $access['gldmpedit'], $access['glfaction'], $access['glfamily'], $access['glfmembercount'], $access['glgedit'], $access['glgifts'], $access['glhack'], $access['glhedit'], $access['glhouse'], $access['glkick'], $access['gllicenses'], $access['glmoderator'], $access['glmute'], $access['glpads'], $access['glpassword'], $access['glpay'], $access['glplayervehicle'], $access['glrpspecial'], $access['glsecurity'], $access['glsetvip'], $access['glshopconfirmedorders'], $access['glshoplog'], $access['glshoporders'], $access['glstats'], $access['glundercover'], $access['glvipnamechanges'], $access['glvipremove']);
+$logname = array('admin', 'admingive', 'adminpay', 'ban', 'contracts', 'ddedit', 'dmpedit', 'faction', 'family', 'fmembercount', 'gedit', 'gifts', 'hack', 'hedit', 'house', 'kick', 'licenses', 'moderator', 'mute', 'pads', 'password', 'pay', 'playervehicle', 'rpspecial', 'security', 'setvip', 'shopconfirmedorders', 'shoplog', 'shoporders', 'stats', 'undercover', 'vipnamechanges', 'vipremove');
+$i=0;
+$total=33;
+
+while ($i < $total) {
+if ($names1[$i]==1 || $inf['AdminLevel'] >= 1337){
+echo '<tr><th>'.$names[$i].'</th></tr>';
+echo '<td><a href=log.php?p=game&log='.$logname[$i]."&name=".urlencode($names[$i]);
+echo '><b>'.$names[$i].'</b></a></td></tr>';
+
+$dir = "E:/NG-RP Files/NG-RP Logs/General Logs/".$logname[$i]."/";
+if (is_dir($dir)) {
+    if ($dh = opendir($dir)) {
+        while (($file = readdir($dh)) !== false) {
+		if($file != "." && $file != "..") {
+		
+		$log_archive = "<form method='post' action='log.php?p=game'>
+		<input type='hidden' name='action' readonly='readonly' value='log_archive'>
+		<input type='hidden' name='dir' readonly='readonly' value='$dir'>
+		<input type='hidden' name='file' readonly='readonly' value='$file'>
+		<input type='hidden' name='log' readonly='readonly' value='$logname[$i]'>
+		<input type='submit' class='submit' value='$file'></form>
+		</form>";
+		
+            echo "<tr><td>
+			<form
+			".$log_archive."
+			</td></tr>";
+		}
+        }
+        closedir($dh);
+    }
+}
+}
+++$i;
+}
+echo '</table>';
+?>
+
+	</div>
+	</div>

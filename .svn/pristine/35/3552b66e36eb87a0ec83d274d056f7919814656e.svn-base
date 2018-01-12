@@ -1,0 +1,39 @@
+<div id='content_wrap'>
+  <ol id='breadcrumb'>
+    <li><?php echo $section; ?> &raquo; My Dashboard</li>
+  </ol>
+  <div class='section_title'>
+    <h2>My Dashboard</h2>
+  </div>
+  <div class='acp-box'>
+    <h3>My Stats</h3>
+    <table class='double_pad' cellpadding='0' cellspacing='0' border='0' width='100%'>
+	  <tr class='tablerow1'>
+        <td>Level: <?php echo $inf['Level']; ?></td>
+        <td>Playing Hours: <?php echo $inf['ConnectedTime']; ?></td>
+		<td>Age: <?php echo $inf['Age']; ?></td>
+		<?php if($inf['Sex'] == 1) { $gender = "Male"; } if($inf['Sex'] == 2) { $gender = "Female"; } ?>
+		<td>Gender: <?php echo $gender; ?></td>
+      </tr>
+      <tr>
+        <td>Date Registered: <?php echo date("M j, o", strtotime("$inf[RegiDate]")); ?></td>
+        <td>Last Active: <?php echo date("M j, o", strtotime("$inf[UpdateDate]")); ?></td>
+        <td>Last Logged IP: <?php echo $inf['IP']; ?></td>
+        <td>Your IP Address: <?php echo $_SERVER['REMOTE_ADDR']; ?></td>
+      </tr>
+	  <?php //Commented out until tables are transferred
+      /*<tr class='tablerow1'>
+	    <td>Last Checked In: <?php echo $inf['dCheckin']; ?></td>
+        <td>You have checked in <?php echo $inf['checkins']; ?> times</td>
+      </tr>
+	  <tr>
+		<td>You have <?php echo $inf['points']; ?> points</td>
+        <td>You have completed <?php echo $inf['shift_complete']; ?> shifts</td>
+      </tr>
+	  <tr class='tablerow1'>
+		<td>You have partially completed <?php echo $inf['shift_partcomplete']; ?> shifts</td>
+        <td>You have missed <?php echo $inf['shift_missed']; ?> shifts</td>
+        <td></td>
+      </tr>*/ ?>
+    </table>
+</div></div>

@@ -1,0 +1,72 @@
+<?php
+require('../../global/func.php');
+$redir = '<meta http-equiv="refresh" content="0;url=../index.php">';
+$redir_fac = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=faction">';
+$redir_fam = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=gang">';
+
+if(!isset($_SESSION['myusername'])){
+$logged = 0;
+echo $redir;
+exit();
+}
+
+if($inf['FactionModerator'] != "1" || $inf['GangModerator'] != "1") {
+	echo $redir;
+	exit();
+}
+
+//----Variables
+$section = "Staff";
+$area = "Game Affairs";
+$action = $_POST['action'];
+$admin = $_POST['admin'];
+$ip = $_POST['ip'];
+$id = $_POST['ga_id'];
+$name = $_POST['name'];
+$leader = $_POST['leader'];
+$leaderidquery = mysql_query("SELECT `id` FROM `accounts` WHERE `Username` = '$leader'");
+$leaderid = mysql_fetch_array($leaderidquery);
+$rank0 = $_POST['rank0'];
+$rank1 = $_POST['rank1'];
+$rank2 = $_POST['rank2'];
+$rank3 = $_POST['rank3'];
+$rank4 = $_POST['rank4'];
+$rank5 = $_POST['rank5'];
+$rank6 = $_POST['rank6'];
+$div0 = $_POST['div0'];
+$div1 = $_POST['div1'];
+$div2 = $_POST['div2'];
+$div3 = $_POST['div3'];
+$div4 = $_POST['div4'];
+$div5 = $_POST['div5'];
+//-------End Variables
+
+if($admin != $inf['Username']) { echo "Data tampered with. ERR:001"; exit(); }
+if($ip != $_SERVER['REMOTE_ADDR']) { echo "Data tampered with. ERR:002"; exit(); }
+
+if($action == "edit_faction") {
+$editquery = mysql_query("UPDATE `cp_faction` SET `name` = '$name', `rank_0` = '$rank0', `rank_1` = '$rank1', `rank_2` = '$rank2', `rank_3` = '$rank3', `rank_4` = '$rank4', `rank_5` = '$rank5', `rank_6` = '$rank6', `div_0` = '$div0', `div_1` = '$div1', `div_2` = '$div2', `div_3` = '$div3', `div_4` = '$div4', `div_5` = '$div5' WHERE `id` = $id");
+$details = "Modified the ".$name;
+doLog($inf['id'], $section, $area, $details);
+echo $redir_fac;
+
+if (!$editquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $editquery;
+    die($message);
+  }
+}
+
+if($action == "edit_family") {
+$editquery = mysql_query("UPDATE `cp_family` SET `name` = '$name', `leader` = '$leaderid[0]', `rank_1` = '$rank1', `rank_2` = '$rank2', `rank_3` = '$rank3', `rank_4` = '$rank4', `rank_5` = '$rank5', `rank_6` = '$rank6' WHERE `id` = $id");
+$details = "Modified the ".$name;
+doLog($inf['id'], $section, $area, $details);
+echo $redir_fam;
+
+if (!$editquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $editquery;
+    die($message);
+  }
+}
+?>

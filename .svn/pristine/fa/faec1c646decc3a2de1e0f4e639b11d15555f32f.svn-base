@@ -1,0 +1,596 @@
+<?php
+require('../../global/func.php');
+$redir = '<meta http-equiv="refresh" content="0;url=../index.php">';
+$rediredituser = '<meta http-equiv="refresh" content="0;url=../user.php">';
+$rediraddleader = '<meta http-equiv="refresh" content="0;url=../user.php?p=usergroup&a=add">';
+$redirdeleteleader = '<meta http-equiv="refresh" content="0;url=../user.php?p=usergroup&a=view">';
+$redirleave = '<meta http-equiv="refresh" content="0;url=../user.php?p=pendingleave">';
+$redir3 = '<meta http-equiv="refresh" content="0;url=../user.php?p=view&g=admin">';
+$rediradvisor = '<meta http-equiv="refresh" content="0;url=../user.php?p=view&g=advisor">';
+$redirmod1 = '<meta http-equiv="refresh" content="0;url=../user.php?p=view&g=moderator">';
+$redirhelper = '<meta http-equiv="refresh" content="0;url=../user.php?p=view&g=helper">';
+$redir4 = '<meta http-equiv="refresh" content="0;url=../vUsers.php">';
+$redir5 = '<meta http-equiv="refresh" content="0;url=../user.php?p=name_exists">';
+if(isset($_GET['i'])) { $redir6 = '<meta http-equiv="refresh" content="0;url=info.php?uID='.$_GET['i'].'">'; }
+$leaveredir = '<meta http-equiv="refresh" content="0;url=../user.php?p=pendingleave">';
+$rediraddnote = '<meta http-equiv="refresh" content="0;url=../user.php?p=addnote&m=1">';
+$noteredir = '<meta http-equiv="refresh" content="0;url=../user.php?p=pendingnote">';
+$noteallredir = '<meta http-equiv="refresh" content="0;url=../user.php?p=allnote">';
+$assignredir = '<meta http-equiv="refresh" content="0;url=../user.php?p=assigncal">';
+$shiftredir = '<meta http-equiv="refresh" content="0;url=../user.php?p=shiftneeds">';
+
+if(!isset($_SESSION['myusername'])){
+$logged = 0;
+echo $redir;
+exit();
+}
+
+//----Variables
+$section = "Staff";
+$area = "User Management";
+if(isset($_POST['admin'])) { $admin = $_POST['admin']; }
+if(isset($_POST['action'])) { $action = $_POST['action']; }
+if(isset($_POST['uID'])) { $uID = $_POST['uID']; }
+if(isset($_POST['ip'])) { $ip = $_POST['ip']; }
+$datetime = date('Y-m-d H:i:s');
+$date = date('Y-m-d');
+//Form Variables-------
+if(isset($_POST['user'])) { $formuser = $_POST['user'];
+	if($action == "adduser" || $action == "edituser" || $action == "editadvisor" || $action == "editmod") { $userquery = "SELECT * FROM `accounts` WHERE LOWER(Username) = '$formuser'";
+	$userqueryrun = mysql_query($userquery);
+	$userrows = mysql_num_rows($userqueryrun);
+	if ($userrows == 0 || $action == 'edituser' || $action == "editadvisor" || $action == "editmod")
+		{
+			$user = $_POST['user'];
+		} else { 
+		echo $redir5; 
+		exit();
+		}
+	}
+$useridquery = mysql_query("SELECT `id`, `Key`, `AdminLevel` FROM `accounts` WHERE `Username` = '$formuser'");
+$userid = mysql_fetch_row($useridquery);
+$userarray = mysql_fetch_array($useridquery);
+	if($userid['AdminLevel'] > 1) { $adminstatquery = mysql_query("SELECT `points` FROM `cp_stat` WHERE `user_id` = '$userid[id]'");
+	$adminstat = mysql_fetch_array($adminstatquery);
+	}
+}
+$accountid = $_POST['accountid'];
+$namequery = mysql_query("SELECT `Username` FROM `accounts` WHERE `id` = '$accountid'");
+$name = mysql_fetch_array($namequery);
+$username = $_POST['username'];
+$querypart = "SELECT * FROM `accounts` WHERE `Username` = '$username'";
+$accountquery = mysql_query($querypart);
+$account = mysql_fetch_array($accountquery);
+if (!$querypart) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $accountquery;
+    die($message);
+}
+if(isset($_POST['pass'])) { $pass = $_POST['pass'];
+	$secpass = strtoupper(hash('whirlpool', $pass)); }
+if(isset($_POST['secureip'])) { $secureip = $_POST['secureip']; }
+if(isset($_POST['rank'])) { $rank = $_POST['rank']; }
+if(isset($_POST['senmod'])) { $senmod = $_POST['senmod']; }
+if(isset($_POST['status'])) { $status = $_POST['status']; }
+if(isset($_POST['vpunish'])) { $vpunish = $_POST['vpunish']; }
+if(isset($_POST['vrefund'])) { $vrefund = $_POST['vrefund']; }
+if(isset($_POST['vban'])) { $vban = $_POST['vban']; }
+if(isset($_POST['points'])) { $points = $_POST['points']; }
+if(isset($_POST['cplgeneral'])) { $cplgeneral = $_POST['cplgeneral']; }
+if(isset($_POST['cplstaff'])) { $cplstaff = $_POST['cplstaff']; }
+if(isset($_POST['cplfaction'])) { $cplfaction = $_POST['cplfaction']; }
+if(isset($_POST['cplfamily'])) { $cplfamily = $_POST['cplfamily']; }
+if(isset($_POST['gladmin'])) { $gladmin = $_POST['gladmin']; }
+if(isset($_POST['gladmingive'])) { $gladmingive = $_POST['gladmingive']; }
+if(isset($_POST['gladminpay'])) { $gladminpay = $_POST['gladminpay']; }
+if(isset($_POST['glban'])) { $glban = $_POST['glban']; }
+if(isset($_POST['glcontracts'])) { $glcontracts = $_POST['glcontracts']; }
+if(isset($_POST['glddedit'])) { $glddedit = $_POST['glddedit']; }
+if(isset($_POST['gldmpedit'])) { $gldmpedit = $_POST['gldmpedit']; }
+if(isset($_POST['glfaction'])) { $glfaction = $_POST['glfaction']; }
+if(isset($_POST['glfamily'])) { $glfamily = $_POST['glfamily']; }
+if(isset($_POST['glfmembercount'])) { $glfmembercount = $_POST['glfmembercount']; }
+if(isset($_POST['glgedit'])) { $glgedit = $_POST['glgedit']; }
+if(isset($_POST['glgifts'])) { $glgifts = $_POST['glgifts']; }
+if(isset($_POST['glhack'])) { $glhack = $_POST['glhack']; }
+if(isset($_POST['glhedit'])) { $glhedit = $_POST['glhedit']; }
+if(isset($_POST['glhouse'])) { $glhouse = $_POST['glhouse']; }
+if(isset($_POST['glkick'])) { $glkick = $_POST['glkick']; }
+if(isset($_POST['gllicenses'])) { $gllicenses = $_POST['gllicenses']; }
+if(isset($_POST['glmoderator'])) { $glmoderator = $_POST['glmoderator']; }
+if(isset($_POST['glmute'])) { $glmute = $_POST['glmute']; }
+if(isset($_POST['glpads'])) { $glpads = $_POST['glpads']; }
+if(isset($_POST['glpassword'])) { $glpassword = $_POST['glpassword']; }
+if(isset($_POST['glpay'])) { $glpay = $_POST['glpay']; }
+if(isset($_POST['glplayervehicle'])) { $glplayervehicle = $_POST['glplayervehicle']; }
+if(isset($_POST['glrpspecial'])) { $glrpspecial = $_POST['glrpspecial']; }
+if(isset($_POST['glsecurity'])) { $glsecurity = $_POST['glsecurity']; }
+if(isset($_POST['glsetvip'])) { $glsetvip = $_POST['glsetvip']; }
+if(isset($_POST['glshopconfirmedorders'])) { $glshopconfirmedorders = $_POST['glshopconfirmedorders']; }
+if(isset($_POST['glshoplog'])) { $glshoplog = $_POST['glshoplog']; }
+if(isset($_POST['glshoporders'])) { $glshoporders = $_POST['glshoporders']; }
+if(isset($_POST['glstats'])) { $glstats = $_POST['glstats']; }
+if(isset($_POST['glundercover'])) { $glundercover = $_POST['glundercover']; }
+if(isset($_POST['glvipnamechanges'])) { $glvipnamechanges = $_POST['glvipnamechanges']; }
+if(isset($_POST['glvipremove'])) { $glvipremove = $_POST['glvipremove']; }
+if(isset($_POST['leaveID'])) { $leaveID = $_POST['leaveID']; }
+if(isset($_POST['noteID'])) { $noteID = $_POST['noteID']; }
+if(isset($_POST['acceptID'])) { $acceptID = $_POST['acceptID']; }
+if(isset($_POST['shiftid'])) { $shiftid = $_POST['shiftid']; }
+if(isset($_POST['assigndate'])) { $assigndate = $_POST['assigndate']; }
+if(isset($_POST['needs_sun'])) { $needs_sun = $_POST['needs_sun']; }
+if(isset($_POST['needs_mon'])) { $needs_mon = $_POST['needs_mon']; }
+if(isset($_POST['needs_tue'])) { $needs_tue = $_POST['needs_tue']; }
+if(isset($_POST['needs_wed'])) { $needs_wed = $_POST['needs_wed']; }
+if(isset($_POST['needs_thu'])) { $needs_thu = $_POST['needs_thu']; }
+if(isset($_POST['needs_fri'])) { $needs_fri = $_POST['needs_fri']; }
+if(isset($_POST['needs_sat'])) { $needs_sat = $_POST['needs_sat']; }
+if(isset($_POST['assignid'])) { $assignid = $_POST['assignid']; }
+$bonus = $_POST['bonus'];
+$asst_req = $_POST['asst_req'];
+if(isset($_POST['leader_type'])) { $leader_type = $_POST['leader_type']; }
+if(isset($_POST['leader_ID'])) { $leader_ID = $_POST['leader_ID']; }
+$shiftleadid = $_POST['shiftleadid'];
+$type = $_POST['type'];
+$note = $_POST['note'];
+$invokeid = $_POST['invokeid'];
+//-------End Variables
+
+if(strtolower($admin) != strtolower($inf['Username'])) { echo "Data tampered with."; exit(); }
+if($ip != $_SERVER['REMOTE_ADDR']) { echo "Data tampered with."; exit(); }
+
+if($action == "adduser") {
+$adduserquery = "INSERT INTO `accounts` (`id`, `RegiDate`, `Username`, `Key`, `Registered`, `ConnectedTime`, `AdminLevel`, `Tutorial`) VALUES (NULL, '$datetime', '$user', '$secpass', '1', '2', '$rank', '1');";
+$runquery = mysql_query($adduserquery);
+$newuser = mysql_query("SELECT `id` FROM `accounts` WHERE `Username` = '$user'");
+$newuser_id = mysql_fetch_row($newuser);
+$addaccessquery = "INSERT INTO `cp_access` (`user_id`, `punish`, `refund`, `ban`, `cplgeneral`, `cplstaff`, `cplfaction`, `cplfamily`, `gladmin`, `gladmingive`, `gladminpay`, `glban`, `glcontracts`, `glddedit`, `gldmpedit`, `glfaction`, `glfamily`, `glfmembercount`, `glgedit`, `glgifts`, `glhack`, `glhedit`, `glhouse`, `glkick`, `gllicenses`, `glmoderator`, `glmute`, `glpads`, `glpassword`, `glpay`, `glplayervehicle`, `glrpspecial`, `glsecurity`, `glsetvip`, `glshopconfirmedorders`, `glshoplog`, `glshoporders`, `glstats`, `glundercover`, `glvipnamechanges`, `glvipremove`) VALUES ('$newuser_id[0]', '$vpunish', '$vrefund', '$vban', '$cplgeneral', '$cplstaff', '$cplfaction', '$cplfamily', '$gladmin', '$gladmingive', '$gladminpay', '$glban', '$glcontracts', '$glddedit', '$gldmpedit', '$glfaction', '$glfamily', '$glfmembercount', '$glgedit', '$glgifts', '$glhack', '$glhedit', '$glhouse', '$glkick', '$gllicenses', '$glmoderator', '$glmute', '$glpads', '$glpassword', '$glpay', '$glplayervehicle', '$glrpspecial', '$glsecurity', '$glsetvip', '$glshopconfirmedorders', '$glshoplog', '$glshoporders', '$glstats', '$glundercover', '$glvipnamechanges', '$glvipremove');";
+$runquery2 = mysql_query($addaccessquery);
+$addstatquery = "INSERT INTO `cp_stat` (`user_id`, `points`, `shift`, `shift_complete`, `shift_partcomplete`, `shift_missed`) VALUES ('$newuser_id[0]', '0', '0', '0', '0', '0');";
+$runquery3 = mysql_query($addstatquery);
+$details = "Created ".$user." at rank ".$rank;
+doLog($inf['id'], $section, $area, $details);
+echo $redir3;
+
+if (!$runquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $adduserquery;
+    die($message);
+}
+if (!$runquery2) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $addaccessquery;
+    die($message);
+}
+if (!$runquery3) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $addstatquery;
+    die($message);
+}
+}
+
+/*$ccaInfo  = "SELECT * FROM users WHERE ID='$uID'";
+$ccren = mysql_query($ccaInfo);
+$ccinf = mysql_fetch_array($ccren, MYSQL_ASSOC);
+if($pass == "") { $pass = $ccinf['aPass']; }
+else { $pass = md5(sha1(base64_encode($pass))); }*/
+
+if($action == "edituser") {
+
+if($pass == "") { $edituserquery = "UPDATE `accounts` SET  `Username` = '$user', `SecureIP` = '$secureip', `AdminLevel` = '$rank' WHERE `id` = '$uID'"; }
+if($pass != "") { $edituserquery = "UPDATE `accounts` SET  `Username` = '$user', `Key` = '$secpass', `SecureIP` = '$secureip', `AdminLevel` = '$rank' WHERE `id` = '$uID'"; }
+
+$uaccesscheckquery = mysql_query("SELECT `user_id` FROM `cp_access` WHERE `user_id` = '$uID'");
+$uaccesscheck = mysql_num_rows($uaccesscheckquery);
+if($uaccesscheck == "0") { $editaccessquery = "INSERT INTO `cp_access` (`user_id`, `punish`, `refund`, `ban`, `cplgeneral`, `cplstaff`, `cplfaction`, `cplfamily`, `gladmin`, `gladmingive`, `gladminpay`, `glban`, `glcontracts`, `glddedit`, `gldmpedit`, `glfaction`, `glfamily`, `glfmembercount`, `glgedit`, `glgifts`, `glhack`, `glhedit`, `glhouse`, `glkick`, `gllicenses`, `glmoderator`, `glmute`, `glpads`, `glpassword`, `glpay`, `glplayervehicle`, `glrpspecial`, `glsecurity`, `glsetvip`, `glshopconfirmedorders`, `glshoplog`, `glshoporders`, `glstats`, `glundercover`, `glvipnamechanges`, `glvipremove`) VALUES ('$uID', '$vpunish', '$vrefund', '$vban', '$cplgeneral', '$cplstaff', '$cplfaction', '$cplfamily', '$gladmin', '$gladmingive', '$gladminpay', '$glban', '$glcontracts', '$glddedit', '$gldmpedit', '$glfaction', '$glfamily', '$glfmembercount', '$glgedit', '$glgifts', '$glhack', '$glhedit', '$glhouse', '$glkick', '$gllicenses', '$glmoderator', '$glmute', '$glpads', '$glpassword', '$glpay', '$glplayervehicle', '$glrpspecial', '$glsecurity', '$glsetvip', '$glshopconfirmedorders', '$glshoplog', '$glshoporders', '$glstats', '$glundercover', '$glvipnamechanges', '$glvipremove');"; }
+elseif($uaccesscheck == "1") { $editaccessquery = "UPDATE `cp_access` SET `punish` = '$vpunish', `refund` = '$vrefund', `ban` = '$vban', `cplgeneral` = '$cplgeneral', `cplstaff` = '$cplstaff', `cplfaction` = '$cplfaction', `cplfamily` = '$cplfamily', `gladmin` = '$gladmin', `gladmingive` = '$gladmingive', `gladminpay` = '$gladminpay', `glban` = '$glban', `glcontracts` = '$glcontracts', `glddedit` = '$glddedit', `gldmpedit` = '$gldmpedit', `glfaction` = '$glfaction', `glfamily` = '$glfamily', `glfmembercount` = '$glfmembercount', `glgedit` = '$glgedit', `glgifts` = '$glgifts', `glhack` = '$glhack', `glhedit` = '$glhedit', `glhouse` = '$glhouse', `glkick` = '$glkick', `gllicenses` = '$gllicenses', `glmoderator` = '$glmoderator', `glmute` = '$glmute', `glpads` = '$glpads', `glpassword` = '$glpassword', `glpay` = '$glpay', `glplayervehicle` = '$glplayervehicle', `glrpspecial` = '$glrpspecial', `glsecurity` = '$glsecurity', `glsetvip` = '$glsetvip', `glshopconfirmedorders` = '$glshopconfirmedorders', `glshoplog` = '$glshoplog', `glshoporders` = '$glshoporders', `glstats` = '$glstats', `glundercover` = '$glundercover', `glvipnamechanges` = '$glvipnamechanges', `glvipremove` = '$glvipnamechanges' WHERE `user_id` = '$uID'"; }
+
+$ustatcheckquery = mysql_query("SELECT `user_id` FROM `cp_stat` WHERE `user_id` = '$uID'");
+$ustatcheck = mysql_num_rows($ustatcheckquery);
+if($ustatcheck == "0") { $editstatquery = "INSERT INTO `cp_stat` (`user_id`, `points`, `shift`, `shift_complete`, `shift_partcomplete`, `shift_missed`) VALUES ('$uID', '$points', '0', '0', '0', '0');"; }
+elseif($ustatcheck == "1") { $editstatquery = "UPDATE `cp_stat` SET  `points` = '$points' WHERE `user_id` = '$uID'"; }
+
+$runquery = mysql_query($edituserquery);
+$runquery2 = mysql_query($editstatquery);
+$runquery3 = mysql_query($editaccessquery);
+
+$details = "Edited ".$user."\'s account";
+doLog($inf['id'], $section, $area, $details);
+echo $redir3;
+
+if (!$runquery) {
+    $message  = 'Invalid query: ('.mysql_errno().')'.mysql_error()."\n";
+    $message .= 'Whole query: ' . $edituserquery;
+    die($message);
+}
+if (!$runquery2) {
+    $message  = 'Invalid query: ('.mysql_errno().')'.mysql_error()."\n";
+    $message .= 'Whole query: ' . $editstatquery;
+    die($message);
+}
+if (!$runquery3) {
+    $message  = 'Invalid query: ('.mysql_errno().')'.mysql_error()."\n";
+    $message .= 'Whole query: ' . $editaccessquery;
+    die($message);
+}
+}
+
+//-------Advisors-----------------
+
+if($action == "addadvisor") {
+if($rank == 2) { $rankname = "Community Advisor"; }
+if($rank == 3) { $rankname = "Senior Advisor"; }
+if($rank == 4) { $rankname = "Chief Advisor"; }
+
+$addadvisor = mysql_query("UPDATE `accounts` SET `Helper` = '$rank' WHERE `id` = '$userid[id]'");
+
+$details = "Made ".$formuser." a ".$rankname;
+doLog($inf['id'], $section, $area, $details);
+echo $redir3;
+
+if (!$addadvisor) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $addadvisor;
+    die($message);
+}
+}
+
+if($action == "editadvisor") {
+
+if($pass == "") { $edituserquery = "UPDATE `accounts` SET  `Username` = '$user', `Helper` = '$rank' WHERE `id` = '$uID'"; }
+if($pass != "") { $edituserquery = "UPDATE `accounts` SET  `Username` = '$user', `Key` = '$secpass', `Helper` = '$rank' WHERE `id` = '$uID'"; }
+
+$uaccesscheckquery = mysql_query("SELECT `user_id` FROM `cp_access` WHERE `user_id` = '$uID'");
+$uaccesscheck = mysql_num_rows($uaccesscheckquery);
+if($uaccesscheck == "0") { $editaccessquery = "INSERT INTO `cp_access` (`user_id`, `punish`, `refund`, `ban`, `cplgeneral`, `cplstaff`, `cplfaction`, `cplfamily`, `gladmin`, `gladmingive`, `gladminpay`, `glban`, `glcontracts`, `glddedit`, `gldmpedit`, `glfaction`, `glfamily`, `glfmembercount`, `glgedit`, `glgifts`, `glhack`, `glhedit`, `glhouse`, `glkick`, `gllicenses`, `glmoderator`, `glmute`, `glpads`, `glpassword`, `glpay`, `glplayervehicle`, `glrpspecial`, `glsecurity`, `glsetvip`, `glshopconfirmedorders`, `glshoplog`, `glshoporders`, `glstats`, `glundercover`, `glvipnamechanges`, `glvipremove`) VALUES ('$uID', '$vpunish', '$vrefund', '$vban', '$cplgeneral', '$cplstaff', '$cplfaction', '$cplfamily', '$gladmin', '$gladmingive', '$gladminpay', '$glban', '$glcontracts', '$glddedit', '$gldmpedit', '$glfaction', '$glfamily', '$glfmembercount', '$glgedit', '$glgifts', '$glhack', '$glhedit', '$glhouse', '$glkick', '$gllicenses', '$glmoderator', '$glmute', '$glpads', '$glpassword', '$glpay', '$glplayervehicle', '$glrpspecial', '$glsecurity', '$glsetvip', '$glshopconfirmedorders', '$glshoplog', '$glshoporders', '$glstats', '$glundercover', '$glvipnamechanges', '$glvipremove');"; }
+elseif($uaccesscheck == "1") { $editaccessquery = "UPDATE `cp_access` SET `punish` = '$vpunish', `refund` = '$vrefund', `ban` = '$vban', `cplgeneral` = '$cplgeneral', `cplstaff` = '$cplstaff', `cplfaction` = '$cplfaction', `cplfamily` = '$cplfamily', `gladmin` = '$gladmin', `gladmingive` = '$gladmingive', `gladminpay` = '$gladminpay', `glban` = '$glban', `glcontracts` = '$glcontracts', `glddedit` = '$glddedit', `gldmpedit` = '$gldmpedit', `glfaction` = '$glfaction', `glfamily` = '$glfamily', `glfmembercount` = '$glfmembercount', `glgedit` = '$glgedit', `glgifts` = '$glgifts', `glhack` = '$glhack', `glhedit` = '$glhedit', `glhouse` = '$glhouse', `glkick` = '$glkick', `gllicenses` = '$gllicenses', `glmoderator` = '$glmoderator', `glmute` = '$glmute', `glpads` = '$glpads', `glpassword` = '$glpassword', `glpay` = '$glpay', `glplayervehicle` = '$glplayervehicle', `glrpspecial` = '$glrpspecial', `glsecurity` = '$glsecurity', `glsetvip` = '$glsetvip', `glshopconfirmedorders` = '$glshopconfirmedorders', `glshoplog` = '$glshoplog', `glshoporders` = '$glshoporders', `glstats` = '$glstats', `glundercover` = '$glundercover', `glvipnamechanges` = '$glvipnamechanges', `glvipremove` = '$glvipnamechanges' WHERE `user_id` = '$uID'"; }
+
+$ustatcheckquery = mysql_query("SELECT `user_id` FROM `cp_stat` WHERE `user_id` = '$uID'");
+$ustatcheck = mysql_num_rows($ustatcheckquery);
+if($ustatcheck == "0") { $editstatquery = "INSERT INTO `cp_stat` (`user_id`, `points`, `shift`, `shift_complete`, `shift_partcomplete`, `shift_missed`) VALUES ('$uID', '$points', '0', '0', '0', '0');"; }
+elseif($ustatcheck == "1") { $editstatquery = "UPDATE `cp_stat` SET  `points` = '$points' WHERE `user_id` = '$uID'"; }
+
+$runquery = mysql_query($edituserquery);
+$runquery2 = mysql_query($editstatquery);
+$runquery3 = mysql_query($editaccessquery);
+
+$details = "Edited ".$user."\'s account";
+doLog($inf['id'], $section, $area, $details);
+echo $rediradvisor;
+
+if (!$runquery) {
+    $message  = 'Invalid query: ('.mysql_errno().')'.mysql_error()."\n";
+    $message .= 'Whole query: ' . $edituserquery;
+    die($message);
+}
+if (!$runquery2) {
+    $message  = 'Invalid query: ('.mysql_errno().')'.mysql_error()."\n";
+    $message .= 'Whole query: ' . $editstatquery;
+    die($message);
+}
+if (!$runquery3) {
+    $message  = 'Invalid query: ('.mysql_errno().')'.mysql_error()."\n";
+    $message .= 'Whole query: ' . $editaccessquery;
+    die($message);
+}
+}
+
+//--------------------------------
+
+//-------Moderators---------------
+
+if($action == "addmoderator") {
+
+$addmoderator = mysql_query("UPDATE `accounts` SET `AdminLevel` = '$rank', `SeniorModerator` = '$senmod' WHERE `id` = '$account[id]'");
+
+if($senmod == 0) { $details = "Made ".$username." a Moderator"; }
+if($senmod == 1) { $details = "Made ".$username." a Senior Moderator"; }
+doLog($inf['id'], $section, $area, $details);
+echo $redirmod1;
+
+if (!$addmoderator) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $addmoderator;
+    die($message);
+}
+}
+
+if($action == "editmod") {
+
+if($pass == "") {
+if($rank == 1) { $edituserquery = "UPDATE `accounts` SET  `Username` = '$user', `AdminLevel` = '1', `SeniorModerator` = '0' WHERE `id` = '$uID'"; }
+if($rank == 2) { $edituserquery = "UPDATE `accounts` SET  `Username` = '$user', `AdminLevel` = '1', `SeniorModerator` = '1' WHERE `id` = '$uID'"; }
+}
+if($pass != "") {
+if($rank == 1) { $edituserquery = "UPDATE `accounts` SET  `Username` = '$user', `Key` = '$secpass', `AdminLevel` = '1', `SeniorModerator` = '0' WHERE `id` = '$uID'"; }
+if($rank == 2) { $edituserquery = "UPDATE `accounts` SET  `Username` = '$user', `Key` = '$secpass', `AdminLevel` = '1', `SeniorModerator` = '1' WHERE `id` = '$uID'"; }
+}
+
+$uaccesscheckquery = mysql_query("SELECT `user_id` FROM `cp_access` WHERE `user_id` = '$uID'");
+$uaccesscheck = mysql_num_rows($uaccesscheckquery);
+if($uaccesscheck == "0") { $editaccessquery = "INSERT INTO `cp_access` (`user_id`, `punish`, `refund`, `ban`, `cplgeneral`, `cplstaff`, `cplfaction`, `cplfamily`, `gladmin`, `gladmingive`, `gladminpay`, `glban`, `glcontracts`, `glddedit`, `gldmpedit`, `glfaction`, `glfamily`, `glfmembercount`, `glgedit`, `glgifts`, `glhack`, `glhedit`, `glhouse`, `glkick`, `gllicenses`, `glmoderator`, `glmute`, `glpads`, `glpassword`, `glpay`, `glplayervehicle`, `glrpspecial`, `glsecurity`, `glsetvip`, `glshopconfirmedorders`, `glshoplog`, `glshoporders`, `glstats`, `glundercover`, `glvipnamechanges`, `glvipremove`) VALUES ('$uID', '$vpunish', '$vrefund', '$vban', '$cplgeneral', '$cplstaff', '$cplfaction', '$cplfamily', '$gladmin', '$gladmingive', '$gladminpay', '$glban', '$glcontracts', '$glddedit', '$gldmpedit', '$glfaction', '$glfamily', '$glfmembercount', '$glgedit', '$glgifts', '$glhack', '$glhedit', '$glhouse', '$glkick', '$gllicenses', '$glmoderator', '$glmute', '$glpads', '$glpassword', '$glpay', '$glplayervehicle', '$glrpspecial', '$glsecurity', '$glsetvip', '$glshopconfirmedorders', '$glshoplog', '$glshoporders', '$glstats', '$glundercover', '$glvipnamechanges', '$glvipremove');"; }
+elseif($uaccesscheck == "1") { $editaccessquery = "UPDATE `cp_access` SET `punish` = '$vpunish', `refund` = '$vrefund', `ban` = '$vban', `cplgeneral` = '$cplgeneral', `cplstaff` = '$cplstaff', `cplfaction` = '$cplfaction', `cplfamily` = '$cplfamily', `gladmin` = '$gladmin', `gladmingive` = '$gladmingive', `gladminpay` = '$gladminpay', `glban` = '$glban', `glcontracts` = '$glcontracts', `glddedit` = '$glddedit', `gldmpedit` = '$gldmpedit', `glfaction` = '$glfaction', `glfamily` = '$glfamily', `glfmembercount` = '$glfmembercount', `glgedit` = '$glgedit', `glgifts` = '$glgifts', `glhack` = '$glhack', `glhedit` = '$glhedit', `glhouse` = '$glhouse', `glkick` = '$glkick', `gllicenses` = '$gllicenses', `glmoderator` = '$glmoderator', `glmute` = '$glmute', `glpads` = '$glpads', `glpassword` = '$glpassword', `glpay` = '$glpay', `glplayervehicle` = '$glplayervehicle', `glrpspecial` = '$glrpspecial', `glsecurity` = '$glsecurity', `glsetvip` = '$glsetvip', `glshopconfirmedorders` = '$glshopconfirmedorders', `glshoplog` = '$glshoplog', `glshoporders` = '$glshoporders', `glstats` = '$glstats', `glundercover` = '$glundercover', `glvipnamechanges` = '$glvipnamechanges', `glvipremove` = '$glvipnamechanges' WHERE `user_id` = '$uID'"; }
+
+$ustatcheckquery = mysql_query("SELECT `user_id` FROM `cp_stat` WHERE `user_id` = '$uID'");
+$ustatcheck = mysql_num_rows($ustatcheckquery);
+if($ustatcheck == "0") { $editstatquery = "INSERT INTO `cp_stat` (`user_id`, `points`, `shift`, `shift_complete`, `shift_partcomplete`, `shift_missed`) VALUES ('$uID', '$points', '0', '0', '0', '0');"; }
+elseif($ustatcheck == "1") { $editstatquery = "UPDATE `cp_stat` SET  `points` = '$points' WHERE `user_id` = '$uID'"; }
+
+$runquery = mysql_query($edituserquery);
+$runquery2 = mysql_query($editstatquery);
+$runquery3 = mysql_query($editaccessquery);
+
+$details = "Edited ".$user."\'s account";
+doLog($inf['id'], $section, $area, $details);
+echo $redirmod1;
+
+if (!$runquery) {
+    $message  = 'Invalid query: ('.mysql_errno().')'.mysql_error()."\n";
+    $message .= 'Whole query: ' . $edituserquery;
+    die($message);
+}
+if (!$runquery2) {
+    $message  = 'Invalid query: ('.mysql_errno().')'.mysql_error()."\n";
+    $message .= 'Whole query: ' . $editstatquery;
+    die($message);
+}
+if (!$runquery3) {
+    $message  = 'Invalid query: ('.mysql_errno().')'.mysql_error()."\n";
+    $message .= 'Whole query: ' . $editaccessquery;
+    die($message);
+}
+}
+
+if($action == "removemod") {
+
+$removemod = mysql_query("UPDATE `accounts` SET `AdminLevel` = '0', `SeniorModerator` = '0' WHERE `id` = '$account[id]'");
+
+$details = "Removed ".$username." as a Moderator";
+doLog($inf['id'], $section, $area, $details);
+echo $redirmod1;
+
+if (!$removemod) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $removemod;
+    die($message);
+}
+}
+
+//--------------------------------
+
+//-------Helpers------------------
+
+if($action == "addhelper") {
+$addmoderator = mysql_query("UPDATE `accounts` SET `Helper` = '1' WHERE `id` = '$account[id]'");
+
+$details = "Made ".$username." a Helper";
+doLog($inf['id'], $section, $area, $details);
+echo $redirhelper;
+
+if (!$addmoderator) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $addmoderator;
+    die($message);
+}
+}
+
+if($action == "removehelper") {
+$removemod = mysql_query("UPDATE `accounts` SET `Helper` = '0' WHERE `id` = '$account[id]'");
+
+$details = "Removed ".$username." as a Helper";
+doLog($inf['id'], $section, $area, $details);
+echo $redirhelper;
+
+if (!$removemod) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $removemod;
+    die($message);
+}
+}
+
+//--------------------------------
+
+//----------------Notes-----------
+if($action == "addNote") {
+$query5 = mysql_query("INSERT INTO `cp_admin_notes` (`id`, `user_id`, `type`, `details`, `invoke_id`, `date`, `status`, `points`) VALUES (NULL, '$accountid', '$type', '$note', '$invokeid', '$date', '1', '$points')");
+
+if($type == 1) { $type_char = "Infraction"; }
+if($type == 2) { $type_char = "Commendation"; }
+
+$details = "Added a(n) ".$type_char." for ".$name['Username'];
+doLog($inf['id'], $section, $area, $details);
+echo $rediraddnote;
+
+if (!$query5) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $query5;
+    die($message);
+}
+}
+
+if($action == "acceptNote") {
+
+$pts1 = mysql_query("SELECT `points` FROM `cp_stat` WHERE `user_id` = '$accountid'");
+$pts = mysql_fetch_array($pts1);
+
+if($type == "1") { $npts = $pts['points'] - $points; }
+if($type == "2") { $npts = $pts['points'] + $points; }
+mysql_query("UPDATE `cp_stat` SET `points` = '$npts' WHERE `user_id` = '$accountid'");
+mysql_query("UPDATE `cp_admin_notes` SET `status` = '2' WHERE `id` = '$noteID'");
+
+if($type == 1) { $type_char = "Infraction"; }
+if($type == 2) { $type_char = "Commendation"; }
+
+$details = "Accepted the ".$type_char." on ".$name['Username'];
+doLog($inf['id'], $section, $area, $details);
+echo $noteredir;
+}
+
+if($action == "denyNote") {
+mysql_query("DELETE FROM `cp_admin_notes` WHERE `id` = '$noteID'"); 
+
+if($type == 1) { $type_char = "Infraction"; }
+if($type == 2) { $type_char = "Commendation"; }
+
+$details = "Denied the ".$type_char." on ".$name['Username'];
+doLog($inf['id'], $section, $area, $details);
+echo $noteredir;
+}
+
+if($action == "deletenote") {
+mysql_query("DELETE FROM `cp_admin_notes` WHERE `id` = '$noteID'");
+
+if($type == 1) { mysql_query("UPDATE `cp_stat` SET `points` = points + $points WHERE `user_id` = '$accountid'");
+	$type_char = "Infraction"; }
+if($type == 2) { mysql_query("UPDATE `cp_stat` SET `points` = points - $points WHERE `user_id` = '$accountid'");
+	$type_char = "Commendation"; }
+
+$details = "Deleted the ".$type_char." on ".$name['Username'];
+doLog($inf['id'], $section, $area, $details);
+echo $noteallredir;
+}
+//--------------Leaves-----------
+
+if($action == "acceptLeave") {
+$acceptquery = mysql_query("UPDATE `cp_leave` SET `status` = '2', `acceptedby_id` = '$acceptID' WHERE `id` = '$leaveID'");
+
+if (!$acceptquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $acceptquery;
+    die($message);
+	}
+
+$details = "Accepted the leave request for ".$formuser;
+doLog($inf['id'], $section, $area, $details);
+echo $leaveredir;
+}
+
+if($action == "denyLeave") {
+$denyquery = mysql_query("DELETE FROM `cp_leave` WHERE `id` = '$leaveID'"); 
+
+if (!$denyquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $denyquery;
+    die($message);
+	}
+
+$details = "Denied the leave request for ".$formuser;
+doLog($inf['id'], $section, $area, $details);
+echo $leaveredir;
+}
+
+//--------------Checkins-----------
+
+if($action == "acceptCheckin") {
+
+$cin1 = mysql_query("SELECT * FROM users WHERE `aUser` = '$saUser'");
+$cin = mysql_fetch_array($cin1);
+
+$checkins1 = mysql_query("SELECT * FROM user_checkins WHERE `id` = '$sID'");
+$checkinsInf = mysql_fetch_array($checkins1);
+
+$cDate = $checkinsInf['addDate'];
+$checkins = $cin['checkins'] + 1;
+$npts = $cin['points'] + $sPTS;
+mysql_query("UPDATE nmphosti_cms.users SET  `dCheckin` = '$cDate', `CheckinStatus` = 'Active', `checkins` = '$checkins', `points` = '$npts' WHERE `aUser` = '$saUser'");
+mysql_query("UPDATE `nmphosti_cms`.`user_checkins` SET `status` = 'Accepted' WHERE `id` = '$sID'");
+mysql_query("UPDATE `nmphosti_cms`.`user_checkins` SET `acceptBy` = '$editingAdmin' WHERE `id` = '$sID'");
+
+$details = "Accepted the checkin request for user:  ".$saUser." and gave ".$sPTS." points";
+doLog($inf['id'], $section, $area, $details);
+echo $redir3;
+}
+
+if($action == "denyCheckin") {
+
+mysql_query("DELETE FROM user_checkins WHERE `id` = '$sID'");
+$details = "Denied the checkin request for user:  ".$saUser;
+doLog($inf['id'], $section, $area, $details);
+echo $redir3;
+}
+
+//-------Shifts--------
+
+if($action == "shiftneeds") {
+foreach ($shiftid as $n) {
+$needs = $n - 1;
+$shiftneedsquery = "UPDATE `cp_shift_blocks` SET `needs_sunday` = '$needs_sun[$needs]', `needs_monday` = '$needs_mon[$needs]', `needs_tuesday` = '$needs_tue[$needs]', `needs_wednesday` = '$needs_wed[$needs]', `needs_thursday` = '$needs_thu[$needs]', `needs_friday` = '$needs_fri[$needs]', `needs_saturday` = '$needs_sat[$needs]' WHERE `id` = '$n'";
+$runquery = mysql_query($shiftneedsquery);
+
+$details = "Modified the shift needs";
+doLog($inf['id'], $section, $area, $details);
+
+if (!$runquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $shiftneedsquery;
+    die($message);
+	}
+echo $shiftredir;
+}
+}
+
+if($action == "addassign") {
+foreach ($shiftid as $shift) {
+$assignquery = "INSERT INTO `cp_shifts` (`id`, `user_id`, `shift_id`, `date`, `sign_up`, `status`) VALUES (NULL, '$uID', '$shift', '$assigndate', '$datetime', '2')";
+$runquery = mysql_query($assignquery);
+echo $assignredir;
+
+if (!$runquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $assignquery;
+    die($message);
+	}
+
+}
+}
+
+if($action == "assign_edit") {
+$assigneditquery = "UPDATE `cp_shifts` SET `status` = '$status' WHERE `id` = $assignid";
+	if($status == "3" && $asst_req == 1) { $bonus = 1;
+	mysql_query("UPDATE `cp_stat` SET `shift_complete` = shift_complete + 1, `points` = points + $bonus + 1 WHERE `user_id` = '$uID'"); }
+	if($status == "3" && $asst_req == 0) { mysql_query("UPDATE `cp_stat` SET `shift_complete` = shift_complete + 1, `points` = points + $bonus + 1 WHERE `user_id` = '$uID'"); }
+	if($status == "4") { mysql_query("UPDATE `cp_stat` SET `shift_partcomplete` = shift_partcomplete + 1 WHERE `user_id` = '$uID'"); }
+	if($status == "5" && $bonus == 0) { mysql_query("UPDATE `cp_stat` SET `shift_missed` = shift_missed + 1, `points` = points - 1 WHERE `user_id` = '$uID'"); }
+	if($status == "5" && $bonus == 2) { mysql_query("UPDATE `cp_stat` SET `shift_missed` = shift_missed + 1, `points` = points - 2 WHERE `user_id` = '$uID'"); }
+$runquery = mysql_query($assigneditquery);
+
+$details = "Modified assignment #".$assignid;
+doLog($inf['id'], $section, $area, $details);
+echo $assignredir;
+
+if (!$runquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $assigneditquery;
+    die($message);
+}
+}
+
+if($action == "addshiftleader") {
+$shiftleaderquery = "INSERT INTO `cp_shift_leader` (`id`, `user_id`, `shift_id`) VALUES (NULL, '$leader_ID', '$shiftid')";
+$runquery = mysql_query($shiftleaderquery);
+
+echo $shiftredir;
+
+if (!$runquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $shiftleaderquery;
+    die($message);
+}
+}
+
+if($action == "removeshiftleader") {
+$removeleaderquery = "DELETE FROM `cp_shift_leader` WHERE `id` = '$shiftleadid'";
+$runquery = mysql_query($removeleaderquery);
+
+echo $shiftredir;
+
+if (!$runquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $shiftleaderquery;
+    die($message);
+}
+}
+//--------------------------------
+
+
+?>

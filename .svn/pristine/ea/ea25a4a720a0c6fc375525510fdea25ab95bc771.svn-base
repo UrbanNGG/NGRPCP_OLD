@@ -1,0 +1,71 @@
+ 			<div id='content_wrap'>
+				<ol id='breadcrumb'><li>User Management > Users On-Leave</li></ol>
+				<div class='section_title'><h2>Users On-Leave</h2></div>
+			<div class='acp-box'>
+			<?php if($inf['AdminLevel'] >= 1338) { ?>
+			<h3>Add an Administrator</h3>
+			<form action="user/proc.php" method="POST">
+			<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%' style='font-weight:bold'> 
+			<tr><td>Administrator</td><td>
+				<select name="accountid">
+				<?php $adminquery = mysql_query("SELECT `id`, `Username` FROM `accounts` WHERE `AdminLevel` > 1 AND `Disabled` = 0 ORDER BY `Username` ASC");
+				while ($admin = mysql_fetch_array($adminquery)) {
+					echo "<option value='$admin[id]'>$admin[Username]</option>";
+				} ?>
+				</select>
+			</td><td>Reason</td><td><input type="text" name="reason"></td></tr>
+			<tr><td>Leave Date</td><td>
+			<?php require_once('../global/class/tc_calendar.php');
+
+			//instantiate class and set properties
+			$myCalendar = new tc_calendar("date1", true);
+			$myCalendar->setIcon("../global/images/iconCalendar.gif");
+			$myCalendar->setAlignment("right", "top");
+			$myCalendar->setDate(date("d"), date("m"), date("Y"));
+
+			//output the calendar
+			$myCalendar->writeScript();
+
+			echo '</td><td>Return Date</td><td>';
+
+			$myCalendar = new tc_calendar("date2", true);
+			$myCalendar->setIcon("../global/images/iconCalendar.gif");
+			$myCalendar->setDate(date("d"), date("m"), date("Y"));
+			$myCalendar->writeScript();
+			?>
+			<td width='10%'>
+				<input type="hidden" name="action" readonly="readonly" value="leave_add">
+				<input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>">
+				<input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>">
+				<input type="hidden" name="admin_id" readonly="readonly" value="<?php echo $inf['id']; ?>">
+				<input type="submit" class="button" value="Add Leave">
+			</td></tr></table>
+			<?php } ?>
+			<h3>On-Leave: Administrators</h3>
+			<table class="double_pad" cellpadding="0" cellspacing="0" border="0" width="100%">
+			<tr><th>Administrator</th><th>Leave Date</th><th>Return Date</th><th>Reason</th><th>Approved By</th></tr>
+
+			<?php
+			$leavequery = mysql_query("SELECT * FROM `cp_leave` WHERE `status` = '2' AND `date_return` > DATE(NOW()) ORDER BY `id`");
+			while($leave = mysql_fetch_array($leavequery)) {
+
+						if (isset($i) && $i == 1) {
+							print "<tr class='tablerow1'>";
+						$i=0;
+						} else { 
+							print "<tr>";
+						$i=1;
+						}
+
+print "
+<td>".GetName($leave['user_id'])."</td>
+<td>$leave[date_leave]</td>
+<td>$leave[date_return]</td>
+<td>$leave[reason]</td>
+<td>".GetName($leave['acceptedby_id'])."</td>
+</tr>
+";
+}
+			?>
+			</table>
+			</div></div>

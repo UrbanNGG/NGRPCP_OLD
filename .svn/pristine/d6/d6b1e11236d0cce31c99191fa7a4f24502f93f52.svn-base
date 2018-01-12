@@ -1,0 +1,50 @@
+<?php
+function SideNav($level) {
+	if($level > 4) {
+		print "<ul>";
+		if($level >= 1338) {
+			if($_GET['p'] == "admincreate") { print "<li class='active'>"; } else print "<li>";
+			print "<a href='user.php?p=admincreate'>Add Administrator</a></li>";
+		}
+		if($_GET['p'] == "view" || $_GET['p'] == "edit") {
+			print "<li class='active'>View Users";
+		}
+		else print "<li>View Users";
+			print "<ul>";
+			if($level >= 1338) { print "<li><a href='user.php?p=view&g=admin'>Administrators</a></li>"; }
+			print "<li><a href='user.php?p=view&g=moderator'>Moderators</a></li>";
+			print "<li><a href='user.php?p=view&g=watchdog'>Watchdogs</a></li>";
+			if($level >= 1338) { print "<li><a href='user.php?p=view&g=disabled'>Disabled</a></li>"; }
+			print "</ul></li>";
+		if($_GET['p'] == "pendingnote" || $_GET['p'] == "allnote" || $_GET['p'] == "archivenote" || $_GET['p'] == "addnote") {
+			print "<li class='active'>Notes";
+		}
+		else print "<li>Notes";
+			print "<ul>";
+			print "<li><a href='user.php?p=addnote'>Add User Note</a></li>";
+			print "<li><a href='user.php?p=pendingnote'>Pending Notes</a></li>";
+			print "<li><a href='user.php?p=allnote'>All Notes</a></li>";
+			print "<li><a href='user.php?p=archivenote'>Archived Notes</a></li>";
+			print "</ul></li>";
+		if($_GET['p'] == "pendingleave" || $_GET['p'] == "archiveleave" || $_GET['p'] == "onleave") {
+			print "<li class='active'>Leaves";
+		}
+		else print "<li>Leaves";
+			print "<ul>";
+			print "<li><a href='user.php?p=onleave'>Current Leave Notices</a></li>";
+			print "<li><a href='user.php?p=pendingleave'>Pending Leaves</a></li>";
+			print "<li><a href='user.php?p=archiveleave'>Archived Leaves</a></li>";
+			print "</ul></li>";
+		if($_GET['p'] == "shiftpending" || $_GET['p'] == "shiftneeds" || $_GET['p'] == "assigncal" || $_GET['p'] == "alert") {
+			print "<li class='active'>Shifts";
+		}
+		else print "<li>Shifts";
+			print "<ul>";
+			print "<li><a href='user.php?p=alert'>Alerts</a></li>";
+			print "<li><a href='user.php?p=assigncal'>View & Issue Assignments</a></li>";
+			print "<li><a href='user.php?p=shiftneeds'>Shift Needs & Leaders</a></li>";
+			print "</ul></li>";
+		print "</ul>";
+	}
+}
+?>

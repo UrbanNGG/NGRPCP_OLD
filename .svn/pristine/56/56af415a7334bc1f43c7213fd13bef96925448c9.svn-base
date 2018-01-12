@@ -1,0 +1,102 @@
+<?php if($inf['AdminLevel'] < "1337") {
+	echo $redir;
+	exit();
+}
+
+$section = "Staff";
+$area = "Game Affairs";
+
+if(isset($_POST['action']) && $_POST['action'] == "add") {
+if($_POST['admin'] != $inf['Username']) { echo "Error 1001 - Data tampered with!"; exit(); }
+if($_POST['ip'] != $_SERVER['REMOTE_ADDR']) { echo "Error 1002 - Data tampered with!"; exit(); }
+$removequery = mysql_query("UPDATE `accounts` SET `GangModerator` = '1' WHERE `id` = '$_POST[fam_user]'");
+$usernamequery = mysql_query("SELECT `Username` FROM `accounts` WHERE `id` = '$_POST[fam_user]'");
+$username = mysql_fetch_array($usernamequery);
+$details = "Added ".$username[0]." as a gang moderator";
+doLog($inf['id'], $section, $area, $details);
+if (!$removequery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $removequery;
+    die($message);
+	}
+}
+
+if(isset($_POST['action']) && $_POST['action'] == "remove") {
+if($_POST['admin'] != $inf['Username']) { echo "Error 1001 - Data tampered with!"; exit(); }
+if($_POST['ip'] != $_SERVER['REMOTE_ADDR']) { echo "Error 1002 - Data tampered with!"; exit(); }
+$removequery = mysql_query("UPDATE `accounts` SET `GangModerator` = '0' WHERE `id` = '$_POST[userid]'");
+$details = "Removed ".$_POST['fammod_name']."\'s gang moderator";
+doLog($inf['id'], $section, $area, $details);
+if (!$removequery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $removequery;
+    die($message);
+	}
+}
+?>
+<div id='content_wrap'>
+	<ol id='breadcrumb'><li>Game Affairs > Viewing Gang Moderators</li></ol>
+	<div class='section_title'><h2>Gang Moderators</h2></div>
+<div class='acp-box'>
+	<h3>Add a Gang Moderator</h3>
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+			<form method='post' action='gameaffairs.php?p=gangmod'>
+			<tr>
+				<td>Name</td>
+				<td><select name="fam_user">
+					<?php 
+					$userquery = mysql_query("SELECT `id`, `Username` FROM `accounts` WHERE `AdminLevel` > '1' ORDER BY Username ASC");
+					while ($user = mysql_fetch_array($userquery)) {
+					echo "<option value='$user[id]'>$user[Username]</option>";
+					} ?>
+				</select></td>
+				<td>
+					<input type='hidden' name='action' readonly='readonly' value='add'>
+					<input type='hidden' name='admin' readonly='readonly' value='<?php echo $_SESSION['myusername']; ?>'>
+					<input type='hidden' name='ip' readonly='readonly' value='<?php echo $_SERVER['REMOTE_ADDR']; ?>'>
+					<input type='submit' class='button' value='Add'>
+				</td>
+			</tr>
+			</form>
+		</table>
+	<h3>Gang Moderator List</h3>
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+		<tr>
+			<th>Administrator</th><th>Gang</th><th>Last Active</th><th>Remove</th>
+		</tr>
+	<?php $gmod1 = mysql_query("SELECT `id`, `Username`, `UpdateDate`, `FMember` FROM `accounts` WHERE `GangModerator` = '1' ORDER BY Username ASC");
+		while ($gmod = mysql_fetch_array($gmod1)) {
+			if (isset($i) && $i == 1) {
+				print "<tr class='tablerow1'>";
+			$i=0;
+			} else { 
+				print "<tr>";
+			$i=1;
+			}
+			
+		$famlistquery = mysql_query("SELECT `name` FROM `cp_family` WHERE `id` = $gmod[FMember]");
+		$famlist = mysql_fetch_array($famlistquery);
+		if($gmod['FMember'] <> 255) { $famname = $famlist['0']; }
+		if($gmod['FMember'] == 255) { $famname = "None"; }
+			
+	$remove = "<form method='post' action='gameaffairs.php?p=gangmod'>
+	<input type='hidden' name='action' readonly='readonly' value='remove'>
+	<input type='hidden' name='admin' readonly='readonly' value='$_SESSION[myusername]'>
+	<input type='hidden' name='ip' readonly='readonly' value='$_SERVER[REMOTE_ADDR]'>
+	<input type='hidden' name='userid' readonly='readonly' value='$gmod[id]'>
+	<input type='hidden' name='fammod_name' readonly='readonly' value='$gmod[Username]'>
+	<input type='submit' class='button' value='Remove'>
+	</form>";
+			
+		print "
+			<td>$gmod[Username]</td>
+			<td>$famname</td>
+			<td>".LastOnline($gmod['id'])."</td>
+			<td>$remove</td>
+				</tr>
+			";
+		} ?>
+		</table>
+</div>
+</div>
+<?php //} ?>

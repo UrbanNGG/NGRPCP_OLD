@@ -1,0 +1,9 @@
+<meta name="description" content="Next Generation Gaming's Content Management System">
+<meta name="keywords" content="ngg, cms, ngrp, next generation gaming, content management system">
+<link rel="shortcut icon" href="http://<?php echo $_SERVER['SERVER_NAME']; ?>/favicon.ico" type="image/x-icon" />
+<title>Next Generation Gaming CP</title>
+<link rel="stylesheet" type="text/css" href="http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/css/acp.css">
+<link rel="stylesheet" type="text/css" href="http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/css/acp_content.css">
+<link rel="stylesheet" type="text/css" href="http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/css/acp_ie_tweaks.css">
+<script language="javascript" src="http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/js/calendar.js"></script>
+<script language="javascript" src="http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/js/check_name.js"></script>

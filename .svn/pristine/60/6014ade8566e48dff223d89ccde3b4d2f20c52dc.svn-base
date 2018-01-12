@@ -1,0 +1,63 @@
+			<div id='content_wrap'>
+				<ol id='breadcrumb'><li>User Management > Shifts</li></ol>
+				<div class='section_title'><h2>Alerts</h2></div>
+			<div class='acp-box'>
+
+						<?php
+						if(!isset($_GET['week'])) {
+						$week = date('Y-m-d');
+						$dateweek = date('W');
+						}
+						if(isset($_GET['week'])) {
+						$week = date('Y-m-d', strtotime("+".$_GET['week']." week"));
+						$dateweek = date('W', strtotime("+".$_GET['week']." week"));
+						}
+						
+						print "
+							<h3><table class='thead'><tr>
+								<td align='left'><a href='user.php?p=alert&week=".($_GET['week'] - 1)."'><< Last Week</a></td>
+								<td align='center'>Current Week: $dateweek</td>
+								<td align='right'><a href='user.php?p=alert&week=".($_GET['week'] + 1)."'>Next Week >></a></td>
+							</tr></table></h3>
+							<table cellpadding='0' class='double_pad' cellspacing='0' border='1' width='100%'>
+							<tr><th>Administrator</th><th>Number of Shifts</th></tr>
+						";
+						
+						$adminquery = mysql_query("SELECT `id`, `Username` FROM `accounts` WHERE `AdminLevel` > 1 AND `Band` = 0 AND `Disabled` = 0 ORDER BY `Username` ASC");
+						while($admin = mysql_fetch_array($adminquery)) {
+						
+							$countquery = mysql_query("SELECT * FROM `cp_shifts` WHERE `user_id` = '$admin[id]' AND YEARWEEK(`date`) = YEARWEEK('$week')");
+							$count = mysql_num_rows($countquery);
+							
+							if(isset($i) && $i == 1) {
+								print "<tr>";
+							$i=0;
+							} else { 
+								print "<tr class='tablerow1'>";
+							$i=1;
+							}
+							
+							if($count < 15) { print "<td style='font-weight:bold;color:red'>".$admin['Username']."</td><td style='font-weight:bold;color:red'>".$count."</td></tr>"; }
+							if($count >= 15) { print "<td style='font-weight:bold'>".$admin['Username']."</td><td style='font-weight:bold'>".$count."</td></tr>"; }
+						}
+						?>
+
+					</table>
+			</div>
+			<div class='acp-box'>
+				<h3>Missed Shifts</h3>
+					<table cellpadding='0' class='double_pad' cellspacing='0' border='1' width='100%'>
+						<tr><th>Administrator</th><th>Number of Missed Shifts</th></tr>
+						<?php $missedquery = mysql_query("SELECT `user_id`, `shift_missed` FROM `cp_stat` WHERE `shift_missed` >= '5'");
+						$count_missed = mysql_num_rows($missedquery);
+						if($count_missed == 0) { echo "<tr><td colspan='2'><strong>There are no Administrators with outstanding missed shifts!</strong></td></tr>"; }
+						while($missed = mysql_fetch_array($missedquery)) {
+							print "<tr>";
+							print "<td>".GetName($missed['user_id'])."</td>";
+							print "<td>$missed[shift_missed]</td>";
+							print "</tr>";
+						}
+						?>
+					</table>
+			</div>
+			</div>

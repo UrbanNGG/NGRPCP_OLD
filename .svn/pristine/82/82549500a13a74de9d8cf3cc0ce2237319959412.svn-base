@@ -1,0 +1,52 @@
+<?php require('../global/func.php');
+$redir = '<meta http-equiv="refresh" content="0;url=../login.php">';
+$assignredir = '<meta http-equiv="refresh" content="0;url=../index.php?p=shift">';
+$removeredir = '<meta http-equiv="refresh" content="0;url=../index.php?p=dashboard">';
+session_start();
+if(!isset($_SESSION['myusername'])){
+$logged = 0;
+echo $redir;
+exit();
+}
+
+//----Variables
+$action = $_POST['action'];
+$admin = $_POST['admin'];
+$userid = $_POST['userid'];
+$shiftid = $_POST['shiftid'];
+$shiftblock = $_POST['shiftblock'];
+$assigndate = $_POST['assigndate'];
+$ip = $_POST['ip'];
+//-------End Variables
+
+if($admin != $inf['Username']) { echo "Data tampered with. ERR:001"; exit(); }
+if($ip != $_SERVER['REMOTE_ADDR']) { echo "Data tampered with. ERR:002"; exit(); }
+
+if($action == "assign") {
+foreach ($shiftid as $shift) {
+$assignquery = "INSERT INTO `cp_shifts` (`id`, `user_id`, `shift_id`, `date`, `status`) VALUES (NULL, '$userid', '$shift', '$assigndate', '2')";
+$runquery = mysql_query($assignquery);
+echo $assignredir;
+
+if (!$runquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $assignquery;
+    die($message);
+	}
+}
+}
+
+if($action == "removeshift") {
+$removeshiftquery = "UPDATE `cp_shifts` SET `status` = '1' WHERE `id` = '$shiftid'";
+$runquery = mysql_query($removeshiftquery);
+$details = "Removed self from ".$shiftblock." shift on ".$assigndate;
+doLog($inf['id'], $section, $area, $details);
+echo $removeredir;
+
+if (!$runquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $removeshiftquery;
+    die($message);
+	}
+}
+?>

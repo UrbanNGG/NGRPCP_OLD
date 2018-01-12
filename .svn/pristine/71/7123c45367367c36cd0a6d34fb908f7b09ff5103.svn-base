@@ -1,0 +1,14 @@
+<?php
+function SideNav($inf) {
+	if($inf["Member"] != "0") {
+	print "<ul>";
+	if($_SERVER["REQUEST_URI"] == "/faction.php?p=roster") {
+	print "<li class='active'><a href=\"faction.php?p=roster\">Roster</a></li>";
+	}
+	else {
+	print "<li><a href=\"faction.php?p=roster\">Roster</a></li>";
+	}
+	print "</ul>";
+	}
+}
+?>

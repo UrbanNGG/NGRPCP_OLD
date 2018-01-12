@@ -1,0 +1,44 @@
+<?php
+function SideNav($inf) {
+	print "<ul>";
+		if($inf['AdminLevel'] >= 1337 || $inf['ShopTech'] > 0) {
+			if($_GET['p'] == "shift" || $_GET['p'] == "assigncal" || $_GET['p'] == "assignview" || $_GET['p'] == "assignedit") {
+				print "<li class='active'>Shifts";
+			}
+			else print "<li>Shifts";
+				print "<ul>";
+				print "<li><a href='cr.php?p=shift'>Sign-up</a></li>";
+				print "<li><a href='cr.php?p=assigncal'>View & Issue Assignments</a></li>";
+				print "</ul></li>";
+			if($_GET['p'] == "report_create" || $_GET['p'] == "report_pending" || $_GET['p'] == "report_archive") {
+				print "<li class='active'>Weekly Reports";
+			}
+			else print "<li>Weekly Reports";
+				print "<ul>";
+				print "<li><a href='cr.php?p=report_create'>Create a Report</a></li>";
+				print "<li><a href='cr.php?p=report_pending'>Pending Reports</a></li>";
+				print "<li><a href='cr.php?p=report_archive'>Archived Reports</a></li>";
+				print "</ul></li>";
+			if($_GET['p'] == "tracker") {
+				print "<li class='active'>Trackers";
+			}
+			else print "<li>Trackers";
+				print "<ul>";
+				print "<li><a href='cr.php?p=tracker&item=business'>Business</a></li>";
+				print "<li><a href='cr.php?p=tracker&item=house'>House</a></li>";
+				print "<li><a href='cr.php?p=tracker&item=backdoor'>Backdoor</a></li>";
+				print "<li><a href='cr.php?p=tracker&item=gate'>Gate</a></li>";
+				print "<li><a href='cr.php?p=tracker&item=vip'>VIP</a></li>";
+				print "<li><a href='cr.php?p=tracker&item=gvip'>Gold VIP</a></li>";
+				print "<li><a href='cr.php?p=tracker&item=pvip'>Platinum VIP</a></li>";
+				print "<li><a href='cr.php?p=tracker&item=ts'>TeamSpeak Channel</a></li>";
+				print "</ul></li>";
+		}
+		if($inf['AdminLevel'] >= 1338 || $inf['ShopTech'] == 3) {
+			if($_GET['p'] == "roster") { print "<li class='active'>"; } else print "<li>";
+			print "<a href='cr.php?p=roster'>Shop Technicians</a></li>";
+		}
+	print "</ul>";
+}
+
+?>

@@ -1,0 +1,179 @@
+<head>
+<style>
+/* calendar */
+table.calendar    {
+	border-left:1px solid #999;
+	height: 600px;
+}
+tr.calendar-row  {  }
+td.calendar-day  { height:80px; font-size:11px; position:relative; } * html div.calendar-day { height:120px; }
+td.calendar-day:hover  { background:#eceff5; }
+td.calendar-day-np  {
+	background:#F1F4F7;
+	height:120px;
+} * html div.calendar-day-np { height:120px; }
+td.calendar-day-head {
+	font-weight:bold;
+	text-align:center;
+	width:120px;
+	padding:5px;
+	border-bottom:1px solid #999;
+	border-top:1px solid #999;
+	border-right:1px solid #999;
+	background-color: #1D3652;
+	background-image: url(../global/images/global/gradient_bg.png);
+	background-repeat: repeat-x;
+	color: #FFF;
+}
+div.day-number    {
+	padding:5px;
+	color:#fff;
+	font-weight:bold;
+	float:right;
+	margin:-5px -5px 0 0;
+	width:20px;
+	text-align:center;
+	background-color: #6B88A5;
+}
+/* shared */
+td.calendar-day, td.calendar-day-np {
+	width:120px;
+	padding:5px;
+	border-bottom:1px solid #333;
+	border-right:1px solid #333;
+	height: 120px;
+	vertical-align: top;
+}
+
+</style>
+</head>
+
+<?php
+
+function draw_calendar($month,$year){
+
+  /* draw table */
+  $calendar = '<table cellpadding="0" cellspacing="0" class="calendar">';
+
+  /* table headings */
+  $headings = array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
+  $calendar.= '<tr class="calendar-row"><td class="calendar-day-head">'.implode('</td><td class="calendar-day-head">',$headings).'</td></tr>';
+
+  /* days and weeks vars now ... */
+  $running_day = date('w',mktime(0,0,0,$month,1,$year));
+  $days_in_month = date('t',mktime(0,0,0,$month,1,$year));
+  $days_in_this_week = 1;
+  $day_counter = 0;
+  $dates_array = array();
+
+  /* row for week one */
+  $calendar.= '<tr class="calendar-row">';
+
+  /* print "blank" days until the first of the current week */
+  for($x = 0; $x < $running_day; $x++):
+    $calendar.= '<td class="calendar-day-np">&nbsp;</td>';
+    $days_in_this_week++;
+  endfor;
+
+  /* keep going with days.... */
+  for($list_day = 1; $list_day <= $days_in_month; $list_day++):
+    $calendar.= '<td class="calendar-day">';
+      /* add in the day number */
+      $calendar.= '<div class="day-number">'.$list_day.'</div>';
+
+      /** QUERY THE DATABASE FOR AN ENTRY FOR THIS DAY !!  IF MATCHES FOUND, PRINT THEM !! **/
+		$query="SELECT * FROM `nmphosti_cms`.`a_unban` WHERE date='".str_pad($month,2,"0",STR_PAD_LEFT)."/".$list_day."/".substr($year,-2)."' AND status='1' ORDER BY date";
+		$result=mysql_query($query);
+		$num=mysql_num_rows($result);
+		$ii=0;
+		while ($num > $ii){
+		$igname=mysql_result($result,$ii,"igname");
+		$status=mysql_result($result,$ii,"status");
+		$idd=mysql_result($result,$ii,"id");
+		if ($list_day==date('j')){
+			$calendar.= '<p><a href="tempban.php?p=edit&id='.$idd.'" style="margin-left:10px;font-weight:bold;font-size:12px;color:green;">'.$igname.'</a></br></p>';
+			}elseif($list_day<date('j')){
+			$calendar.= '<p><a href="tempban.php?p=edit&id='.$idd.'" style="margin-left:10px;font-weight:bold;font-size:12px;color:red;">'.$igname.'</a></br></p>';
+			}else{
+			$calendar.= '<p><a href="tempban.php?p=edit&id='.$idd.'" style="margin-left:10px;font-weight:bold;font-size:12px;">'.$igname.'</a></br></p>';
+		}
+
+			++$ii;
+		}
+
+    $calendar.= '</td>';
+    if($running_day == 6):
+      $calendar.= '</tr>';
+      if(($day_counter+1) != $days_in_month):
+        $calendar.= '<tr class="calendar-row">';
+      endif;
+      $running_day = -1;
+      $days_in_this_week = 0;
+    endif;
+    $days_in_this_week++; $running_day++; $day_counter++;
+  endfor;
+
+  /* finish the rest of the days in the week */
+  if($days_in_this_week < 8):
+    for($x = 1; $x <= (8 - $days_in_this_week); $x++):
+      $calendar.= '<td class="calendar-day-np">&nbsp;</td>';
+    endfor;
+  endif;
+
+  /* final row */
+  $calendar.= '</tr>';
+
+  /* end the table */
+  $calendar.= '</table>';
+  
+  /* all done, return result */
+  return $calendar;
+}
+
+/* sample usages */
+?>
+	<div id='content_wrap'>
+				<ol id='breadcrumb'><li>Temporary Bans > Add/View Temporary Bans</li></ol>
+				<div class='section_title'><h2>Temporary Bans</h2></div>
+			<div class='acp-box'>
+            <h3>Add a Temporary Ban</h3>
+					<table><form method='POST' action='tempban/proc.php'>
+						<tr><th width="20%">Player</th><th width="20%">IP</th><th width="20%">Reason</th><th width="20%">Ban Appeal Link</th><th width="20%">Unban Date</th></tr>
+						<tr><td align="center"><input type="text" name="igname" size="20"></td><td align="center"><input type="text" name="pIP" size="20"></td><td align="center"><input type="text" name="reason" size="20"></td><td align="center"><input type="text" name="link" size="20"></td><td align="center">
+<?php $year = substr($year, -2, 2);
+  echo '<select name="m" style="color:grey;">';
+  echo '<option value="01">January</option>';
+  echo '<option value="02">February</option>';
+  echo '<option value="03">March</option>';
+  echo '<option value="04">April</option>';
+  echo '<option value="05">May</option>';
+  echo '<option value="06">June</option>';
+  echo '<option value="07">July</option>';
+  echo '<option value="08">August</option>';
+  echo '<option value="09">September</option>';
+  echo '<option value="10">October</option>';
+  echo '<option value="11">November</option>';
+  echo '<option value="12">December</option>';
+echo '</select>';
+echo '<select name="day" style="color:grey;">';
+$i = 1;
+while($i < 32){
+  echo '<option>'.$i.'</option>';
+  ++$i;
+  }
+echo '</select>';
+echo '<select name="year" style="color:grey;">';
+$i = 2011;
+while($i < 2032){
+  echo '<option>'.$i.'</option>';
+  ++$i;
+  }
+echo '</select>'; ?></td></tr>
+<tr><input type="hidden" name="ip" readonly="readonly" value="<?php echo $_SERVER['REMOTE_ADDR']; ?>"><input type="hidden" name="admin" readonly="readonly" value="<?php echo $_SESSION['myusername']; ?>"><input type="hidden" name="action" readonly="readonly" value="add"><td colspan="5" align="center"><input type="submit" class="button" value="Submit"></td></tr></form></table>
+<?php
+echo '<h2>'.date('F Y').'</h2>';
+echo draw_calendar(date(n),date(Y));
+ 
+?>
+</div>
+</div>

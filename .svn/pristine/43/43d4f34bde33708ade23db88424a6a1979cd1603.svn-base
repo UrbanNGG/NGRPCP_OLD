@@ -1,0 +1,56 @@
+			<div id='content_wrap'>
+				<ol id='breadcrumb'><li>User Management > Shifts</li></ol>
+				<div class='section_title'><h2>Alerts</h2></div>
+			<div class='acp-box'>
+				<h3>Minimum Shifts</h3>
+					<table cellpadding='0' class='double_pad' cellspacing='0' border='1' width='100%'>
+						<tr><th>Administrator</th><th>Number of Shifts</th></tr>
+						<?php $minquery = mysql_query("SELECT * FROM `cp_shifts` WHERE YEARWEEK(`date`) = YEARWEEK(CURDATE()) ORDER BY `user_id`");
+						while($min = mysql_fetch_array($minquery)) 
+						{
+							if(!isset($off)) 
+							{
+								$user = $min[user_id];
+								$off = 1;
+								$num = 0;
+							} 
+							if($user == $min[user_id]) 
+							{
+									$user = $min[user_id];
+									$num++;
+							} 
+							else 
+							{ 
+								if ($num < 5) 
+								{
+									$adminnamequery = mysql_query("SELECT `aUser` FROM `users` WHERE `ID` = '$user'");
+									$adminname = mysql_fetch_array($adminnamequery);
+									print "<tr>";
+									print "<td><a href='http://www.ng-gaming.net/admin/user.php?p=edit&uID=".$user."'>".$adminname[0]."</a></td>";
+									print "<td>".$num."</td>";
+									print "</tr>";
+								}
+								$num = 1;
+								$user = $min[user_id];
+							}
+						
+						}
+						?>
+					</table>
+			</div>
+			<div class='acp-box'>
+				<h3>Missed Shifts</h3>
+					<table cellpadding='0' class='double_pad' cellspacing='0' border='1' width='100%'>
+						<tr><th>Administrator</th><th>Number of Missed Shifts</th></tr>
+						<?php $missedquery = mysql_query("SELECT `ID`, `aUser`, `shift_missed` FROM `users` WHERE `shift_missed` >= '5'");
+						$count_missed = mysql_num_rows($missedquery);
+						if($count_missed == 0) { echo "<tr><td colspan='2'><strong>There are no Administrators with outstanding missed shifts!</strong></td></tr>"; }
+						while($missed = mysql_fetch_array($missedquery)) {
+							print "<tr>";
+							print "<td>$missed[aUser]</td>";
+							print "</tr>";
+						}
+						?>
+					</table>
+			</div>
+			</div>

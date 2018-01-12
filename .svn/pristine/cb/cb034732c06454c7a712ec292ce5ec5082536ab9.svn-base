@@ -1,0 +1,28 @@
+<div id='content_wrap'>
+	<ol id='breadcrumb'><li><?php echo $section; ?> > Referrals</li></ol>
+	<div class='section_title'><h2>Referrals</h2></div>
+	<div class='acp-box'>
+		<h3>Referral ID</h3>
+		<table cellpadding='0' class='double_pad' cellspacing='0' border='0' width='100%'>
+		<?php if($inf['referral_id'] == "") { ?>
+			<form action="index/proc.php" method="POST">
+			<tr class="tablerow1">
+				<td align="center">Click the button below to generate a referral ID</td>
+			</tr>
+			<tr class="acp-actionbar">
+				<input type='hidden' name='admin' readonly='readonly' value='<?php echo $_SESSION['myusername']; ?>'>
+				<input type='hidden' name='ip' readonly='readonly' value='<?php echo $_SERVER['REMOTE_ADDR']; ?>'>
+				<td align="center"><input type="hidden" name="userid" value="<?php echo $inf['id']; ?>"><input type="hidden" name="action" value="ref_generate"><input type="submit" class="button" value="Generate ID"></td>
+			</tr>
+			</form>
+		<?php } else { ?>
+			<tr class="tablerow1">
+				<td align="center">Copy the URL below to give to your friends</td>
+			</tr>
+			<tr class="acp-actionbar">
+				<td align="center"><input type="text" name="refid" size="100" onclick="this.focus();this.select()" value="http://cp.ng-gaming.net/referral.php?rid=<?php echo $inf['referral_id']; ?>" readonly="readonly"></td>
+			</tr>
+		<?php } ?>
+		</table>
+	</div>
+</div>

@@ -1,0 +1,140 @@
+<?php error_reporting(1);
+require('../global/class/SQL.php');
+
+function Strikeout() {
+	$query = mysql_query("SELECT NULL FROM `login_strikes` WHERE `ip_address` = '$_SERVER[REMOTE_ADDR]'");
+	$result = mysql_num_rows($query);
+	if($result >= 5) {
+		echo '<meta http-equiv="refresh" content="0;url=../ipban.php">';
+		exit();
+	}
+}
+Strikeout();
+
+function doLog($user, $area, $details) {
+	$ip = $_SERVER['REMOTE_ADDR'];
+	$date = date('Y-m-d H:i:s');
+	$logquery = "INSERT INTO `cp_log_general` (`id`, `date`, `user_id`, `area`, `details`, `ip_address`) VALUES (NULL, '$date', '$user', '$area', '$details', '$ip')";
+	$runquery = mysql_query($logquery);
+	if (!$runquery) {
+		$message  = 'Invalid query: ' . mysql_error() . "\n";
+		$message .= 'Whole query: ' . $logquery;
+		die($message);
+		}
+	}
+
+$redir = '<meta http-equiv="refresh" content="0;url=../index.php?p=dashboard">';
+$error1 = '<meta http-equiv="refresh" content="0;url=../login.php?note=1">';
+$error2 = '<meta http-equiv="refresh" content="0;url=../login.php?note=2">';
+
+$ip = $_SERVER['REMOTE_ADDR'];
+$myusername=$_POST['username'];
+$mypassword=$_POST['password'];
+
+$myusername = stripslashes($myusername);
+$myusername = mysql_real_escape_string($myusername);
+$mypassword = mysql_real_escape_string($mypassword);
+
+$passhash = hash('whirlpool', $mypassword);
+
+$admquery = "SELECT `id`, `Username`, `IP`, `SecureIP`, `AdminLevel`, `referral_id` FROM `accounts` WHERE `Username` = '$myusername'";
+$admincheckquery = mysql_query($admquery);
+if (!$admincheckquery) {
+	echo $admquery;
+	die('Invalid query: ' . mysql_error());
+	
+}
+$adminchk = mysql_fetch_array($admincheckquery);
+
+$sql = "SELECT `id` FROM `accounts` WHERE `Username`='$myusername' and `Key`='$passhash'";
+$result = mysql_query($sql);
+if (!$result) {
+	echo $sql;
+    die('Invalid query: ' . mysql_error());
+	
+}
+$count = mysql_num_rows($result);
+
+if($count == 1)
+{
+	if(isset($_POST['rid']))
+	{
+		$rid = $_POST['rid'];
+		$refchkquery = mysql_query("SELECT `IP` FROM `accounts` WHERE `referral_id` = '$rid'");
+		$refchk = mysql_fetch_array($refchkquery);
+		$refquery = mysql_query("SELECT NULL FROM `referrals` WHERE `user_id` = $adminchk[id]");
+		$refcount = mysql_num_rows($refquery);
+		if($rid != $adminchk['referral_id'])
+		{
+			if($refchk['IP'] != $adminchk['IP'])
+			{
+				if($refcount > 0)
+				{
+					echo '<script>alert("You have already been referred!");</script>';
+				}
+				else
+				{
+					mysql_query("INSERT INTO `referrals` (`id`, `user_id`, `date`, `referral_key`, `prize_claim`) VALUES (NULL, $adminchk[id], NOW(), '$rid', 0)");
+				}
+			}
+			else
+			{
+				echo '<script>alert("Invalid referral ID!");</script>';
+			}
+		}
+		else
+		{
+			echo '<script>alert("You cannot refer yourself!");</script>';
+		}
+	}
+
+	if ($adminchk['AdminLevel'] >= 2)
+	{
+		# Access table check
+		$accessquery = "SELECT NULL FROM `cp_access` WHERE `user_id` = '$adminchk[id]'";
+		$accesschkquery = mysql_query($accessquery);
+		$accesschk = mysql_num_rows($accesschkquery);
+			if($accesschk == 0)
+			{
+				mysql_query("INSERT INTO `cp_access` (`user_id`) VALUES ('$adminchk[id]')");
+			}
+		# Stat table check
+		$statquery = "SELECT `user_id` FROM `cp_stat` WHERE `user_id` = '$adminchk[id]'";
+		$statchkquery = mysql_query($statquery);
+		$statchk = mysql_num_rows($statchkquery);
+			if($statchk == 0)
+			{
+				mysql_query("INSERT INTO `cp_stat` (`user_id`) VALUES ('$adminchk[id]')");
+			}
+		# End table checks
+		$wllen = strlen($adminchk['SecureIP']);
+		if($adminchk['SecureIP'] != substr("$ip", 0, $wllen)) {
+			$area = "Login";
+			$details = "Unwhitelisted IP";
+			doLog($adminchk['id'], $area, $details);
+			echo $error1;
+			exit();
+		}
+	}
+	
+	session_start();
+	$_SESSION['myusername'] = $myusername;
+	if(!isset($_SESSION['mypassword'])) { $_SESSION['mypassword'] = $mypassword; }
+
+	mysql_query("UPDATE `accounts` SET `IP` = '$_SERVER[REMOTE_ADDR]' WHERE `Username` = '$myusername'");
+	echo $redir;
+	exit();
+}
+else
+{
+	$strikequery = mysql_query("INSERT INTO `login_strikes` (`id`, `ip_address`, `username`, `date`) VALUES (NULL, '$_SERVER[REMOTE_ADDR]', '$myusername', NOW())");
+	$area = "Login";
+	$details = "Failed login for user: " . $myusername;
+	if($adminchk['id']==false){
+		$adminchk['id'] = 0;
+	}
+	doLog($adminchk['id'], $area, $details);
+	echo $error2;
+	exit();
+}
+?>

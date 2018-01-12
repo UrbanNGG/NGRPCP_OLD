@@ -1,0 +1,101 @@
+<?php
+require('../../global/func.php');
+$redir = '<meta http-equiv="refresh" content="0;url=../login.php">';
+$redir2n0 = '<meta http-equiv="refresh" content="0;url=../refund.php?p=view&o=1&note=0">';
+$redir2n1 = '<meta http-equiv="refresh" content="0;url=../refund.php?p=view&o=1&note=1">';
+$redir2n2 = '<meta http-equiv="refresh" content="0;url=../refund.php?p=view&o=2&note=2">';
+$redir2n3 = '<meta http-equiv="refresh" content="0;url=../refund.php?p=view&o=3&note=3">';
+
+if(!isset($_SESSION['myusername'])){
+$logged = 0;
+echo $redir;
+exit();
+}
+
+if($inf['AdminLevel'] > 1 || $access['refund'] == 1) {
+
+//----Variables
+$section = "Staff";
+$area = "Refunds";
+if(isset($_POST['rID'])) { $id = $_POST['rID']; }
+$admin = $_POST['admin'];
+$admin_id = $_POST['admin_id'];
+$ip = $_POST['ip'];
+$date = date('Y-m-d');
+$datetime = date('Y-m-d H:i:s');
+$player = $_POST['player'];
+$playeridquery = mysql_query("SELECT `id` FROM `accounts` WHERE `Username` = '$player'");
+$player_id = mysql_fetch_row($playeridquery);
+$refund = $_POST['refund'];
+$auth = $_POST['auth'];
+$link = $_POST['link'];
+$action = $_POST['action'];
+//-------End Variables
+
+if(strtolower($admin) != strtolower($inf['Username'])) { echo "Data tampered with. ERR:001"; exit(); }
+if($ip != $_SERVER['REMOTE_ADDR']) { echo "Data tampered with. ERR:002"; exit(); }
+
+if($action == "add") {
+$addquery = "INSERT INTO `cp_refund` (`id`, `user_id`, `refund`, `link`, `status`, `auth`, `addedby_id`, `date_added`) VALUES (NULL, '$player_id[0]', '$refund', '$link', '1', '$auth', '$admin_id', '$date')";
+
+$flagquery = mysql_query("INSERT INTO `flags` (`fid`, `id`, `time`, `issuer`, `flag`) VALUES (NULL, '$player_id[0]', '$datetime', 'CP', '$refund')");
+
+$runquery = mysql_query($addquery);
+if (!$runquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $addquery;
+    die($message);
+	}
+$details = "Added refund for ".$player;
+doLog($inf['id'], $section, $area, $details);
+echo $redir2n1;
+}
+
+if($action == "edit") {
+$query1 = "UPDATE `cp_refund` SET `player` = '$player', `refund` = '$refund', `auth` = '$auth', `link` = '$link' WHERE `id` = $id";
+
+$runquery = mysql_query($query1);
+if (!$runquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $query1;
+    die($message);
+	}
+$details = "Modified refund #".$id." for ".$player;
+doLog($inf['id'], $section, $area, $details);
+echo $redir2n0;
+}
+
+if($action == "issue") {
+$query1 = mysql_query("UPDATE `cp_refund` SET `status` = '2', `issuedby_id` = '$inf[id]', `date_issued` = '$date' WHERE `id` = $id");
+
+if (!$query1) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $query1;
+    die($message);
+	}
+
+$details = "Issued refund #".$id." for ".$player;
+doLog($inf['id'], $section, $area, $details);
+echo $redir2n2;
+}
+
+if($action == "remove") {
+$query1 = mysql_query("UPDATE `cp_refund` SET `status` = '3', `issuedby_id` = '$inf[id]', `date_issued` = '$date' WHERE `id` = $id");
+
+if (!$query1) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $query1;
+    die($message);
+	}
+
+$details = "Removed refund #".$id." for ".$player;
+doLog($inf['id'], $section, $area, $details);
+echo $redir2n3;
+}
+
+}
+else {
+	echo $redir;
+	exit();
+}
+?>

@@ -1,0 +1,51 @@
+<?php
+function SideNav($inf) {
+	print "<ul>";
+	if($inf['AdminLevel'] >= 4 || $inf['FactionModerator'] > 0) {
+	if($_SERVER["REQUEST_URI"] == "/staff/gameaffairs.php?p=factionmod" || $_SERVER["REQUEST_URI"] == "/staff/gameaffairs.php?p=factionleader") {
+	print "<li class='active'><a href='gameaffairs.php?p=faction'>Factions</a>";
+	print "<ul>";
+	if($inf['AdminLevel'] >= 1337) {
+	print "<li><a href=\"gameaffairs.php?p=factionmod\">Faction Moderators</a></li>";
+	}
+	print "<li><a href=\"gameaffairs.php?p=factionleader\">Faction Leaders</a></li>";
+	print "<li><a href=\"gameaffairs.php?p=factionmember\">Faction Members</a></li>";
+	print "</ul></li>";
+	}
+	else {
+	print "<li><a href='gameaffairs.php?p=faction'>Factions</a>";
+	print "<ul>";
+	if($inf['AdminLevel'] >= 1337) {
+	print "<li><a href=\"gameaffairs.php?p=factionmod\">Faction Moderators</a></li>";
+	}
+	print "<li><a href=\"gameaffairs.php?p=factionleader\">Faction Leaders</a></li>";
+	print "<li><a href=\"gameaffairs.php?p=factionmember\">Faction Members</a></li>";
+	print "</ul></li>";
+	}
+	}
+	if($inf['AdminLevel'] >= 4 || $inf['GangModerator'] > 0) {
+	if($_SERVER["REQUEST_URI"] == "/staff/gameaffairs.php?p=gangmod" || $_SERVER["REQUEST_URI"] == "/staff/gameaffairs.php?p=gangleader") {
+	print "<li class='active'><a href='gameaffairs.php?p=gang'>Gangs</a>";
+	print "<ul>";
+	if($inf['AdminLevel'] >= 1337) {
+	print "<li><a href=\"gameaffairs.php?p=gangmod\">Gang Moderators</a></li>";
+	}
+	print "<li><a href=\"gameaffairs.php?p=gangleader\">Gang Leaders</a></li>";
+	print "<li><a href=\"gameaffairs.php?p=gangmember\">Gang Members</a></li>";
+	print "</ul></li>";
+	}
+	else {
+	print "<li><a href='gameaffairs.php?p=gang'>Gangs</a>";
+	print "<ul>";
+	if($inf['AdminLevel'] >= 1337) {
+	print "<li><a href=\"gameaffairs.php?p=gangmod\">Gang Moderators</a></li>";
+	}
+	print "<li><a href=\"gameaffairs.php?p=gangleader\">Gang Leaders</a></li>";
+	print "<li><a href=\"gameaffairs.php?p=gangmember\">Gang Members</a></li>";
+	print "</ul></li>";
+	}
+	}
+	print "</ul>";
+}
+
+?>

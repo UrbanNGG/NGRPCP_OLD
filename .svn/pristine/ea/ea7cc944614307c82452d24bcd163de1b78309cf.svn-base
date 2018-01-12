@@ -1,0 +1,9 @@
+<?php
+DEFINE('HOST', 'localhost');
+DEFINE('USRNM', 'root');
+DEFINE('PSWD', 'B9ujAsw6wReT');
+DEFINE('DBNM', 'cp');
+
+mysql_connect(HOST, USRNM, PSWD) or die("cannot connect");
+mysql_select_db(DBNM) or die("cannot select DB");
+?>

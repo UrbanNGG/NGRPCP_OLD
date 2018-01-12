@@ -1,0 +1,20 @@
+<?php
+
+function SideNav() {
+	print "<ul>";
+	if($_SERVER["REQUEST_URI"] == "/staff/punish.php?p=add") {
+	print "<li class='active'><a href=\"punish.php?p=add\">Add Punishment</a></li>";
+	}
+	else {
+	print "<li><a href=\"punish.php?p=add\">Add Punishment</a></li>";
+	}
+	if($_SERVER["REQUEST_URI"] == "/staff/punish.php?p=view" || $_SERVER["REQUEST_URI"] == "/staff/punish.php?p=edit" || isset($_GET['o']) || isset($_GET['id'])) {
+	print "<li class='active'><a href=\"punish.php?p=view\">View Punishments</a></li>";
+	}
+	else {
+	print "<li><a href=\"punish.php?p=view\">View Punishments</a></li>";
+	}
+	print "</ul>";
+}
+
+?>

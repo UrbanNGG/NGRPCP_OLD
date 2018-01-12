@@ -1,0 +1,10 @@
+<?php
+$host="localhost"; 
+$username="root";
+$password="B9ujAsw6wReT";
+$db_name="cp"; 
+
+
+mysql_connect("$host", "$username", "$password")or die("cannot connect");
+mysql_select_db("$db_name")or die("cannot select DB");
+?>

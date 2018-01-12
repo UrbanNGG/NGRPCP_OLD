@@ -1,0 +1,35 @@
+ 			<div id='content_wrap'>
+				<ol id='breadcrumb'><li>User Management > Users On-Leave</li></ol>
+				<div class='section_title'><h2>Users On-Leave</h2></div>
+			<div class='acp-box'>
+
+			<?php		
+			$leavequery = mysql_query("SELECT * FROM `cp_leave` WHERE `status` = '2' AND `date_return` > DATE(NOW()) ORDER BY `id`");
+			$count = mysql_numrows($leavequery);
+			
+			echo "<h3>On-Leave: Administrators</h3>";
+			echo '<table class="double_pad" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><th>Administrator</th><th>Leave Date</th><th>Return Date</th><th>Reason</th></tr>';
+
+			while($leave = mysql_fetch_array($leavequery)) {
+			$userquery = mysql_query("SELECT `Username` FROM `accounts` WHERE `id` = '$leave[user_id]'");
+			$user = mysql_fetch_array($userquery);
+
+						if (isset($i) && $i == 1) {
+							print "<tr class='tablerow1'>";
+						$i=0;
+						} else { 
+							print "<tr>";
+						$i=1;
+						}
+
+print "
+<td>$user[0]</a></td>
+<td>$leave[date_leave]</td>
+<td>$leave[date_return]</td>
+<td>$leave[reason]</td>
+</tr>
+";
+}
+			?>
+			</table>
+			</div></div>

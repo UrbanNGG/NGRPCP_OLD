@@ -1,0 +1,39 @@
+<?php
+$punishquery = mysql_query("SELECT `id` FROM `cp_punishment` WHERE `status` = '1'");
+$punishcount = mysql_num_rows($punishquery);
+$refundquery = mysql_query("SELECT `id` FROM `cp_refund` WHERE `status` = '1'");
+$refundcount = mysql_num_rows($refundquery);
+?>
+<ul id='section_buttons'>
+	<?php if($_SERVER["SCRIPT_NAME"] == "/staff/index.php") { ?><li class='active'><?php } else { ?><li><?php } ?><a href='index.php?p=dashboard'><img src='http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/images/all/applications/portal.png' alt='' /> Main</a></li>
+	
+	<?php if($_SERVER["SCRIPT_NAME"] == "/staff/request.php") { ?><li class='active'><?php } else { ?><li><?php } ?><a href='request.php?p=add'><img src='http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/images/all/applications/help.png' alt='' /> Requests</a></li>
+	
+	<?php if($access["punish"] == "1") { ?>
+		<?php if($_SERVER["SCRIPT_NAME"] == "/staff/punish.php") { ?><li class='active'><?php } else { ?><li><?php } ?><div id='notification_contain'><a href='punish.php?p=view&o=1'><img src='http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/images/all/applications/gallery.png' alt='' /> Punishments</a> <div class="notification"><?php echo $punishcount; ?></div></div></li> 
+	<?php } ?>
+	
+	<?php if($access['refund'] == "1") { ?>
+		<?php if($_SERVER["SCRIPT_NAME"] == "/staff/refund.php") { ?><li class='active'><?php } else { ?><li><?php } ?><div id='notification_contain'><a href='refund.php?p=view&o=1'><img src='http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/images/all/applications/subscriptions.png' alt='' /> Refunds</a> <div class="notification"><?php echo $refundcount; ?></div></div></li>
+	<?php } ?>
+	
+	<?php if($access['ban'] == "1") { ?>
+		<?php if($_SERVER["SCRIPT_NAME"] == "/staff/ban.php") { ?><li class='active'><?php } else { ?><li><?php } ?><a href='ban.php?p=view'><img src='http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/images/all/applications/calendar.png' alt='' /> Bans</a></li>
+	<?php } ?>
+	
+	<?php if($inf['AdminLevel'] >= 4 || $inf['FactionModerator'] > 0 || $inf['GangModerator'] > 0) { ?>
+		<?php if($_SERVER["SCRIPT_NAME"] == "/staff/gameaffairs.php") { ?><li class='active'><?php } else { ?><li><?php } ?><a href='gameaffairs.php?p=index'><img src='http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/images/all/applications/core.png' alt='' /> Game Affairs</a></li>
+	<?php } ?>
+	
+	<?php if($inf['AdminLevel'] >= "2") { ?>
+		<?php if($_SERVER["SCRIPT_NAME"] == "/staff/flag.php") { ?><li class='active'><?php } else { ?><li><?php } ?><a href='flag.php?p=view'><img src='http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/images/all/applications/forums.png' alt='' /> Flags</a></li>
+	<?php } ?>
+	
+	<?php if($inf['AdminLevel'] >= "2" || $inf['Helper'] >= "2") { ?>
+		<?php if($_SERVER["SCRIPT_NAME"] == "/staff/log.php") { ?><li class='active'><?php } else { ?><li><?php } ?><a href='log.php?p=index'><img src='http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/images/all/applications/blog.png' alt='' /> Logs</a></li>
+	<?php } ?>
+	
+	<?php if($inf['AdminLevel'] > "3") { ?>
+	<?php if($_SERVER["SCRIPT_NAME"] == "/staff/user.php") { ?><li class='active'><?php } else { ?><li><?php } ?><a href='user.php?p=index'><img src='http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/images/all/applications/members.png' alt='Icon' /> Users</a></li>
+	<?php } ?>
+</ul>

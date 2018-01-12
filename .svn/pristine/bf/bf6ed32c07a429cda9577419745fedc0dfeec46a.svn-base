@@ -1,0 +1,28 @@
+<div id='content_wrap'>
+	<ol id='breadcrumb'><li><?php echo $section; ?> Home</li></ol>
+	<div class='section_title'><h2>Credit Store</h2></div>
+	<div class='acp-box'>
+		<h3></h3>
+		<br><br><br><br>
+		<center>
+		Processing...<br>
+		<img src='http://<?php echo $_SERVER['SERVER_NAME']; ?>/global/images/all/upgrade/progressbar.gif'></img>
+		</center>
+		<br><br><br><br>
+	</div>
+<?php
+$userid = $inf['id'];
+$ip = $_SERVER['REMOTE_ADDR'];
+for ($i=1; $i<=5; $i++) {
+	if(isset($_POST['action']) && $_POST['action'] == "tokens_pack_".$i."") {
+		AddToCart($userid, $ip, $i);
+		$addmsg = "<div class='acp-message'>Token Pack ".$i." was added to your cart!</div>";
+	} else {
+		echo mysql_error();
+	}
+}
+
+$redir = '<meta http-equiv="refresh" content="2;url=http://'.$_SERVER['SERVER_NAME'].'/store.php?p=cart">';
+echo $redir;
+?>
+</div>

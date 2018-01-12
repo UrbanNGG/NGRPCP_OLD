@@ -1,0 +1,79 @@
+<?php require('../../global/func.php');
+$redir_email = '<meta http-equiv="refresh" content="0;url=../request.php?p=email">';
+$redir_view = '<meta http-equiv="refresh" content="0;url=../request.php?p=view">';
+
+if($inf['AdminLevel'] < 2 || $inf['Helper'] < 2 && !isset($_SESSION['myusername'])){
+$logged = 0;
+echo $redir;
+exit();
+}
+
+//----Variables
+$section = "Staff";
+$area = "Requests";
+$id = $_POST['id'];
+$action = $_POST['action'];
+$admin = $_POST['admin'];
+$ip = $_POST['ip'];
+$userID = $_POST['userID'];
+$adminactquery = mysql_query("SELECT `Username`, `Email` FROM `accounts` WHERE `id` = '$userID'");
+$adminact = mysql_fetch_array($adminactquery);
+$email = $_POST['email'];
+//-------End Variables
+
+if(strtolower($admin) != strtolower($inf['Username'])) { echo "Data tampered with. ERR:001"; exit(); }
+if($ip != $_SERVER['REMOTE_ADDR']) { echo "Data tampered with. ERR:002"; exit(); }
+
+if($action == "req_email") {
+$query = mysql_query("INSERT INTO `cp_cache_email` (`id`, `user_id`, `email_address`) VALUES (NULL, '$userID', '$email')");
+
+$details = "Added email request";
+doLog($inf['id'], $section, $area, $details);
+echo $redir_email;
+}
+
+if($action == "approve") {
+include("xmlapi.php");
+$email_user = $email;
+$acctemail = $adminact['Email'];
+$email_password = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',5)),0,12);
+
+$ip = "69.162.77.10";
+$username = 'nmphosti';
+$root_pass = "c9xafrA9abRu";
+$xmlapi = new xmlapi($ip);
+$xmlapi->password_auth($username,$root_pass);
+$newpopdata = array(
+ 'domain'=>'ng-gaming.net',
+ 'email'=>$email,
+ 'password'=>$email_password,
+ 'quota'=>'250',
+);
+$result = $xmlapi->api2_query($username, "Email", "addpop", $newpopdata);
+$xmlapi->set_debug(1);
+
+$subject = 'Your staff email has been approved!';
+$message = 'The staff email that you requested has been approved. Below is the information to log into the account.
+<br /><br />
+<a href="http://www.ng-gaming.net/webmail/">http://www.ng-gaming.net/webmail/</a><br />Username: '.$email.'@ng-gaming.net<br />Password: '.$email_password.'<br /><br />
+If you have any questions, feel free to make an Administrative Request on the forums.';
+$headers  = 'MIME-Version: 1.0' . "\r\n";
+$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+$headers .= 'From: Next Generation Gaming <donotreply@ng-gaming.net>' . "\r\n";
+mail($acctemail, $subject, $message, $headers);
+
+echo "Email: ".$acctemail."<br />Subject: ".$subject."<br />Message: ".$message;
+
+/*$query = mysql_query("DELETE FROM `cp_cache_email` WHERE `id` = '$id'");
+$details = "Approved email ".$email."@ng-gaming.net for ".$adminname['Username'];
+doLog($inf['id'], $section, $area, $details);*/
+//echo $redir_view;
+}
+
+if($action == "deny") {
+$query = mysql_query("DELETE FROM `cp_cache_email` WHERE `id` = '$id'");
+$details = "Denied email ".$email."@ng-gaming.net for ".$adminname['Username'];
+doLog($inf['id'], $section, $area, $details);
+echo $redir_view;
+}
+?>

@@ -1,0 +1,360 @@
+<?php
+require('../../global/func.php');
+$redir = '<meta http-equiv="refresh" content="0;url=../index.php">';
+$redir_fac = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=faction">';
+$redir_fam = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=gang">';
+$redir_leader_n1 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionleader&n=1">';
+$redir_leader_n2 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionleader&n=2">';
+$redir_leader_n3 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionleader&n=3">';
+$redir_leader_n11 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionleader&n=11">';
+$redir_leader_n12 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionleader&n=12">';
+$redir_fban_n1 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionban&n=1">';
+$redir_fban_n2 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionban&n=2">';
+$redir_fban_n3 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionban&n=3">';
+$redir_fban_n11 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionban&n=11">';
+$redir_fban_n12 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionban&n=12">';
+$redir_gban_n1 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=gangban&n=1">';
+$redir_gban_n2 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=gangban&n=2">';
+$redir_gban_n3 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=gangban&n=3">';
+$redir_gban_n11 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=gangban&n=11">';
+$redir_gban_n12 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=gangban&n=12">';
+$redir_fmod_n1 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionmod&n=1">';
+$redir_fmod_n2 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionmod&n=2">';
+$redir_fmod_n3 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionmod&n=3">';
+$redir_fmod_n4 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionmod&n=4">';
+$redir_gmod_n1 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=gangmod&n=1">';
+$redir_gmod_n2 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=gangmod&n=2">';
+$redir_gmod_n3 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=gangmod&n=3">';
+$redir_gmod_n4 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=gangmod&n=4">';
+$redir_so_n1 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=specops&n=1">';
+$redir_so_n2 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=specops&n=2">';
+$redir_so_n3 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=specops&n=3">';
+$redir_so_n4 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=specops&n=4">';
+
+if(!isset($_SESSION['myusername'])){
+$logged = 0;
+echo $redir;
+exit();
+}
+
+if($inf['AdminLevel'] > 3 || $inf['FactionModerator'] > 0 || $inf['GangModerator'] > 0) {
+
+//----Variables
+$area = "Game Affairs";
+$action = $_POST['action'];
+$admin = $_POST['admin'];
+$ip = $_POST['ip'];
+$id = $_POST['ga_id'];
+$facnamequery = mysql_query("SELECT `name` FROM `cp_faction` WHERE `id` = '$id'");
+$facname = mysql_fetch_array($facnamequery);
+$famnamequery = mysql_query("SELECT `name` FROM `cp_family` WHERE `id` = '$id'");
+$famname = mysql_fetch_array($famnamequery);
+$name = $_POST['name'];
+$leader = $_POST['leader'];
+$leaderidquery = mysql_query("SELECT `id` FROM `accounts` WHERE `Username` = '$leader'");
+$leaderid = mysql_fetch_array($leaderidquery);
+$rank0 = $_POST['rank0'];
+$rank1 = $_POST['rank1'];
+$rank2 = $_POST['rank2'];
+$rank3 = $_POST['rank3'];
+$rank4 = $_POST['rank4'];
+$rank5 = $_POST['rank5'];
+$rank6 = $_POST['rank6'];
+$div0 = $_POST['div0'];
+$div1 = $_POST['div1'];
+$div2 = $_POST['div2'];
+$div3 = $_POST['div3'];
+$div4 = $_POST['div4'];
+$div5 = $_POST['div5'];
+$div6 = $_POST['div6'];
+$div7 = $_POST['div7'];
+
+$redir_member_n1 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionmember&mem='.$id.'&n=1">';
+$redir_member_n2 = '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=factionmember&mem='.$id.'&n=2">';
+//-------End Variables
+
+if(strtolower($admin) != strtolower($inf['Username'])) { echo "Data tampered with. ERR:001"; exit(); }
+if($ip != $_SERVER['REMOTE_ADDR']) { echo "Data tampered with. ERR:002"; exit(); }
+
+if($action == "edit_faction") {
+$editquery = mysql_query("UPDATE `cp_faction` SET `name` = '$name', `rank_0` = '$rank0', `rank_1` = '$rank1', `rank_2` = '$rank2', `rank_3` = '$rank3', `rank_4` = '$rank4', `rank_5` = '$rank5', `rank_6` = '$rank6', `div_0` = '$div0', `div_1` = '$div1', `div_2` = '$div2', `div_3` = '$div3', `div_4` = '$div4', `div_5` = '$div5', `div_6` = '$div6', `div_7` = '$div7' WHERE `id` = $id");
+$details = "Modified the ".$name;
+$section = "Faction";
+doLog($inf['id'], $section, $area, $details);
+echo $redir_fac;
+
+if (!$editquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $editquery;
+    die($message);
+  }
+}
+
+if($action == "edit_family") {
+$editquery = mysql_query("UPDATE `cp_family` SET `name` = '$name', `leader` = '$leaderid[0]', `rank_1` = '$rank1', `rank_2` = '$rank2', `rank_3` = '$rank3', `rank_4` = '$rank4', `rank_5` = '$rank5', `rank_6` = '$rank6' WHERE `id` = $id");
+$details = "Modified the ".$name;
+$section = "Family";
+doLog($inf['id'], $section, $area, $details);
+echo $redir_fam;
+
+if (!$editquery) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $editquery;
+    die($message);
+  }
+}
+
+if($action == "add_leader") {
+if(CheckName($leader) == 0) {
+echo $redir_leader_n1;
+}
+if(IsPlayerOnline($leaderid[0]) > 0) {
+echo $redir_leader_n2;
+}
+if(CheckName($leader) == 1 && IsPlayerOnline($leaderid[0]) == 0) {
+$query = mysql_query("UPDATE `accounts` SET `Leader` = '$id' WHERE `id` = $leaderid[0]");
+$details = "Added ".$leader." as a leader of ".$facname[0];
+$section = "Faction";
+doLog($inf['id'], $section, $area, $details);
+echo $redir_leader_n3;
+
+	if (!$query) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $query;
+    die($message);
+	}
+}
+}
+
+if($action == "remove_leader") {
+if(IsPlayerOnline($leaderid[0]) > 0) {
+echo $redir_leader_n11;
+}
+if(IsPlayerOnline($leaderid[0]) == 0) {
+$query = mysql_query("UPDATE `accounts` SET `Leader` = -1 WHERE `id` = $leaderid[0]");
+$details = "Removed ".$leader." from leader of ".$name;
+$section = "Faction";
+doLog($inf['id'], $section, $area, $details);
+echo $redir_leader_n12;
+
+	if (!$query) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $query;
+    die($message);
+	}
+}
+}
+
+if($action == "fban_add") {
+if(CheckName($leader) == 0) {
+echo $redir_fban_n1;
+}
+if(IsPlayerOnline($leaderid[0]) > 0) {
+echo $redir_fban_n2;
+}
+if(CheckName($leader) == 1 && IsPlayerOnline($leaderid[0]) == 0) {
+if($id == 0) {
+mysql_query("UPDATE `accounts` SET `CSFBanned` = 1 WHERE `id` = $leaderid[0]");
+$details = "Added a faction-wide ban on ".$leader;
+}
+else {
+mysql_query("UPDATE `accounts` SET `FactionBanned` = '$id' WHERE `id` = $leaderid[0]");
+$details = "Banned ".$leader." from ".$facname[0];
+}
+$section = "Faction";
+doLog($inf['id'], $section, $area, $details);
+echo $redir_fban_n3;
+}
+}
+
+if($action == "fban_remove") {
+if(IsPlayerOnline($leaderid[0]) > 0) {
+echo $redir_fban_n11;
+}
+if(IsPlayerOnline($leaderid[0]) == 0) {
+$query = mysql_query("UPDATE `accounts` SET `FactionBanned` = '0', `CSFBanned` = '0' WHERE `id` = $leaderid[0]");
+$section = "Faction";
+$details = "Removed the faction ban from ".$leader;
+doLog($inf['id'], $section, $area, $details);
+echo $redir_fban_n12;
+}
+}
+
+if($action == "gang_kick") {
+if(IsPlayerOnline($leaderid[0]) > 0) {
+echo '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=gangmember&fmem='.$id.'&n=3">';
+}
+if(IsPlayerOnline($leaderid[0]) == 0) {
+$query = mysql_query("UPDATE `accounts` SET `FMember` = 255, `Rank` = 0 WHERE `id` = $leaderid[0]");
+
+$details = "Removed ".$leader." from ".$famname[0];
+$section = "Family";
+doLog($inf['id'], $section, $area, $details);
+echo '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=gangmember&fmem='.$id.'&n=4">';
+}
+}
+
+if($action == "gangwarn_add") {
+if(IsPlayerOnline($leaderid[0]) > 0) {
+echo '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=gangmember&fmem='.$id.'&n=1">';
+}
+if(IsPlayerOnline($leaderid[0]) == 0) {
+$query = mysql_query("UPDATE `accounts` SET `GangWarn` = GangWarn + 1 WHERE `id` = $leaderid[0]");
+
+$warnquery = mysql_query("SELECT `GangWarn` FROM `accounts` WHERE `id` = $leaderid[0]");
+$warn = mysql_fetch_array($warnquery);
+if($warn[0] == 3) {
+mysql_query("UPDATE `accounts` SET `FMember` = 255, `Rank` = '0' WHERE `id` = $leaderid[0]");
+}
+
+$details = "Added gang warning on ".$leader;
+$section = "Family";
+doLog($inf['id'], $section, $area, $details);
+echo '<meta http-equiv="refresh" content="0;url=../gameaffairs.php?p=gangmember&fmem='.$id.'&n=2">';
+}
+}
+
+if($action == "gban_add") {
+if(CheckName($leader) == 0) {
+echo $redir_gban_n1;
+}
+if(IsPlayerOnline($leaderid[0]) > 0) {
+echo $redir_gban_n2;
+}
+if(CheckName($leader) == 1 && IsPlayerOnline($leaderid[0]) == 0) {
+mysql_query("UPDATE `accounts` SET `FMember` = 255, `Rank` = 0, `GangWarn` = 3 WHERE `id` = $leaderid[0]");
+$details = "Added gang ban on ".$leader;
+$section = "Family";
+doLog($inf['id'], $section, $area, $details);
+echo $redir_gban_n3;
+}
+}
+
+if($action == "gban_remove") {
+if(IsPlayerOnline($leaderid[0]) > 0) {
+echo $redir_gban_n11;
+}
+if(IsPlayerOnline($leaderid[0]) == 0) {
+$query = mysql_query("UPDATE `accounts` SET `GangWarn` = '0' WHERE `id` = $leaderid[0]");
+$details = "Removed the gang ban from ".$leader;
+$section = "Family";
+doLog($inf['id'], $section, $area, $details);
+echo $redir_gban_n12;
+}
+}
+
+if($action == "kick_member") {
+if(IsPlayerOnline($leaderid[0]) > 0) {
+echo $redir_member_n1;
+}
+if(IsPlayerOnline($leaderid[0]) == 0) {
+$query = mysql_query("UPDATE `accounts` SET `Leader` = -1, `Member` = -1, `Division` = 255 WHERE `id` = $leaderid[0]");
+$details = "Kicked ".$leader." from ".$facname[0];
+$section = "Faction";
+doLog($inf['id'], $section, $area, $details);
+echo $redir_member_n2;
+
+	if (!$query) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $query;
+    die($message);
+	}
+}
+}
+
+if($action == "facmod_add") {
+if(IsPlayerOnline($id) > 0) {
+echo $redir_fmod_n1;
+}
+if(IsPlayerOnline($id) == 0) {
+mysql_query("UPDATE `accounts` SET `FactionModerator` = 1 WHERE `id` = '$id'");
+$details = "Added Faction Moderator to ".GetName($id);
+$section = "Staff";
+doLog($inf['id'], $section, $area, $details);
+echo $redir_fmod_n2;
+}
+}
+
+if($action == "facmod_remove") {
+if(IsPlayerOnline($id) > 0) {
+echo $redir_fmod_n3;
+}
+if(IsPlayerOnline($id) == 0) {
+mysql_query("UPDATE `accounts` SET `FactionModerator` = 0 WHERE `id` = '$id'");
+$details = "Removed Faction Moderator from ".GetName($id);
+$section = "Staff";
+doLog($inf['id'], $section, $area, $details);
+echo $redir_fmod_n4;
+}
+}
+
+if($action == "gmod_add") {
+if(IsPlayerOnline($id) > 0) {
+echo $redir_gmod_n1;
+}
+if(IsPlayerOnline($id) == 0) {
+mysql_query("UPDATE `accounts` SET `GangModerator` = 1 WHERE `id` = '$id'");
+$details = "Added Gang Moderator to ".GetName($id);
+$section = "Staff";
+doLog($inf['id'], $section, $area, $details);
+echo $redir_gmod_n2;
+}
+}
+
+if($action == "gmod_remove") {
+if(IsPlayerOnline($id) > 0) {
+echo $redir_gmod_n3;
+}
+if(IsPlayerOnline($id) == 0) {
+mysql_query("UPDATE `accounts` SET `GangModerator` = 0 WHERE `id` = '$id'");
+$details = "Removed Gang Moderator from ".GetName($id);
+$section = "Staff";
+doLog($inf['id'], $section, $area, $details);
+echo $redir_gmod_n4;
+}
+}
+
+if($action == "so_add") {
+if(IsPlayerOnline($id) > 0) {
+echo $redir_so_n1;
+}
+if(IsPlayerOnline($id) == 0) {
+$query = mysql_query("UPDATE `accounts` SET `Undercover` = 1 WHERE `id` = '$id'");
+$details = "Added Spec Ops to ".GetName($id);
+$section = "Staff";
+doLog($inf['id'], $section, $area, $details);
+echo $redir_so_n2;
+
+	if (!$query) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $query;
+    die($message);
+	}
+}
+}
+
+if($action == "so_remove") {
+if(IsPlayerOnline($id) > 0) {
+echo $redir_so_n3;
+}
+if(IsPlayerOnline($id) == 0) {
+$query = mysql_query("UPDATE `accounts` SET `Undercover` = 0 WHERE `id` = '$id'");
+$details = "Removed Spec Ops from ".GetName($id);
+$section = "Staff";
+doLog($inf['id'], $section, $area, $details);
+echo $redir_so_n4;
+
+	if (!$query) {
+    $message  = 'Invalid query: ' . mysql_error() . "\n";
+    $message .= 'Whole query: ' . $query;
+    die($message);
+	}
+}
+}
+
+}
+else {
+	echo $redir;
+	exit();
+}
+?>
